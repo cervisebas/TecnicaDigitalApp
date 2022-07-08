@@ -20,7 +20,7 @@ async function init() {
     try {
         await execute('git add .');
         await execute(`git commit -m "${strTime}"`);
-        await execute('git push -f origin main');
+        await execute('git push -u origin main');
         console.log('Sincronizacion finalizada');
     } catch {
         console.error('Oparacion detenida: Ocurrio un error.');

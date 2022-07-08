@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "885660532621",
+    "project_id": "tecnicadigital-2022",
+    "storage_bucket": "tecnicadigital-2022.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885660532621:android:adfa9f67490198d5c407c4",
+        "android_client_info": {
+          "package_name": "com.tecnicadigital"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "885660532621-3868487oo5vtsd8sn3jppj91qqdegt35.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3MGG9pC-rONpbTGNlkL4eRqfH_ctPi5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "885660532621-3868487oo5vtsd8sn3jppj91qqdegt35.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

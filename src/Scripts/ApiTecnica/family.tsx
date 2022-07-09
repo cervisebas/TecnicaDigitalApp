@@ -1,7 +1,8 @@
 import { decode, encode } from "base-64";
 import axios from "axios";
 import qs from "qs";
-import { TypicalRes } from "./types";
+import { FamilyDataAssist, TypicalRes } from "./types";
+import { StudentsData } from "./types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default class FamilySystem {
@@ -14,17 +15,21 @@ export default class FamilySystem {
     open(dni: string) : Promise<boolean> {
         return new Promise((resolve, reject)=>{
             var dataPost = qs.stringify({ family_login: true, dni: encode(dni) });
-            axios.post(this.urlBase, dataPost, this.header_access)
+            axios.post(`${this.urlBase}/index.php`, dataPost, this.header_access)
                 .then(async(result)=>{
-                    var res: TypicalRes = result.data;
-                    if (res.ok) {
-                        await AsyncStorage.setItem('FamilySession', encode(JSON.stringify({
-                            id: res.datas,
-                            dni: encode(dni)
-                        })));
-                        return resolve(true);
+                    try {
+                        var res: TypicalRes = result.data;
+                        if (res.ok) {
+                            await AsyncStorage.setItem('FamilySession', encode(JSON.stringify({
+                                id: res.datas,
+                                dni: encode(dni)
+                            })));
+                            return resolve(true);
+                        }
+                        return reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                    } catch {
+                        reject({ ok: false, cause: 'Ocurrio un error inesperado.' });
                     }
-                    return reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
                 }).catch(()=>reject({ ok: false, cause: 'Error de conexión.' }));
         });
     }
@@ -32,12 +37,12 @@ export default class FamilySystem {
         return new Promise((resolve, reject)=>{
             AsyncStorage.getItem('FamilySession').then((value)=>{
                 try {
-                    if (!value) return reject('No se encontraron datos de inicio de sesión.');
+                    if (!value) return reject({ ok: false, cause: 'No se encontraron datos de inicio de sesión.' });
                     resolve(JSON.parse(decode(value)));
                 } catch {
-                    reject('Ocurrió un error inesperado.');
+                    reject({ ok: false, cause: 'Ocurrió un error inesperado.' });
                 }
-            }).catch(()=>reject('Error al acceder a los datos almacenados'));
+            }).catch(()=>reject({ ok: false, cause: 'Error al acceder a los datos almacenados' }));
         });
     }
     verify(): Promise<boolean> {
@@ -46,7 +51,42 @@ export default class FamilySystem {
                 this.open(decode(local.dni))
                     .then(()=>resolve(true))
                     .catch((e)=>reject({ ok: false, relogin: e.relogin, cause: e.cause }))
-            ).catch((error)=>reject({ ok: false, relogin: true, cause: error }));
+            ).catch((error)=>reject({ ok: false, relogin: true, cause: error.cause }));
+        });
+    }
+
+    getDataStudent(): Promise<StudentsData> {
+        return new Promise((resolve, reject)=>{
+            this.getDataLocal().then((local)=>{
+                var dataPost = qs.stringify({ family_getData: true, dni: local.dni });
+                axios.post(`${this.urlBase}/index.php`, dataPost, this.header_access)
+                    .then(async(result)=>{
+                        try {
+                            var res: TypicalRes = result.data;
+                            if (res.ok) resolve(res.datas);
+                            return reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                        } catch {
+                            reject({ ok: false, cause: 'Ocurrio un error inesperado.' });                            
+                        }
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+            }).catch((e)=>reject(e));
+        });
+    }
+    getDataAssistStudent(): Promise<FamilyDataAssist[]> {
+        return new Promise((resolve, reject)=>{
+            this.getDataLocal().then((local)=>{
+                var dataPost = qs.stringify({ family_getDataAssist: true, dni: local.dni });
+                axios.post(`${this.urlBase}/index.php`, dataPost, this.header_access)
+                    .then(async(result)=>{
+                        try {
+                            var res: TypicalRes = result.data;
+                            if (res.ok) resolve(res.datas);
+                            return reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                        } catch {
+                            reject({ ok: false, cause: 'Ocurrio un error inesperado.' });                            
+                        }
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+            }).catch((e)=>reject(e));
         });
     }
 }

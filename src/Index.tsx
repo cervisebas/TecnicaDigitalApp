@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { DeviceEventEmitter, EmitterSubscription, EventEmitter, Platform, StatusBar, View } from "react-native";
+import { DeviceEventEmitter, EmitterSubscription, Platform, StatusBar, View } from "react-native";
 import { Provider as PaperProvider } from "react-native-paper";
 import { getNavigationBarHeight } from 'react-native-android-navbar-height';
 import SystemNavigationBar from "react-native-system-navigation-bar";
@@ -12,9 +12,8 @@ import Others from "./Others";
 import RNFS from "react-native-fs";
 import 'react-native-gesture-handler';
 import 'moment/min/locales';
-import AppAdmin from "./App2";
+import AppAdmin from "./App";
 import AppFamily from "./Family/App";
-import { Actions } from "./Scripts/ApiTecnica";
 
 type IProps = {};
 type IState = {

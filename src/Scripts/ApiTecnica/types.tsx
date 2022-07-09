@@ -74,6 +74,13 @@ type AssistIndividualData = {
     hour: string;
     status: boolean;
 };
+type FamilyDataAssist = {
+    id: string;
+    date: string;
+    hour: string;
+    status: string;
+    credential: string;
+};
 
 // Annotations
 type AnnotationList = {
@@ -128,5 +135,6 @@ export type {
     DataList,
     AssistIndividualData,
     AnnotationList,
-    DirectivesList
+    DirectivesList,
+    FamilyDataAssist
 };

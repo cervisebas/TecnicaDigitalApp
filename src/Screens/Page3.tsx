@@ -104,9 +104,9 @@ export default class Page3 extends Component<IProps, IState> {
     private event: EmitterSubscription | undefined = undefined;
     private event2: EmitterSubscription | undefined = undefined;
     componentDidMount() {
-        this.loadData();
         this.event = DeviceEventEmitter.addListener('reloadPage3', ()=>this.loadData(true));
         this.event2 = DeviceEventEmitter.addListener('loadNowAll', ()=>this.loadData(true));
+        this.loadData();
     }
     componentWillUnmount() {
         this.event?.remove();

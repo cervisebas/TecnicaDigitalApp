@@ -146,20 +146,9 @@ export default class GenerateRegister {
                     directory: 'Documents',
                     fonts: ['../../Fonts/Arialn.ttf']
                 };
-                RNHTMLtoPDF.convert(options).then(async(value)=>{
-                    if (value.filePath) {
-                        var dest = `${RNFS.DownloadDirectoryPath}/tecnica-digital/${nameFile}.pdf`;
-                        await this.overWrite(dest);
-                        RNFS.moveFile(value.filePath, dest)
-                            .then(()=>{
-                                (showDone)&&ToastAndroid.show('Archivo guardado en descargas.', ToastAndroid.SHORT);
-                                resolve(dest);
-                            })
-                            .catch(()=>reject(`Ocurrió un error al mover el archivo.`));
-                        return;
-                    }
-                    return reject('Ocurrió un error al generar el archivo.');
-                }).catch(()=>reject('Ocurrió un error al generar el archivo.'));
+                RNHTMLtoPDF.convert(options)
+                    .then((value)=>(value.filePath)? resolve(value.filePath): reject('Ocurrió un error al generar el archivo.'))
+                    .catch(()=>reject('Ocurrió un error al generar el archivo.'));
             } catch {
                 return reject('Ocurrió un error inesperado.');
             }

@@ -95,7 +95,7 @@ export default class ViewAssist extends Component<IProps, IState> {
         this.props.showLoading(true, 'Generando archivo PDF...', ()=>{
             var students = this.props.data.map((item)=>({ name: item.name, status: item.status }));
             GeneratePDF.generatePdf({ curse: this.props.select.curse, date: this.props.select.date, hour: this.props.select.hour, students }, true)
-                .then((value)=>this.props.showLoading(false, '', ()=>
+                .then((value)=>this.props.showLoading(false, 'Generando archivo PDF...', ()=>
                     FileViewer.open(value, { showOpenWithDialog: true, showAppsSuggestions: true })
                         .catch(()=>this.setState({ alertVisible: true, alertMessage: 'Ocurrió un problema al abrir el archivo generado.' }))
                 ))

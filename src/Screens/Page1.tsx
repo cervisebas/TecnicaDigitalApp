@@ -98,6 +98,10 @@ export default class Page1 extends Component<IProps, IState> {
         this.event2 = DeviceEventEmitter.addListener('loadNowAll', ()=>this.loadData());
     }
     componentWillUnmount() {
+        this.event?.remove();
+        this.event2?.remove();
+        this.event = null;
+        this.event2 = null;
         this.setState({
             dataGroups: [],
             isLoading: false,
@@ -110,10 +114,6 @@ export default class Page1 extends Component<IProps, IState> {
             imageSource: undefined,
             dataViewAnnotations: []
         });
-        this.event?.remove();
-        this.event2?.remove();
-        this.event = null;
-        this.event2 = null;
     }
     loadData(code?: number | undefined): any {
         this.setState({ dataGroups: [], isLoading: true, isError: false }, ()=>

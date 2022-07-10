@@ -1,8 +1,9 @@
 import React, { Component, PureComponent } from "react";
 import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { ActivityIndicator, Appbar, Button, Card, IconButton, ProgressBar, Provider as PaperProvider, Snackbar, Text, Title } from "react-native-paper";
+import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, ProgressBar, Provider as PaperProvider, Snackbar, Text, Title } from "react-native-paper";
 import Theme from "../Themes";
+import messaging from '@react-native-firebase/messaging';
 import { Family, urlBase } from "../Scripts/ApiTecnica";
 import { FamilyDataAssist, StudentsData } from "../Scripts/ApiTecnica/types";
 import { decode } from "base-64";
@@ -14,6 +15,8 @@ import RNFS from "react-native-fs";
 import Share from "react-native-share";
 import ChangeCardDesign from "../Pages/ChangeCardDesign";
 import LoadingController from "../Components/loading/loading-controller";
+import FamilyOptions from "../Pages/FamilyOptions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type IProps = {};
 type IState = {
@@ -39,6 +42,8 @@ type IState = {
     designCardElection: number | undefined;
     showLoading: boolean;
     textLoading: string;
+    viewOptions: boolean;
+    viewLogOut: boolean;
 };
 
 const { width } = Dimensions.get('window');
@@ -68,13 +73,16 @@ export default class AppFamily extends Component<IProps, IState> {
             showChangeCardDesign: false,
             designCardElection: undefined,
             showLoading: false,
-            textLoading: ''
+            textLoading: '',
+            viewOptions: false,
+            viewLogOut: false
         };
         this.loadData = this.loadData.bind(this);
         this.loadDataAssist = this.loadDataAssist.bind(this);
         this.viewImageTarget = this.viewImageTarget.bind(this);
         this.downloadImageTarget = this.downloadImageTarget.bind(this);
         this.shareImageTarget = this.shareImageTarget.bind(this);
+        this.closeSession = this.closeSession.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private refTarget: ViewShot | null | any = null;
@@ -90,6 +98,7 @@ export default class AppFamily extends Component<IProps, IState> {
     componentWillUnmount() {
         this.event?.remove();
         this.event = null;
+        this.refTarget = null;
         this.setState({
             studentData: undefined,
             assistData: undefined,
@@ -168,14 +177,22 @@ export default class AppFamily extends Component<IProps, IState> {
         );
     }
     /* ###### ########## ###### */
+    closeSession() {
+        this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: false }, async()=>{
+            await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
+            await AsyncStorage.removeItem('FamilySession');
+            await AsyncStorage.removeItem('FamilyOptionSuscribe');
+            DeviceEventEmitter.emit('reVerifySession');
+            this.setState({ showLoading: false });
+        });
+    }
 
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
                 <Appbar.Header>
-                    <Appbar.Content
-                        title={'TecnicaDigital'} />
-                    <Appbar.Action icon={'account-circle-outline'} />
+                    <Appbar.Content title={'TecnicaDigital'} />
+                    <Appbar.Action icon={'account-circle-outline'} disabled={this.state.isLoading} onPress={()=>this.setState({ viewOptions: true })} />
                 </Appbar.Header>
                 {(!this.state.isLoading)? (this.state.studentData)&&<View style={{ flex: 2, overflow: 'hidden' }}>
                     <ScrollView style={{ flex: 3 }} refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={this.loadData} colors={[Theme.colors.accent]} />}>
@@ -263,6 +280,18 @@ export default class AppFamily extends Component<IProps, IState> {
                     action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackBarView: false }) }}>
                     <Text>{this.state.snackBarText}</Text>
                 </Snackbar>
+                <Portal>
+                    <Dialog visible={this.state.viewLogOut} onDismiss={()=>this.setState({ viewLogOut: false })}>
+                        <Dialog.Title>Espere por favor!!!</Dialog.Title>
+                        <Dialog.Content>
+                            <Paragraph>Está a punto de cerrar sesión. ¿Estás seguro que quieres realizar esta acción?</Paragraph>
+                        </Dialog.Content>
+                        <Dialog.Actions>
+                            <Button onPress={()=>this.setState({ viewLogOut: false })}>Cancelar</Button>
+                            <Button onPress={this.closeSession}>Aceptar</Button>
+                        </Dialog.Actions>
+                    </Dialog>
+                </Portal>
 
                 <ChangeCardDesign
                     visible={this.state.showChangeCardDesign}
@@ -281,6 +310,13 @@ export default class AppFamily extends Component<IProps, IState> {
                     visible={this.state.visibleViewDetailsAssist}
                     close={()=>this.setState({ visibleViewDetailsAssist: false })}
                     datas={this.state.assistData as any}
+                />
+                <FamilyOptions
+                    visible={this.state.viewOptions}
+                    data={this.state.studentData}
+                    close={()=>this.setState({ viewOptions: false })}
+                    closeSession={()=>this.setState({ viewLogOut: true, viewOptions: false })}
+                    openImage={()=>this.setState({ viewImage: true, viewImageSource: `${urlBase}/image/${decode(this.state.studentData!.picture)}` })}
                 />
                 <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
             </PaperProvider>

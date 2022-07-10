@@ -72,6 +72,18 @@ export default class FamilySystem {
             }).catch((e)=>reject(e));
         });
     }
+    getSubscribeData(): Promise<boolean> {
+        return new Promise((resolve, reject)=>{
+            AsyncStorage.getItem('FamilyOptionSuscribe').then((value)=>{
+                try {
+                    if (!value) return resolve(false);
+                    resolve(value == '1');
+                } catch {
+                    reject({ ok: false, cause: 'Ocurrió un error inesperado.' });
+                }
+            }).catch(()=>reject({ ok: false, cause: 'Error al acceder a los datos almacenados' }));
+        });
+    }
     getDataAssistStudent(): Promise<FamilyDataAssist[]> {
         return new Promise((resolve, reject)=>{
             this.getDataLocal().then((local)=>{

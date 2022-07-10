@@ -5,5 +5,7 @@
 
     <color name="colorPrimary">#FF3232</color>
     <color name="colorPrimaryDark">#FF3232</color>
-    <color name="colorAccent">#3dc2ff</color>
+    <color name="colorAccent">#3DC2FF</color>
+
+    <color name="notification_color">#FF3232</color>
 </resources>

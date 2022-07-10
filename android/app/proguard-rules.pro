@@ -108,5 +108,9 @@
 -dontwarn com.oblador.vectoricons.**
 
 # react-native-view-shot
--keep class react-native-view-shot.** { *; }
--dontwarn react-native-view-shot.**
+-keep class fr.greweb.reactnativeviewshot.** { *; }
+-dontwarn fr.greweb.reactnativeviewshot.**
+
+# react-native-share
+-keep class com.swmansion.rnscreens.** { *; }
+-dontwarn com.swmansion.rnscreens.**

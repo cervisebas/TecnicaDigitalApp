@@ -70,6 +70,7 @@ export default class Session extends Component<IProps, IState> {
                     DeviceEventEmitter.emit('textScreenLoading', null);
                     DeviceEventEmitter.emit('turnScreenLoading', true);
                     setTimeout(()=>{
+                        this.setState({ formUserName: '', formPassword: '' });
                         DeviceEventEmitter.emit('turnSessionView', false);
                         DeviceEventEmitter.emit('loadNowAll');
                         setTimeout(()=>DeviceEventEmitter.emit('turnScreenLoading', false), 1500);
@@ -148,6 +149,7 @@ export default class Session extends Component<IProps, IState> {
                     DeviceEventEmitter.emit('textScreenLoading', null);
                     DeviceEventEmitter.emit('turnScreenLoading', true);
                     setTimeout(()=>{
+                        this.setState({ formDNI: '' });
                         DeviceEventEmitter.emit('turnSessionView', false);
                         DeviceEventEmitter.emit('loadNowAll');
                         setTimeout(()=>DeviceEventEmitter.emit('turnScreenLoading', false), 1500);

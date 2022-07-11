@@ -70,7 +70,7 @@ export default class Session extends Component<IProps, IState> {
                     DeviceEventEmitter.emit('textScreenLoading', null);
                     DeviceEventEmitter.emit('turnScreenLoading', true);
                     setTimeout(()=>{
-                        this.setState({ formUserName: '', formPassword: '' });
+                        this.setState({ formUserName: '', formPassword: '', isDirective: false });
                         DeviceEventEmitter.emit('turnSessionView', false);
                         DeviceEventEmitter.emit('loadNowAll');
                         setTimeout(()=>DeviceEventEmitter.emit('turnScreenLoading', false), 1500);
@@ -130,8 +130,8 @@ export default class Session extends Component<IProps, IState> {
 
     /* Students / Family */
     student_changeTextDNI(text: string) {
-        if (/^[0-9]+$/.test(text))
-            this.setState({ formDNI: text, formErrorDNI: false });
+        if (text.length == 0) return this.setState({ formDNI: text, formErrorDNI: false });
+        if (/^[0-9]+$/.test(text)) this.setState({ formDNI: text, formErrorDNI: false });
     }
     student_verifyInputs() {
         if (this.state.formDNI.length <= 7) {

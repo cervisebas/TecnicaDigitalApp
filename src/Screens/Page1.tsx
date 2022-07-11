@@ -95,7 +95,7 @@ export default class Page1 extends Component<IProps, IState> {
     componentDidMount() {
         this.loadData();
         this.event = DeviceEventEmitter.addListener('p1-reload', (number: number | undefined)=>this.loadData(number));
-        this.event2 = DeviceEventEmitter.addListener('loadNowAll', ()=>this.loadData());
+        this.event2 = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
     }
     componentWillUnmount() {
         this.event?.remove();
@@ -174,7 +174,7 @@ export default class Page1 extends Component<IProps, IState> {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
                 <Appbar.Header>
-                    <Appbar.Action icon="menu" onPress={()=>this.props.navigation.openDrawer()} />
+                    <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros'}  />
                     <Appbar.Action icon={'plus'} disabled={this.state.isLoading || this.state.isError} onPress={()=>this.setState({ addNewGroup: true })} />
                 </Appbar.Header>

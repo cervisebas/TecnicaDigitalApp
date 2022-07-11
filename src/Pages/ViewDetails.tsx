@@ -7,7 +7,8 @@ import ViewShot, { captureRef } from "react-native-view-shot";
 import CustomCredential from "../Components/CustomCredential";
 import CustomModal from "../Components/CustomModal";
 import { Assist, urlBase } from "../Scripts/ApiTecnica";
-import { AnnotationList, AssistIndividualData, StudentsData } from "../Scripts/ApiTecnica/types";
+import { AssistIndividualData, StudentsData } from "../Scripts/ApiTecnica/types";
+import Share from "react-native-share";
 import RNFS from "react-native-fs";
 import Theme from "../Themes";
 
@@ -19,6 +20,7 @@ type IProps = {
     openImage: (data: { uri: string })=>any;
     openDetailsAssist: (data: AssistIndividualData[])=>any;
     changeDesign: ()=>any;
+    goLoading: (v: boolean, t: string, a?: ()=>any)=>any;
 };
 type IState = {
     snackBarView: boolean;
@@ -53,6 +55,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.openListStudent = this.openListStudent.bind(this);
         this.viewImageTarget = this.viewImageTarget.bind(this);
         this.downloadImageTarget = this.downloadImageTarget.bind(this);
+        this.shareImageTarget = this.shareImageTarget.bind(this);
     }
     private refTarget: ViewShot | null | any = null;
     componentDidMount() {
@@ -70,9 +73,9 @@ export default class ViewDetails extends Component<IProps, IState> {
         if (months < 0 || (months === 0 && dateNow.getDate() < processDate.getDate())) years--;
         return String(years);
     }
-    generateImage(): Promise<string> {
+    generateImage(result?: "tmpfile" | "base64" | "data-uri" | "zip-base64" | undefined): Promise<string> {
         return new Promise((resolve, reject)=>{
-            captureRef(this.refTarget, { quality: 1, format: 'png' })
+            captureRef(this.refTarget, { quality: 1, format: 'png', result: (result)? result: 'tmpfile' })
                 .then((uri)=>resolve(uri))
                 .catch(()=>reject());
         });
@@ -101,6 +104,24 @@ export default class ViewDetails extends Component<IProps, IState> {
                     .catch((e)=>this.setState({ snackBarView: true, snackBarText: 'Error al guardar la imagen' }, ()=>console.log(e)));
             })
             .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
+    }
+    shareImageTarget() {
+        this.props.goLoading(true, 'Espere por favor...', ()=>
+            this.generateImage('base64')
+                .then((base64)=>{
+                    var nameFile: string = `student-${this.props.data!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
+                    this.props.goLoading(false, 'Espere por favor...', ()=>
+                        Share.open({
+                            url: `data:image/png;base64,${base64}`,
+                            filename: nameFile,
+                            type: 'png',
+                            showAppsToView: false,
+                            isNewTask: true
+                        }).catch(()=>this.props.goLoading(false, '', ()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' })))
+                    );
+                })
+                .catch(()=>this.props.goLoading(false, '', ()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' })))
+        );
     }
     async verifyFolder() {
         if (this.props.data) {
@@ -224,13 +245,14 @@ export default class ViewDetails extends Component<IProps, IState> {
                                     name={decode(this.props.data.name)}
                                     dni={decode(this.props.data.dni)}
                                     refTarget={(ref)=>this.refTarget = ref}
+                                    onPress={this.viewImageTarget}
                                     style={styles.target}
                                     type={this.props.designCard}
                                 />
                             </Card.Content>
                             <Card.Actions style={{ justifyContent: 'flex-end' }}>
                                 <Button icon={'cloud-download-outline'} onPress={this.downloadImageTarget}>Dercargar</Button>
-                                <Button icon={'eye-outline'} onPress={this.viewImageTarget}>Ver</Button>
+                                <Button icon={'share-variant-outline'} onPress={this.shareImageTarget}>Compartir</Button>
                             </Card.Actions>
                         </Card>
                     </ScrollView>

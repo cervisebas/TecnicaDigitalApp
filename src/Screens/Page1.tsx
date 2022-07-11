@@ -107,11 +107,15 @@ export default class Page1 extends Component<IProps, IState> {
             isLoading: false,
             isError: false,
             isRefresh: false,
+            messageError: '',
             confirmData: [],
             confirmSelect: undefined,
             assistData: [],
             assistSelect: undefined,
             imageSource: undefined,
+            imageText: '',
+            snackBarText: '',
+            textLoading: '',
             dataViewAnnotations: []
         });
     }

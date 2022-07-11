@@ -57,7 +57,7 @@ export default class Index extends Component<IProps, IState> {
         messaging().onMessage(this.onMessageReceived);
         //messaging().setBackgroundMessageHandler(this.onMessageReceived);
         messaging().subscribeToTopic('All');
-        console.log(await messaging().getToken());
+        //console.log(await messaging().getToken());
     }
     async onMessageReceived(message: FirebaseMessagingTypes.RemoteMessage) {
         var codeName: number = Math.floor(Math.random() * (99999 - 10000)) + 10000;

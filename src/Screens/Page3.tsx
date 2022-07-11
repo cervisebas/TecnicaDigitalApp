@@ -291,6 +291,7 @@ export default class Page3 extends Component<IProps, IState> {
                     openImage={(data)=>this.setState({ showViewer: true, imageViewer: data })}
                     openDetailsAssist={(data)=>this.setState({ visibleViewDetailsAssist: true, dataViewDetailsAssist: data })}
                     changeDesign={()=>this.setState({ showChangeCardDesign: true })}
+                    goLoading={(v, t, a)=>this.setState({ showLoading: v, textLoading: t }, ()=>(a)&&a())}
                 />
                 {(this.state.showDetails || this.state.visibleOpenGenerator)&&<>
                     <ChangeCardDesign

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TecnicaDigital</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+
+    <string name="num_assist">Cargando...</string>
+    <string name="num_not_assist">Cargando...</string>
+    <string name="num_total">Cargando...</string>
 </resources>

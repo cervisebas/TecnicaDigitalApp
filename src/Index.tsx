@@ -16,6 +16,7 @@ import AppAdmin from "./App";
 import AppFamily from "./Family/App";
 import 'react-native-gesture-handler';
 import 'moment/min/locales';
+import MainWidget from "./Scripts/MainWidget";
 
 type IProps = {};
 type IState = {
@@ -51,6 +52,9 @@ export default class Index extends Component<IProps, IState> {
             this.verifyFolder();
         }
         this.startNotifications();
+    }
+    componentDidUpdate() {
+        MainWidget.init();
     }
     async startNotifications() {
         this.channelIdNotify = await notifee.createChannel({ id: 'default', name: 'Canal por defecto' });

@@ -147,8 +147,8 @@ android {
         applicationId "com.tecnicadigital"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.5.0"
+        versionCode 4
+        versionName "1.6.0"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         if (isNewArchitectureEnabled()) {
@@ -246,6 +246,9 @@ android {
                 keyPassword MYAPP_UPLOAD_KEY_PASSWORD
             }
         }
+    }
+    buildFeatures {
+        viewBinding true
     }
     buildTypes {
         debug {

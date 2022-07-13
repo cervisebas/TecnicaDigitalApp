@@ -5,6 +5,7 @@ import React, { Component, ReactNode } from "react";
 import { DeviceEventEmitter, EmitterSubscription, Image, View } from "react-native";
 import { Appbar, Avatar, Button, IconButton, Text, Title } from "react-native-paper";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
+import MainWidget from "../Scripts/MainWidget";
 import Theme from "../Themes";
 
 type IState = {
@@ -23,6 +24,7 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
             widht: 0
         };
         this.closeSession = this.closeSession.bind(this);
+        this.loadData = this.loadData.bind(this);
     }
     private event: EmitterSubscription | undefined = undefined;
     private colors = {
@@ -30,21 +32,22 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
         inactiveBackgroundColor: 'rgba(255, 255, 255, 0)'
     };
     componentWillUnmount() {
+        this.event?.remove();
+        this.event = undefined;
         this.setState({
             nameUser: 'Cargando...',
             pictureUser: '',
-            loadingUser: false
+            loadingUser: false,
+            widht: 0
         });
-        this.event?.remove();
-        this.event = undefined;
     }
     componentDidMount() {
+        this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.setState({
             nameUser: 'Usuario de pruebas',
             pictureUser: '',
             loadingUser: false
         });
-        this.event = DeviceEventEmitter.addListener('loadNowAll', ()=>this.loadData());
     }
     componentDidUpdate() {
         if (Directive.openSession) if (!this.state.loadingUser) this.loadData();
@@ -77,6 +80,7 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
     }
     async closeSession() {
         await Directive.closeSession();
+        await MainWidget.init();
         DeviceEventEmitter.emit('reVerifySession');
     }
     render(): ReactNode {

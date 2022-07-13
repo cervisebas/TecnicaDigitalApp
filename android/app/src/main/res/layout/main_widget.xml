@@ -1,0 +1,160 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/widgetFrameLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00FFFFFF"
+    android:clipChildren="true">
+
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/widget" />
+
+    <RelativeLayout
+        style="@style/Widget.TecnicaDigital.AppWidget.Container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00FFFFFF"
+        android:theme="@style/AppTheme.AppWidgetContainer">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:shadowColor="#FFFFFF"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="Presentes:"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/numAssist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:shadowColor="#FFFFFF"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="@string/num_assist"
+                    android:textColor="#353535" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:shadowColor="#FFFFFF"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="Ausentes:"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/numNotAssist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:shadowColor="#FFFFFF"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="@string/num_not_assist"
+                    android:textColor="#353535" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:shadowColor="#FFFFFF"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="Total:"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/numTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:shadowColor="#FFFFFF"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
+                    android:text="@string/num_total"
+                    android:textColor="#353535" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</FrameLayout>

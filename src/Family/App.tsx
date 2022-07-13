@@ -1,5 +1,5 @@
 import React, { Component, PureComponent } from "react";
-import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, ProgressBar, Provider as PaperProvider, Snackbar, Text, Title } from "react-native-paper";
 import Theme from "../Themes";
@@ -17,6 +17,7 @@ import ChangeCardDesign from "../Pages/ChangeCardDesign";
 import LoadingController from "../Components/loading/loading-controller";
 import FamilyOptions from "../Pages/FamilyOptions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import MainWidget from "../Scripts/MainWidget";
 
 type IProps = {};
 type IState = {
@@ -44,6 +45,7 @@ type IState = {
     textLoading: string;
     viewOptions: boolean;
     viewLogOut: boolean;
+    disableButtonDetailAssist: boolean;
 };
 
 const { width } = Dimensions.get('window');
@@ -75,7 +77,8 @@ export default class AppFamily extends Component<IProps, IState> {
             showLoading: false,
             textLoading: '',
             viewOptions: false,
-            viewLogOut: false
+            viewLogOut: false,
+            disableButtonDetailAssist: false
         };
         this.loadData = this.loadData.bind(this);
         this.loadDataAssist = this.loadDataAssist.bind(this);
@@ -83,6 +86,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this.downloadImageTarget = this.downloadImageTarget.bind(this);
         this.shareImageTarget = this.shareImageTarget.bind(this);
         this.closeSession = this.closeSession.bind(this);
+        this._openDetailsAssit = this._openDetailsAssit.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private refTarget: ViewShot | null | any = null;
@@ -106,13 +110,23 @@ export default class AppFamily extends Component<IProps, IState> {
         });
     }
     loadDataAssist() {
-        this.setState({ isLoadingAssist: true, isErrorAssist: false, numAssist: 'Cargando...', numNotAssist: 'Cargando...', numTotalAssist: 'Cargando...' }, ()=>
+        this.setState({ isLoadingAssist: true, isErrorAssist: false, numAssist: 'Cargando...', numNotAssist: 'Cargando...', numTotalAssist: 'Cargando...', disableButtonDetailAssist: false }, ()=>
             Family.getDataAssistStudent()
                 .then((data)=>{
                     var assists: number = 0;
                     var notAssists: number = 0;
+                    var disable: boolean = false;
                     data.forEach((v)=>(v.status)? assists += 1: notAssists += 1);
-                    this.setState({ isLoadingAssist: false, assistData: data, numAssist: assists.toString(), numNotAssist: notAssists.toString(), numTotalAssist: data.length.toString() });
+                    disable = data.length == 0;
+                    MainWidget.setNewData(assists, notAssists, data.length);
+                    this.setState({
+                        isLoadingAssist: false,
+                        assistData: data,
+                        numAssist: assists.toString(),
+                        numNotAssist: notAssists.toString(),
+                        numTotalAssist: data.length.toString(),
+                        disableButtonDetailAssist: disable
+                    });
                 })
                 .catch((error)=>this.setState({ isLoadingAssist: false, isErrorAssist: true, messageErrorAssist: error.cause }))
         );
@@ -177,11 +191,15 @@ export default class AppFamily extends Component<IProps, IState> {
         );
     }
     /* ###### ########## ###### */
+    _openDetailsAssit() {
+        if (this.state.assistData!.length == 0) return ToastAndroid.show("No se encontraron registros...", ToastAndroid.SHORT);
+        this.setState({ visibleViewDetailsAssist: true });
+    }
     closeSession() {
         this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: false }, async()=>{
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
-            await AsyncStorage.removeItem('FamilySession');
-            await AsyncStorage.removeItem('FamilyOptionSuscribe');
+            await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
+            await MainWidget.init();
             DeviceEventEmitter.emit('reVerifySession');
             this.setState({ showLoading: false });
         });
@@ -220,7 +238,7 @@ export default class AppFamily extends Component<IProps, IState> {
                                     <PointItemList title="Total" text={this.state.numTotalAssist} />
                                 </Card.Content>
                                 <Card.Actions style={{ justifyContent: 'flex-end' }}>
-                                    <Button icon={'account-details'} disabled={this.state.isLoadingAssist} onPress={()=>this.setState({ visibleViewDetailsAssist: true })}>Ver detalles</Button>
+                                    <Button icon={'account-details'} disabled={this.state.isLoadingAssist || this.state.disableButtonDetailAssist} onPress={this._openDetailsAssit}>Ver detalles</Button>
                                 </Card.Actions>
                             </>:
                             <>

@@ -55,7 +55,9 @@ export default class DirectiveSystem {
             ).catch((error)=>reject({ ok: false, relogin: true, cause: error.cause }));
         });
     }
-    async closeSession() { await AsyncStorage.removeItem('DataSession'); }
+    async closeSession() {
+        await AsyncStorage.multiRemove(['DataSession', 'DataSession'])
+    }
 
     /* ########################################################################### */
     getAll(): Promise<DirectivesList[]> {
@@ -116,7 +118,6 @@ export default class DirectiveSystem {
             }
         });
     }
-    //'name', 'position', 'dni', 'newUsername', 'newPassword', 'permission'
     edit(idEdit: string, name?: string | undefined, position?: string | undefined, dni?: string | undefined, newUsername?: string | undefined, newPassword?: string | undefined, permission?: string | undefined): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {

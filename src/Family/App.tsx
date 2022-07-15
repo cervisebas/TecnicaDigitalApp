@@ -1,5 +1,5 @@
 import React, { Component, PureComponent } from "react";
-import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View, NativeModules } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, ProgressBar, Provider as PaperProvider, Snackbar, Text, Title } from "react-native-paper";
 import Theme from "../Themes";
@@ -18,6 +18,8 @@ import LoadingController from "../Components/loading/loading-controller";
 import FamilyOptions from "../Pages/FamilyOptions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MainWidget from "../Scripts/MainWidget";
+import BackgroundFetch from "react-native-background-fetch";
+import BackgroundTask from "./BackgroundTask";
 
 type IProps = {};
 type IState = {
@@ -98,6 +100,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this.setState({ scaleImage: scaleUse });
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.loadData();
+        BackgroundTask.init();
     }
     componentWillUnmount() {
         this.event?.remove();
@@ -112,7 +115,7 @@ export default class AppFamily extends Component<IProps, IState> {
     loadDataAssist() {
         this.setState({ isLoadingAssist: true, isErrorAssist: false, numAssist: 'Cargando...', numNotAssist: 'Cargando...', numTotalAssist: 'Cargando...', disableButtonDetailAssist: false }, ()=>
             Family.getDataAssistStudent()
-                .then((data)=>{
+                .then(async(data)=>{
                     var assists: number = 0;
                     var notAssists: number = 0;
                     var disable: boolean = false;
@@ -127,6 +130,7 @@ export default class AppFamily extends Component<IProps, IState> {
                         numTotalAssist: data.length.toString(),
                         disableButtonDetailAssist: disable
                     });
+                    if (await BackgroundFetch.status() !== BackgroundFetch.STATUS_AVAILABLE) await BackgroundFetch.start();
                 })
                 .catch((error)=>this.setState({ isLoadingAssist: false, isErrorAssist: true, messageErrorAssist: error.cause }))
         );
@@ -200,6 +204,7 @@ export default class AppFamily extends Component<IProps, IState> {
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
             await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
             await MainWidget.init();
+            await BackgroundFetch.stop();
             DeviceEventEmitter.emit('reVerifySession');
             this.setState({ showLoading: false });
         });

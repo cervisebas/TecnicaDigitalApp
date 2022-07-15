@@ -98,7 +98,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
                     <View>
                         <Appbar.Header>
                             <Appbar.BackAction onPress={this.goClose} />
-                            <Appbar.Content title={'Editar directivo'}  />
+                            <Appbar.Content title={'Editar contraseña'}  />
                         </Appbar.Header>
                         <View>
                         <TextInput
@@ -113,7 +113,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
                                 error={this.state.formErrorPassword}
                                 disabled={this.state.isLoading}
                                 onFocus={()=>this.setState({ showIconPassword: true })}
-                                onBlur={()=>this.setState({ showIconPassword: false, typeIconPassword: 'eye-outline' })}
+                                onBlur={()=>this.setState({ showIconPassword: false, showPassword: true, typeIconPassword: 'eye-outline' })}
                                 right={(this.state.showIconPassword)&&<TextInput.Icon
                                     name={this.state.typeIconPassword}
                                     onPress={()=>{
@@ -138,7 +138,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
                                 error={this.state.formErrorPassword2}
                                 disabled={this.state.isLoading}
                                 onFocus={()=>this.setState({ showIconPassword2: true })}
-                                onBlur={()=>this.setState({ showIconPassword2: false, typeIconPassword2: 'eye-outline', showPassword2: false })}
+                                onBlur={()=>this.setState({ showIconPassword2: false, showPassword2: true, typeIconPassword2: 'eye-outline' })}
                                 right={(this.state.showIconPassword2)&&<TextInput.Icon
                                     name={this.state.typeIconPassword2}
                                     onPress={()=>{

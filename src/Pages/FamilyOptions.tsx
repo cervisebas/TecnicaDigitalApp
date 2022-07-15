@@ -89,6 +89,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                         <List.Item
                             title={"Subscribirse a las notificaciones"}
                             description={"Al activar esta opción, recibirá una notificación cada vez que se actualicé el registro del alumno."}
+                            onPress={()=>this.setSwitchSubscription(!this.state.switchNotifications)}
                             descriptionNumberOfLines={4}
                             style={{ width: '95%' }}
                             right={()=><Switch value={this.state.switchNotifications} onValueChange={this.setSwitchSubscription} />}

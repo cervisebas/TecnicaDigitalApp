@@ -66,7 +66,7 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
                     <View>
                         <Appbar.Header>
                             <Appbar.BackAction onPress={this.goClose} />
-                            <Appbar.Content title={'Añadir directivo'}  />
+                            <Appbar.Content title={'Cambiar permisos'}  />
                         </Appbar.Header>
                         <View>
                             <CustomPicker2 title={"Permisos:"} value={this.state.formPermission} disabled={this.state.isLoading} onChange={(value)=>this.setState({ formPermission: value })} style={{ ...styles.textInput, minHeight: 60 }}>

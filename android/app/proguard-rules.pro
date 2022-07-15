@@ -114,3 +114,7 @@
 # react-native-share
 -keep class com.swmansion.rnscreens.** { *; }
 -dontwarn com.swmansion.rnscreens.**
+
+# react-native-background-fetch
+-keep class com.transistorsoft.rnbackgroundfetch.HeadlessTask.** { *; }
+-dontwarn com.transistorsoft.rnbackgroundfetch.HeadlessTask.**

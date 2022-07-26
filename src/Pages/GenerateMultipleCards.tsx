@@ -16,7 +16,6 @@ type IProps = {
     close: ()=>any;
     datas: StudentsData[] | undefined;
     type: number | undefined;
-    showLoading: (visible: boolean, text: string, after?: ()=>any)=>any;
 };
 type IState = {
     scaleImage: number;

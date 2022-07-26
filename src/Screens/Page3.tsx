@@ -119,8 +119,8 @@ export default class Page3 extends Component<IProps, IState> {
     deleteStudent() {
         this.setState({ showLoading: true, textLoading: 'Espere por favor...' }, ()=>
             Student.delete(this.state.dataConfirmDelete)
-                .then(()=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'Estudiante eliminado con exito', isRefresh: true }, this.loadData))
-                .catch((error)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: error.cause }))
+                .then(()=>this.setState({ showLoading: false, snackBarView: true, snackBarText: 'Estudiante eliminado con exito', isRefresh: true }, this.loadData))
+                .catch((error)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: error.cause }))
         );
     }
     loadData() {
@@ -136,10 +136,10 @@ export default class Page3 extends Component<IProps, IState> {
         this.setState({ showLoading: true, textLoading: '' }, ()=>{
             var index = this.state.datas.findIndex((v)=>v.label == curse);
             if (index !== -1) {
-                this.setState({ showLoading: false, textLoading: '', visibleGeneratorCards: true, curseIndexGenerator: index });
+                this.setState({ showLoading: false, visibleGeneratorCards: true, curseIndexGenerator: index });
                 return;
             }
-            this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'No se encontraron alumnos.' });
+            this.setState({ showLoading: false, snackBarView: true, snackBarText: 'No se encontraron alumnos.' });
         });
     }
     _onChangeStateFab({ open }: { open: boolean }) {
@@ -281,7 +281,6 @@ export default class Page3 extends Component<IProps, IState> {
                     close={()=>this.setState({ visibleGeneratorCards: false, designCardElection: undefined })}
                     datas={(this.state.curseIndexGenerator !== undefined)? this.state.datas[this.state.curseIndexGenerator].students: undefined}
                     type={this.state.designCardElection}
-                    showLoading={(v, t, a)=>this.setState({ showLoading: v, textLoading: t }, ()=>(a)&&a())}
                 />
                 <AddNewStudent
                     visible={this.state.showAddNewStudent}

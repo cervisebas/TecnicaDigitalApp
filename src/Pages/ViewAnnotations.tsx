@@ -35,13 +35,13 @@ export default class ViewAnnotations extends Component<IProps, IState> {
         this.setState({ showDeleteDialog: false });
         this.props.goLoading(true, 'Borrando anotación...', ()=>
             Annotation.delete(this.state.dataDelete)
-                .then(()=>this.props.goLoading(false, '', ()=>{
+                .then(()=>this.props.goLoading(false, 'Borrando anotación...', ()=>{
                     ToastAndroid.show('Anotación borrada con éxito', ToastAndroid.SHORT);
                     DeviceEventEmitter.emit('restore-view-annotations');
                     DeviceEventEmitter.emit('p1-reload', 1);
                     this.props.close();
                 }))
-                .catch((error)=>this.props.goLoading(false, '', ()=>ToastAndroid.show(error.cause, ToastAndroid.SHORT)))
+                .catch((error)=>this.props.goLoading(false, 'Borrando anotación...', ()=>ToastAndroid.show(error.cause, ToastAndroid.SHORT)))
         );
     }
 

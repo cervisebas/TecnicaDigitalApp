@@ -119,10 +119,10 @@ export default class ViewDetails extends Component<IProps, IState> {
                             type: 'png',
                             showAppsToView: false,
                             isNewTask: true
-                        }).catch(()=>this.props.goLoading(false, '', ()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' })))
+                        }).catch(()=>this.props.goLoading(false, 'Espere por favor...', ()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' })))
                     );
                 })
-                .catch(()=>this.props.goLoading(false, '', ()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' })))
+                .catch(()=>this.props.goLoading(false, 'Espere por favor...', ()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' })))
         );
     }
     async verifyFolder() {

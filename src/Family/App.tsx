@@ -193,7 +193,7 @@ export default class AppFamily extends Component<IProps, IState> {
                         }).catch(()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' }))
                     );
                 })
-                .catch(()=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'Error al generar la imagen.' }))
+                .catch(()=>this.setState({ showLoading: false, snackBarView: true, snackBarText: 'Error al generar la imagen.' }))
         );
     }
     /* ###### ########## ###### */

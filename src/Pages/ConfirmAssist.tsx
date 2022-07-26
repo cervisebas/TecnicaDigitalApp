@@ -82,11 +82,11 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     delete() {
         this.props.showLoading(true, 'Eliminando registro...', ()=>
             Assist.deleteAssist(this.props.select.id)
-                .then(()=>this.props.showLoading(false, '', ()=>{
+                .then(()=>this.props.showLoading(false, 'Eliminando registro...', ()=>{
                     DeviceEventEmitter.emit('p1-reload', undefined, true);
                     this.props.showSnackbar(true, `Se elimino el registro de "${this.props.select.curse}".`, ()=>this.closeAndClean());
                 }))
-                .catch((error)=>this.props.showLoading(false, '', ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
+                .catch((error)=>this.props.showLoading(false, 'Eliminando registro...', ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
         );
     }
 

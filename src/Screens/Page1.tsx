@@ -137,23 +137,23 @@ export default class Page1 extends Component<IProps, IState> {
             this.setState({ showLoading: true, textLoading: 'Creando grupo...' }, ()=>{
                 (then)&&then();
                 Assist.create(encode(datas.course), encode(datas.date), encode(datas.time))
-                    .then((a)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'Grupo creado correctamente.', isRefresh: true }, ()=>{ this.loadData(undefined, true); resolve(a); }))
-                    .catch((error)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: error.cause }));
+                    .then((a)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: 'Grupo creado correctamente.', isRefresh: true }, ()=>{ this.loadData(undefined, true); resolve(a); }))
+                    .catch((error)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: error.cause }));
             })
         );
     }
     openConfirm(idGroup: string, select: { id: string; curse: string; }) {
         this.setState({ showLoading: true, textLoading: 'Cargando información...' }, ()=>
             Assist.getGroup(idGroup)
-                .then((a)=>this.setState({ showLoading: false, textLoading: '', confirmView: true, confirmData: a, confirmSelect: select }))
-                .catch((a)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: a.cause }))
+                .then((a)=>this.setState({ showLoading: false, confirmView: true, confirmData: a, confirmSelect: select }))
+                .catch((a)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: a.cause }))
         );
     }
     openView(idGroup: string, select: { id: string; curse: string; date: string; hour: string; annotations: number; }) {
         this.setState({ showLoading: true, textLoading: 'Cargando información...' }, ()=>
             Assist.getGroup(idGroup)
-                .then((a)=>this.setState({ showLoading: false, textLoading: '', assistView: true, assistData: a, assistSelect: select }))
-                .catch((a)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: a.cause }))
+                .then((a)=>this.setState({ showLoading: false, assistView: true, assistData: a, assistSelect: select }))
+                .catch((a)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: a.cause }))
         );
     }
 

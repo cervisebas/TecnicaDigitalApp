@@ -161,9 +161,9 @@ export default class Page4 extends Component<IProps, IState> {
             Directive.delete(this.state.idOptionSelect)
                 .then(()=>{
                     this.loadData();
-                    this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'El directivo se eliminó correctamente.' });
+                    this.setState({ showLoading: false, snackBarView: true, snackBarText: 'El directivo se eliminó correctamente.' });
                 })
-                .catch((error)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: error.cause }))
+                .catch((error)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: error.cause }))
         );
     }
 

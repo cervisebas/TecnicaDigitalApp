@@ -32,12 +32,6 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
     componentWillUnmount() {
         this.event?.remove();
         this.event = undefined;
-        this.setState({
-            nameUser: 'Cargando...',
-            pictureUser: '',
-            loadingUser: false,
-            widht: 0
-        });
     }
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);

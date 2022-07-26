@@ -21,22 +21,22 @@ export default class AppAdmin extends Component<IProps, IState> {
             <Drawer.Screen
                 name="Registros"
                 component={Page1}
-                options={{ drawerLabel: 'Registros', drawerIcon: (props)=><Icon {...props} name={'account-box-multiple'} /> }}
+                options={{ drawerLabel: 'Registros', drawerIcon: 'account-box-multiple' as any }}
             />
             <Drawer.Screen
                 name="Horarios"
                 component={Page2}
-                options={{ drawerLabel: 'Horarios', drawerIcon: (props)=><Icon {...props} name={'clock-time-eight-outline'} /> }}
+                options={{ drawerLabel: 'Horarios', drawerIcon: 'clock-time-eight-outline' as any }}
             />
             <Drawer.Screen
                 name="Lista de alumnos"
                 component={Page3}
-                options={{ drawerLabel: 'Lista de alumnos', drawerIcon: (props)=><Icon {...props} name={'format-list-bulleted'} /> }}
+                options={{ drawerLabel: 'Lista de alumnos', drawerIcon: 'format-list-bulleted' as any }}
             />
             <Drawer.Screen
                 name="Directivos"
                 component={Page4}
-                options={{ drawerLabel: 'Directivos', drawerIcon: (props)=><Icon {...props} name={'shield-crown-outline'} /> }}
+                options={{ drawerLabel: 'Directivos', drawerIcon: 'shield-crown-outline' as any }}
             />
         </Drawer.Navigator>);
     }

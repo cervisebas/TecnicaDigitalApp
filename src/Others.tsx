@@ -22,16 +22,26 @@ export default class Others extends Component<IProps, IState> {
             showSessionView: false
         };
     }
-    private event1 : EmitterSubscription | null = null;
-    private event2 : EmitterSubscription | null = null;
-    private event3 : EmitterSubscription | null = null;
-    private event4 : EmitterSubscription | null = null;
+    private event1: EmitterSubscription | null = null;
+    private event2: EmitterSubscription | null = null;
+    private event3: EmitterSubscription | null = null;
+    private event4: EmitterSubscription | null = null;
     componentDidMount() {
         this.event1 = DeviceEventEmitter.addListener('turnScreenLoading', (data: boolean)=>this.setState({ showScreenLoading: data }));
         this.event2 = DeviceEventEmitter.addListener('turnSessionView', (data: boolean)=>this.setState({ showSessionView: data }));
         this.event3 = DeviceEventEmitter.addListener('textScreenLoading', (data: any)=>this.setState({ messageLoading: (data == null)? undefined: data, showMessageLoading: !(data == null) }));
         this.event4 = DeviceEventEmitter.addListener('reVerifySession', ()=>this.setState({ showScreenLoading: true, messageLoading: undefined, showMessageLoading: false }, ()=>this.verify()));
         this.verify();
+    }
+    componentWillUnmount() {
+        this.event1?.remove();
+        this.event2?.remove();
+        this.event3?.remove();
+        this.event4?.remove();
+        this.event1 = null;
+        this.event2 = null;
+        this.event3 = null;
+        this.event4 = null;
     }
     verify() {
         Actions.verifySession().then((opt: number)=>{
@@ -62,20 +72,6 @@ export default class Others extends Component<IProps, IState> {
             messageLoading: undefined,
             showSessionView: true
         }));
-    }
-    componentWillUnmount() {
-        this.event1?.remove();
-        this.event2?.remove();
-        this.event3?.remove();
-        this.event4?.remove();
-        this.setState({
-            showScreenLoading: true,
-            showSessionView: false
-        });
-        this.event1 = null;
-        this.event2 = null;
-        this.event3 = null;
-        this.event4 = null;
     }
     render(): React.ReactNode {
         return(<>

@@ -24,6 +24,9 @@ const height = DeviceDimensions.get('REAL_WINDOW_HEIGHT');
 export default class CustomModal extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
+        this.onShow = this.onShow.bind(this);
+        this.onRequestClose = this.onRequestClose.bind(this);
+        this.onClose = this.onClose.bind(this);
     }
     onShow() { if (this.props.onShow) this.props.onShow(); }
     onRequestClose() { if (this.props.onRequestClose) this.props.onRequestClose(); }
@@ -36,10 +39,10 @@ export default class CustomModal extends Component<IProps, IState> {
             animationOut={(this.props.animationOut)? this.props.animationOut: 'fadeOutDown'}
             animationOutTiming={(!this.props.animationOutTiming)? 250: this.props.animationOutTiming}
             backdropOpacity={(this.props.transparent)? 0: undefined}
-            onBackButtonPress={()=>this.onRequestClose()}
-            onBackdropPress={()=>this.onRequestClose()}
-            onModalWillShow={()=>this.onShow()}
-            onModalHide={()=>this.onClose()}
+            onBackButtonPress={this.onRequestClose}
+            onBackdropPress={this.onRequestClose}
+            onModalWillShow={this.onShow}
+            onModalHide={this.onClose}
             useNativeDriver={true}
             deviceWidth={width}
             deviceHeight={height}

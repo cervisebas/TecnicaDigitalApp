@@ -84,6 +84,7 @@ export default class Page4 extends Component<IProps, IState> {
         this._ListFooterComponent = this._ListFooterComponent.bind(this);
         this.loadData = this.loadData.bind(this);
         this.selectEditOptions = this.selectEditOptions.bind(this);
+        this.deleteNow = this.deleteNow.bind(this);
     }
     private event: EmitterSubscription | undefined = undefined;
     private event2: EmitterSubscription | undefined = undefined;
@@ -99,27 +100,18 @@ export default class Page4 extends Component<IProps, IState> {
     componentDidMount() {
         this.loadData();
         this.event = DeviceEventEmitter.addListener('reload-page4', this.loadData);
-        this.event2 = DeviceEventEmitter.addListener('loadNowAll', ()=>this.loadData());
+        this.event2 = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
     }
     componentWillUnmount() {
         this.event?.remove();
         this.event = undefined;
         this.event2?.remove();
         this.event2 = undefined;
-        this.setState({
-            isLoading: true,
-            isError: false,
-            isRefresh: false,
-            datas: [],
-            dataViewDirective: undefined,
-            dataEditDirective: undefined,
-            idOptionSelect: '-1',
-            dataChangePassword: undefined,
-            dataChangePermissions: undefined
-        });
     }
     loadData() {
-        this.setState({ datas: [], isError: false, isLoading: true }, ()=>
+        var isLoading = !this.state.isRefresh;
+        (isLoading)&&this.setState({ datas: [] });
+        this.setState({ isError: false, isLoading }, ()=>
             Directive.getAll()
                 .then((value)=>this.setState({ datas: value, isLoading: false, isRefresh: false }))
                 .catch((error)=>this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: error.cause }))
@@ -196,12 +188,13 @@ export default class Page4 extends Component<IProps, IState> {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
                 <Appbar>
-                    <Appbar.Action icon="menu" onPress={()=>this.props.navigation.openDrawer()} />
+                    <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Directivos'}  />
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
                     {(!this.state.isLoading && !this.state.isError)? <FlatList
                         data={this.state.datas}
+                        extraData={this.state}
                         contentContainerStyle={{ paddingTop: 8 }}
                         refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
@@ -235,7 +228,7 @@ export default class Page4 extends Component<IProps, IState> {
                         </Dialog.Content>
                         <Dialog.Actions>
                             <Button onPress={()=>this.setState({ showConfirmDelete: false })}>Cancelar</Button>
-                            <Button onPress={()=>this.setState({ showConfirmDelete: false }, ()=>this.deleteNow())}>Aceptar</Button>
+                            <Button onPress={()=>this.setState({ showConfirmDelete: false }, this.deleteNow)}>Aceptar</Button>
                         </Dialog.Actions>
                     </Dialog>
                 </Portal>

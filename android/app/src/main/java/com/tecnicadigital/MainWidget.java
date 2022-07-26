@@ -31,7 +31,7 @@ public class MainWidget extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.widgetFrameLayout, pendingIntent);
 
             appWidgetManager.updateAppWidget(appWidgetId, views);
-        }catch (JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }

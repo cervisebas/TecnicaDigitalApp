@@ -3,14 +3,13 @@
  */
 
 import { AppRegistry } from 'react-native';
-import BackgroundFetch from "react-native-background-fetch";
 import { name as appName } from './app.json';
 import Index from './src/Index';
 
 AppRegistry.registerComponent(appName, ()=>Index);
 
 
-let MyHeadlessTask = async (event) => {
+/*let MyHeadlessTask = async (event) => {
   let taskId = event.taskId;
   let isTimeout = event.timeout;
   if (isTimeout) {
@@ -24,4 +23,4 @@ let MyHeadlessTask = async (event) => {
   console.log('[BackgroundFetch HeadlessTask] response: ', responseJson);
   BackgroundFetch.finish(taskId);
 }
-BackgroundFetch.registerHeadlessTask(MyHeadlessTask);
+BackgroundFetch.registerHeadlessTask(MyHeadlessTask);*/

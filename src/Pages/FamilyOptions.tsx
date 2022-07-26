@@ -1,13 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { Button, IconButton, List, Switch, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Family, urlBase } from "../Scripts/ApiTecnica";
 import messaging from '@react-native-firebase/messaging';
 import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
+import FastImage from "react-native-fast-image";
+import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 
 type IProps = {
     visible: boolean;
@@ -15,6 +17,7 @@ type IProps = {
     data: StudentsData | undefined;
     openImage: ()=>any;
     closeSession: ()=>any;
+    openDialog: (title: string, text: string)=>any;
 };
 type IState = {
     idStudent: string;
@@ -57,13 +60,14 @@ export default class FamilyOptions extends Component<IProps, IState> {
         return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.props.close}>
             {(this.props.data)? <View style={styles.content}>
                 <View style={styles.contentImage}>
-                    <TouchableOpacity onPress={this.props.openImage} style={styles.touchImage}>
-                        <Image
+                    <TouchableHighlight onPress={this.props.openImage} style={styles.touchImage}>
+                        <ImageLazyLoad
                             source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }}
+                            circle
                             style={{ width: '100%', height: '100%' }}
                         />
-                    </TouchableOpacity>
-                    <Image source={require('../Assets/hat_student.webp')} style={styles.crownImage} />
+                    </TouchableHighlight>
+                    <FastImage source={require('../Assets/hat_student.webp')} style={styles.crownImage} />
                 </View>
                 <IconButton
                     icon={'arrow-left'}

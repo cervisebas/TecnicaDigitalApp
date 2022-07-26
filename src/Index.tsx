@@ -41,7 +41,6 @@ export default class Index extends Component<IProps, IState> {
         this.onMessageReceived = this.onMessageReceived.bind(this);
     }
     private refNavigate: NavigationContainerRef<ReactNavigation.RootParamList> | null = null;
-    private channelIdNotify: string = '';
     private event1 : EmitterSubscription | null = null;
     componentDidMount(): void {
         this.event1 = DeviceEventEmitter.addListener('ChangeIndexNavigation', this.changePage);
@@ -56,21 +55,24 @@ export default class Index extends Component<IProps, IState> {
     componentDidUpdate() {
         MainWidget.init();
     }
+    componentWillUnmount() {
+        this.event1?.remove();
+        this.event1 = null;
+        this.refNavigate = null;
+    }
     async startNotifications() {
-        this.channelIdNotify = await notifee.createChannel({ id: 'default', name: 'Canal por defecto' });
         messaging().onMessage(this.onMessageReceived);
-        //messaging().setBackgroundMessageHandler(this.onMessageReceived);
         messaging().subscribeToTopic('All');
-        //console.log(await messaging().getToken());
     }
     async onMessageReceived(message: FirebaseMessagingTypes.RemoteMessage) {
         var codeName: number = Math.floor(Math.random() * (99999 - 10000)) + 10000;
+        const channelId = await notifee.createChannel({ id: 'default', name: 'Canal por defecto' });
         await notifee.displayNotification({
             id: codeName.toString(),
             title: message.notification!.title,
             body: message.notification!.body,
             android: {
-                channelId: this.channelIdNotify,
+                channelId,
                 smallIcon: 'small_icon_notify',
                 color: '#FF3232'
             }
@@ -79,16 +81,6 @@ export default class Index extends Component<IProps, IState> {
     changePage(namePage: string) {
         const replaceAction = StackActions.replace(namePage);
         this.refNavigate?.dispatch(replaceAction);
-    }
-    componentWillUnmount() {
-        this.setState({
-            marginAndroid: {
-                marginTop: 0,
-                marginBottom: 0
-            }
-        });
-        this.event1?.remove();
-        this.event1 = null;
     }
     async verifyFolder() {
         if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`))

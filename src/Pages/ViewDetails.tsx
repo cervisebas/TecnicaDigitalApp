@@ -11,6 +11,7 @@ import { AssistIndividualData, StudentsData } from "../Scripts/ApiTecnica/types"
 import Share from "react-native-share";
 import RNFS from "react-native-fs";
 import Theme from "../Themes";
+import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 
 type IProps = {
     visible: boolean;
@@ -56,6 +57,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.viewImageTarget = this.viewImageTarget.bind(this);
         this.downloadImageTarget = this.downloadImageTarget.bind(this);
         this.shareImageTarget = this.shareImageTarget.bind(this);
+        this.closeAndClear = this.closeAndClear.bind(this);
     }
     private refTarget: ViewShot | null | any = null;
     componentDidMount() {
@@ -169,17 +171,17 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.props.close();
     }
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadAssist} onRequestClose={()=>this.closeAndClear()}>
+        return(<CustomModal visible={this.props.visible} onShow={this.loadAssist} onRequestClose={this.closeAndClear}>
             <PaperProvider theme={Theme}>
                 {(this.props.data)&&<View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={()=>this.closeAndClear()} />
+                        <Appbar.BackAction onPress={this.closeAndClear} />
                         <Appbar.Content title={'Ver más detalles'}  />
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2 }}>
                         <View style={{ margin: 20, height: 100, width: (width - 40), flexDirection: 'row' }}>
                             <TouchableHighlight style={styles.imageProfile} onPress={()=>this.props.openImage({ uri: `${urlBase}/image/${(this.props.data)? decode(this.props.data.picture): ''}` })}>
-                                <Image style={{ width: '100%', height: '100%' }} source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }} />
+                                <ImageLazyLoad style={{ width: '100%', height: '100%' }} source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }} circle={true} />
                             </TouchableHighlight>
                             <View style={styles.textProfile}>
                                 <Text numberOfLines={2} style={{ fontSize: 20 }}>{decode(this.props.data.name)}</Text>

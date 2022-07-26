@@ -1,8 +1,10 @@
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import FastImage from "react-native-fast-image";
 import { IconButton, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
+import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { urlBase } from "../Scripts/ApiTecnica";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
@@ -44,20 +46,21 @@ export default class ViewDirective extends Component<IProps, IState> {
         }
     }
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={()=>this.props.close()}>
+        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
             {(this.props.data)? <View style={styles.content}>
                 <View style={styles.contentImage}>
-                    <TouchableOpacity onPress={()=>this.props.openImage()} style={styles.touchImage}>
-                        <Image
+                    <TouchableHighlight onPress={this.props.openImage} style={styles.touchImage}>
+                        <ImageLazyLoad
                             source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }}
+                            circle
                             style={{ width: '100%', height: '100%' }}
                         />
-                    </TouchableOpacity>
-                    {(this.getIntPermission(this.props.data.permission) >= 4)&&<Image source={require('../Assets/Corona.webp')} style={styles.crownImage} />}
+                    </TouchableHighlight>
+                    {(this.getIntPermission(this.props.data.permission) >= 4)&&<FastImage source={require('../Assets/Corona.webp')} style={styles.crownImage} />}
                 </View>
                 <IconButton
                     icon={'arrow-left'}
-                    onPress={()=>this.props.close()}
+                    onPress={this.props.close}
                     style={{
                         position: 'absolute',
                         top: 0,

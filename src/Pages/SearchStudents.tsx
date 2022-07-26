@@ -1,6 +1,6 @@
 import { decode } from "base-64";
 import React, { Component } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, ListRenderItemInfo, View } from "react-native";
 import { ActivityIndicator, Appbar, Divider, Provider as PaperProvider, Searchbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import ItemStudent from "../Components/Elements/CustomItem";
@@ -30,6 +30,7 @@ export default class SearchStudents extends Component<IProps, IState> {
             searchQuery: '',
             isLoading: false
         };
+        this._renderItem = this._renderItem.bind(this);
     }
     componentDidUpdate() {
         if (this.props.visible) {
@@ -58,19 +59,39 @@ export default class SearchStudents extends Component<IProps, IState> {
     }
     /* ################## */
 
+    // Flatlist
+    _keyExtractor(item: StudentsData) {
+        return `p3-list-item-${item.id}`;
+    }
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
+    _renderItem({ item }: ListRenderItemInfo<StudentsData>) {
+        return(<ItemStudent
+            key={`s1-item-${item.id}`}
+            source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
+            title={decode(item.name)}
+            noLine={true}
+            onPress={()=>this.props.openDetails(item)}
+            onEdit={()=>this.props.onEdit(item)}
+            onDelete={()=>this.props.onDelete(item.id)}
+        />);
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={()=>this.props.close()}>
+        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={()=>this.props.close()} />
+                        <Appbar.BackAction onPress={this.props.close} />
                         <Appbar.Content title={'Buscar estudiante'}  />
                     </Appbar.Header>
                     <View style={{ flex: 2 }}>
                         {(!this.state.isLoading)? (this.state.list)&&<FlatList
                             data={this.state.list}
-                            keyExtractor={(item)=>`s1-item-${item.id}`}
-                            ItemSeparatorComponent={()=><Divider />}
+                            extraData={this.state}
+                            keyExtractor={this._keyExtractor}
+                            ItemSeparatorComponent={this._ItemSeparatorComponent}
                             ListHeaderComponent={<Searchbar
                                 value={this.state.searchQuery}
                                 style={{ marginTop: 8, marginLeft: 8, marginRight: 8, marginBottom: 12 }}
@@ -78,15 +99,7 @@ export default class SearchStudents extends Component<IProps, IState> {
                                 onChangeText={(query: string)=>this.onChangeSearch(query)}
                                 onSubmitEditing={({ nativeEvent })=>this.goSearch(nativeEvent.text)}
                             />}
-                            renderItem={({ item })=><ItemStudent
-                                key={`s1-item-${item.id}`}
-                                source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
-                                title={decode(item.name)}
-                                noLine={true}
-                                onPress={()=>this.props.openDetails(item)}
-                                onEdit={()=>this.props.onEdit(item)}
-                                onDelete={()=>this.props.onDelete(item.id)}
-                            />}
+                            renderItem={this._renderItem}
                         />: <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
                             <ActivityIndicator animating size={'large'} />
                         </View>}

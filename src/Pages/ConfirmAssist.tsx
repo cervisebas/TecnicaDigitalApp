@@ -1,9 +1,10 @@
 import { decode } from "base-64";
 import React, { Component, ReactNode } from "react";
-import { DeviceEventEmitter, FlatList, Pressable, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, FlatList, ListRenderItemInfo, Pressable, ToastAndroid, View } from "react-native";
 import { Appbar, Avatar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
+import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { Assist, urlBase } from "../Scripts/ApiTecnica";
 import { AssistUserData, DataList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
@@ -25,6 +26,9 @@ type IState = {
 
     isMenuOpen: boolean;
     isLoading: boolean;
+
+    data: AssistUserData[];
+    dataLog: DataList[];
 };
 
 export default class ConfirmAssist extends Component<IProps, IState> {
@@ -35,35 +39,41 @@ export default class ConfirmAssist extends Component<IProps, IState> {
             alertMessage: '',
             deleteVisible: false,
             isMenuOpen: false,
-            isLoading: false
+            isLoading: false,
+            data: [],
+            dataLog: []
         };
         this.closeAndClean = this.closeAndClean.bind(this);
+        this.loadData = this.loadData.bind(this);
+        this._renderItem = this._renderItem.bind(this);
     }
-    private dataLog: DataList[] = [];
     checkAction(idStudent: string, index: number) {
-        this.dataLog[index] = {
-            check: (this.dataLog[index])? !this.dataLog[index].check: true,
+        let dataLog = this.state.dataLog;
+        dataLog[index] = {
+            check: (dataLog[index])? !dataLog[index].check: true,
             idStudent,
-            idAssist: this.dataLog[index].idAssist,
-            exist: this.dataLog[index].exist
+            idAssist: dataLog[index].idAssist,
+            exist: dataLog[index].exist
         };
-        this.forceUpdate();
+        this.setState({ dataLog: dataLog });
     }
     loadData() {
-        this.dataLog = this.props.data.map((s)=>({ check: s.status, idStudent: s.id, idAssist: s.idAssist, exist: s.exist }));
-        this.forceUpdate();
+        this.setState({
+            data: this.props.data,
+            dataLog: this.props.data.map((s)=>({ check: s.status, idStudent: s.id, idAssist: s.idAssist, exist: s.exist }))
+        });
     }
     closeAndClean() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.dataLog = [];
+        this.setState({ dataLog: [], data: [] });
         this.props.close();
     }
     send() {
         if (this.props.data.length == 0) return ToastAndroid.show('Opción no disponible, no se encontró ningún estudiante en la lista...', ToastAndroid.SHORT);
         this.setState({ isLoading: true }, ()=>
-            Assist.confirmAssist(this.props.select.id, this.dataLog)
+            Assist.confirmAssist(this.props.select.id, this.state.dataLog)
                 .then(()=>this.setState({ isLoading: false }, ()=>{
-                    DeviceEventEmitter.emit('p1-reload');
+                    DeviceEventEmitter.emit('p1-reload', undefined, true);
                     this.props.showSnackbar(true, `Se confirmo el registro de "${this.props.select.curse}".`, ()=>this.closeAndClean());
                 }))
                 .catch((error)=>this.setState({ isLoading: false }, ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
@@ -73,18 +83,51 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         this.props.showLoading(true, 'Eliminando registro...', ()=>
             Assist.deleteAssist(this.props.select.id)
                 .then(()=>this.props.showLoading(false, '', ()=>{
-                    DeviceEventEmitter.emit('p1-reload');
+                    DeviceEventEmitter.emit('p1-reload', undefined, true);
                     this.props.showSnackbar(true, `Se elimino el registro de "${this.props.select.curse}".`, ()=>this.closeAndClean());
                 }))
                 .catch((error)=>this.props.showLoading(false, '', ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
         );
     }
+
+    // Flatlist
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
+    _keyExtractor(item: AssistUserData) {
+        return `confirm-assist-${item.id}`;
+    }
+    _renderItem({ item, index }: ListRenderItemInfo<AssistUserData>) {
+        return(<List.Item
+            key={`conf-assist-${item.id}`}
+            title={decode(item.name)}
+            description={(item.exist)? 'Ingreso con credencial': undefined}
+            disabled={this.state.isLoading}
+            onPress={()=>this.checkAction(item.id, index)}
+            left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.openImage(`${urlBase}/image/${decode(item.picture)}`, decode(item.name))}>
+                <ImageLazyLoad
+                    size={48}
+                    circle
+                    source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
+                />
+            </Pressable>}
+            right={()=><View style={{ justifyContent: 'center' }}>
+                <Checkbox
+                    color={Colors.blue500}
+                    uncheckedColor={Colors.red500}
+                    disabled={this.state.isLoading}
+                    status={(this.state.dataLog[index])? (this.state.dataLog[index].check)? 'checked': 'unchecked': 'unchecked'}
+                    onPress={()=>this.checkAction(item.id, index)} />
+            </View>}
+        />);
+    }
+
     render(): ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={()=>this.loadData()} onRequestClose={()=>this.closeAndClean()}>
+        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.closeAndClean}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={()=>this.closeAndClean()} />
+                        <Appbar.BackAction onPress={this.closeAndClean} />
                         <Appbar.Content title={`Registro: ${this.props.select.curse}`}  />
                         <Menu
                             visible={this.state.isMenuOpen}
@@ -98,30 +141,13 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
                         <FlatList
-                            data={this.props.data}
-                            ItemSeparatorComponent={()=><Divider />}
-                            keyExtractor={(item)=>`conf-assist-${item.id}`}
+                            data={this.state.data}
+                            extraData={this.state}
+                            ItemSeparatorComponent={this._ItemSeparatorComponent}
+                            keyExtractor={this._keyExtractor}
                             contentContainerStyle={{ paddingBottom: 80, flex: (this.props.data.length == 0)? 2: undefined }}
                             ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún estudiante</Text></View>}
-                            renderItem={({ item, index })=><List.Item
-                                key={`conf-assist-${item.id}`}
-                                title={decode(item.name)}
-                                description={(item.exist)? 'Ingreso con credencial': undefined}
-                                disabled={this.state.isLoading}
-                                onPress={()=>this.checkAction(item.id, index)}
-                                left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.openImage(`${urlBase}/image/${decode(item.picture)}`, decode(item.name))}><Avatar.Image
-                                    size={48}
-                                    source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
-                                /></Pressable>}
-                                right={()=><View style={{ justifyContent: 'center' }}>
-                                    <Checkbox
-                                        color={Colors.blue500}
-                                        uncheckedColor={Colors.red500}
-                                        disabled={this.state.isLoading}
-                                        status={(this.dataLog[index])? (this.dataLog[index].check)? 'checked': 'unchecked': 'unchecked'}
-                                        onPress={()=>this.checkAction(item.id, index)} />
-                                </View>}
-                            />}
+                            renderItem={this._renderItem}
                         />
                     </View>
                     <FAB

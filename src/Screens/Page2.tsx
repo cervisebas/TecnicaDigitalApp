@@ -18,7 +18,7 @@ export default class Page2 extends Component<IProps, IState> {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
                 <Appbar>
-                    <Appbar.Action icon="menu" onPress={()=>this.props.navigation.openDrawer()} />
+                    <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Horarios'}  />
                 </Appbar>
                 <View style={{ flex: 2, alignItems: 'center', justifyContent: 'center' }}>

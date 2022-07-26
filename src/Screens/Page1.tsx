@@ -1,6 +1,6 @@
 import { decode, encode } from "base-64";
 import React, { Component } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, RefreshControl, View } from "react-native";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, View } from "react-native";
 import { ActivityIndicator, Appbar, IconButton, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageView from "react-native-image-viewing";
@@ -89,12 +89,13 @@ export default class Page1 extends Component<IProps, IState> {
             dataViewAnnotations: []
         };
         this.loadData = this.loadData.bind(this);
+        this._renderItem = this._renderItem.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     componentDidMount() {
         this.loadData();
-        this.event = DeviceEventEmitter.addListener('p1-reload', (number: number | undefined)=>this.loadData(number));
+        this.event = DeviceEventEmitter.addListener('p1-reload', (number?: number | undefined, isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, ()=>this.loadData(number, isRefresh)));
         this.event2 = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
     }
     componentWillUnmount() {
@@ -102,31 +103,16 @@ export default class Page1 extends Component<IProps, IState> {
         this.event2?.remove();
         this.event = null;
         this.event2 = null;
-        this.setState({
-            dataGroups: [],
-            isLoading: false,
-            isError: false,
-            isRefresh: false,
-            messageError: '',
-            confirmData: [],
-            confirmSelect: undefined,
-            assistData: [],
-            assistSelect: undefined,
-            imageSource: undefined,
-            imageText: '',
-            snackBarText: '',
-            textLoading: '',
-            dataViewAnnotations: []
-        });
     }
-    loadData(code?: number | undefined): any {
-        this.setState({ dataGroups: [], isLoading: true, isError: false }, ()=>
+    loadData(code?: number | undefined, isRefresh?: boolean): any {
+        (!isRefresh)&&this.setState({ dataGroups: [] });
+        this.setState({ isLoading: !isRefresh, isError: false }, ()=>
             Assist.getGroups()
                 .then((v)=>{
                     this.setState({ dataGroups: v, isLoading: false, isRefresh: false });
                     if (code) this.reloadData(code, v);
                 })
-                .catch((err)=>this.setState({ isLoading: false, isError: true, messageError: err.cause }))
+                .catch((err)=>this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
         );
     }
     reloadData(code: number, newData: DataGroup[]) {
@@ -151,7 +137,7 @@ export default class Page1 extends Component<IProps, IState> {
             this.setState({ showLoading: true, textLoading: 'Creando grupo...' }, ()=>{
                 (then)&&then();
                 Assist.create(encode(datas.course), encode(datas.date), encode(datas.time))
-                    .then((a)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'Grupo creado correctamente.' }, ()=>{ this.loadData(); resolve(a); }))
+                    .then((a)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'Grupo creado correctamente.', isRefresh: true }, ()=>{ this.loadData(undefined, true); resolve(a); }))
                     .catch((error)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: error.cause }));
             })
         );
@@ -170,6 +156,28 @@ export default class Page1 extends Component<IProps, IState> {
                 .catch((a)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: a.cause }))
         );
     }
+
+    // Flatlist
+    _keyExtractor(item: DataGroup) {
+        return `p1-card-${item.id}`;
+    }
+    _openConfirm(id: string, curse: string) {
+        this.openConfirm(id, { id: id, curse: decode(curse) });
+    }
+    _openView(id: string, curse: string, date: string, hour: string, annotations: number) {
+        this.openView(id, { id: id, curse: decode(curse), date: decode(date), hour: decode(hour), annotations: annotations });
+    }
+    _renderItem({ item }: ListRenderItemInfo<DataGroup>) {
+        return(<CustomCard
+            key={`p1-card-${item.id}`}
+            title={`Registro ${decode(item.curse)}`}
+            date={`${decode(item.date)} (${decode(item.hour)}hs)`}
+            state={(item.status == '0')? false: true}
+            openConfirm={()=>this._openConfirm(item.id, item.curse)}
+            openView={()=>this._openView(item.id, item.curse, item.date, item.date, item.annotations)}
+        />);
+    }
+
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
@@ -182,20 +190,13 @@ export default class Page1 extends Component<IProps, IState> {
                     {(!this.state.isLoading)? (!this.state.isError)?
                     <FlatList
                         data={this.state.dataGroups}
-                        keyExtractor={(item)=>`p1-card-${item.id}`}
-                        refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={()=>this.setState({ isRefresh: false }, this.loadData)} />}
+                        extraData={this.state}
+                        keyExtractor={this._keyExtractor}
+                        refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={()=>this.loadData(undefined, true)} />}
                         contentContainerStyle={{ flex: (this.state.dataGroups.length == 0)? 2: undefined }}
                         ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
-                        renderItem={({ item })=><CustomCard
-                            key={`p1-card-${item.id}`}
-                            title={`Registro ${decode(item.curse)}`}
-                            date={`${decode(item.date)} (${decode(item.hour)}hs)`}
-                            state={(item.status == '0')? false: true}
-                            openConfirm={()=>this.openConfirm(item.id, { id: item.id, curse: decode(item.curse) })}
-                            openView={()=>this.openView(item.id, { id: item.id, curse: decode(item.curse), date: decode(item.date), hour: decode(item.hour), annotations: item.annotations })}
-                        />}
-                    />
-                    :
+                        renderItem={this._renderItem}
+                    />:
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                             <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />

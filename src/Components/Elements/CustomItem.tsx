@@ -2,9 +2,10 @@ import React, { PureComponent } from "react";
 import { StyleProp, ViewStyle, View, Text } from "react-native";
 import { List, Avatar, Menu, IconButton, Divider } from "react-native-paper";
 import { AvatarImageSource } from "react-native-paper/lib/typescript/components/Avatar/AvatarImage";
+import ImageLazyLoad from "./ImageLazyLoad";
 
 type IProps2 = {
-    source: AvatarImageSource,
+    source: { uri: string; },
     title: string;
     onPress?: ()=>any;
     noLine?: boolean;
@@ -26,9 +27,9 @@ export default class ItemStudent extends PureComponent<IProps2, IState2> {
         return(<View style={this.props.style}>
             <List.Item
                 title={this.props.title}
-                onPress={()=>(this.props.onPress)&&this.props.onPress()}
+                onPress={(this.props.onPress)&&this.props.onPress}
                 onLongPress={()=>this.setState({ menuVisible: true })}
-                left={(props)=><Avatar.Image {...props} size={48} source={this.props.source} />}
+                left={(props)=><ImageLazyLoad {...props} size={48} circle={true} source={this.props.source} />}
                 right={()=><Menu
                     visible={this.state.menuVisible}
                     onDismiss={()=>this.setState({ menuVisible: false })}

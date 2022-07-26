@@ -71,6 +71,7 @@ export default class AddAnnotationAssist extends Component<IProps, IState> {
                                 numberOfLines={10}
                                 style={{ width: '100%' }}
                                 value={this.state.formAnnotation}
+                                disabled={this.state.isLoading}
                                 onChangeText={(text)=>this.setState({ formAnnotation: text })}
                             />
                             <View style={{ width: '100%', marginTop: 8 }}>

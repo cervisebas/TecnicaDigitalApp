@@ -1,6 +1,6 @@
 import { decode } from "base-64";
 import React, { Component } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
 import { ActivityIndicator, Appbar, Button, Dialog, Divider, FAB, IconButton, List, Paragraph, Portal, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomList from "../Components/Elements/CustomList";
@@ -100,45 +100,35 @@ export default class Page3 extends Component<IProps, IState> {
         };
         this.openListGeneratorCredential = this.openListGeneratorCredential.bind(this);
         this._onChangeStateFab = this._onChangeStateFab.bind(this);
+        this._renderItem1 = this._renderItem1.bind(this);
+        this._renderItem2 = this._renderItem2.bind(this);
     }
-    private event: EmitterSubscription | undefined = undefined;
-    private event2: EmitterSubscription | undefined = undefined;
+    private event: EmitterSubscription | null = null;
+    private event2: EmitterSubscription | null = null;
     componentDidMount() {
-        this.event = DeviceEventEmitter.addListener('reloadPage3', ()=>this.loadData(true));
-        this.event2 = DeviceEventEmitter.addListener('loadNowAll', ()=>this.loadData(true));
+        this.event = DeviceEventEmitter.addListener('reloadPage3', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
+        this.event2 = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.loadData();
     }
     componentWillUnmount() {
         this.event?.remove();
         this.event2?.remove();
-        this.event = undefined;
-        this.event2 = undefined;
-        this.setState({
-            datas: [],
-            studentList: [],
-            showAddNewStudent: false,
-            isLoading: true,
-            isRefresh: false,
-            isError: false,
-            dataDetails: undefined,
-            imageViewer: undefined,
-            dataEditStudent: undefined,
-            designCardElection: undefined,
-            curseIndexGenerator: undefined,
-            dataViewDetailsAssist: []
-        });
+        this.event = null;
+        this.event2 = null;
     }
-    deleteStudent(idStudent: string) {
+    deleteStudent() {
         this.setState({ showLoading: true, textLoading: 'Espere por favor...' }, ()=>
-            Student.delete(idStudent)
-                .then(()=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'Estudiante eliminado con exito' }, ()=>this.loadData(true)))
+            Student.delete(this.state.dataConfirmDelete)
+                .then(()=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: 'Estudiante eliminado con exito', isRefresh: true }, this.loadData))
                 .catch((error)=>this.setState({ showLoading: false, textLoading: '', snackBarView: true, snackBarText: error.cause }))
         );
     }
-    loadData(force?: boolean) {
-        this.setState({ datas: [], isLoading: true }, ()=>
+    loadData() {
+        var isLoading = !this.state.isRefresh;
+        (isLoading)&&this.setState({ datas: [] });
+        this.setState({ isLoading, isError: false }, ()=>
             Student.getAll()
-                .then((value)=>this.setState({ datas: value.curses, studentList: value.students, isLoading: false, isRefresh: false }, ()=>(force)&&this.forceUpdate()))
+                .then((value)=>this.setState({ datas: value.curses, studentList: value.students, isLoading: false, isRefresh: false }))
                 .catch((error)=>this.setState({ isLoading: true, isError: true, messageError: error.cause, isRefresh: false }))
         );
     }
@@ -157,11 +147,46 @@ export default class Page3 extends Component<IProps, IState> {
         if (this.state.isLoading) return ToastAndroid.show('Espere...', ToastAndroid.SHORT);
         this.setState({ fabShow: open });
     }
+
+    // Flatlist
+    _keyExtractor1(item: OrderCurses) {
+        return `p3-list-${item.label}`;
+    }
+    _keyExtractor2(item: StudentsData) {
+        return `p3-list-item-${item.id}`;
+    }
+    _ItemSeparatorComponent2() {
+        return(<Divider style={{ marginLeft: 8, marginRight: 8 }} />);
+    }
+    _renderItem2({ item }: ListRenderItemInfo<StudentsData>) {
+        return(<ItemStudent
+            key={`p3-list-item-${item.id}`}
+            source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
+            title={decode(item.name)}
+            noLine={true}
+            style={{ marginLeft: 8, marginRight: 8 }}
+            onPress={()=>this.setState({ showDetails: true, dataDetails: item })}
+            onEdit={()=>this.setState({ showEditStudent: true, dataEditStudent: item })}
+            onDelete={()=>this.setState({ showConfirmDelete: true, dataConfirmDelete: item.id })}
+        />);
+    }
+    _renderItem1({ item, index }: ListRenderItemInfo<OrderCurses>) {
+        return(<CustomList id={index + 1} key={`p3-list-${item.label}`} style={styles.cardsLists} title={(item.label.indexOf('Profesor') !== -1)? item.label: `Curso ${item.label}`}>
+            <FlatList
+                data={item.students}
+                style={{ paddingBottom: 8 }}
+                keyExtractor={this._keyExtractor2}
+                ItemSeparatorComponent={this._ItemSeparatorComponent2}
+                renderItem={this._renderItem2}
+            />
+        </CustomList>);
+    }
+
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
                 <Appbar>
-                    <Appbar.Action icon="menu" onPress={()=>this.props.navigation.openDrawer()} />
+                    <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Lista de alumnos'}  />
                     <Appbar.Action disabled={this.state.isLoading || this.state.isError} icon={'magnify'} onPress={()=>this.setState({ showSearchStudents: true })} />
                 </Appbar>
@@ -170,31 +195,15 @@ export default class Page3 extends Component<IProps, IState> {
                         <List.AccordionGroup>
                             <FlatList
                                 data={this.state.datas}
+                                extraData={this.state}
                                 style={{ paddingTop: 8 }}
                                 refreshControl={<RefreshControl
                                     refreshing={this.state.isRefresh}
                                     colors={[Theme.colors.primary]}
-                                    onRefresh={()=>this.setState({ isRefresh: true }, ()=>this.loadData(true))}
+                                    onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)}
                                 />}
-                                keyExtractor={(_i, index)=>`p3-list-${index.toString()}`}
-                                renderItem={({ item, index })=><CustomList id={index+1} key={`p3-list-${index.toString()}`} style={styles.cardsLists} title={(item.label.indexOf('Profesor') !== -1)? item.label: `Curso ${item.label}`}>
-                                    <FlatList
-                                        data={item.students}
-                                        style={{ paddingBottom: 8 }}
-                                        keyExtractor={(item2)=>`p3-list-${index.toString()}-item-${item2.id}`}
-                                        ItemSeparatorComponent={()=><Divider style={{ marginLeft: 8, marginRight: 8 }} />}
-                                        renderItem={(student)=><ItemStudent
-                                            key={`p3-list-${index.toString()}-item-${student.item.id}`}
-                                            source={{ uri: `${urlBase}/image/${decode(student.item.picture)}` }}
-                                            title={decode(student.item.name)}
-                                            noLine={true}
-                                            style={{ marginLeft: 8, marginRight: 8 }}
-                                            onPress={()=>this.setState({ showDetails: true, dataDetails: student.item })}
-                                            onEdit={()=>this.setState({ showEditStudent: true, dataEditStudent: student.item })}
-                                            onDelete={()=>this.setState({ showConfirmDelete: true, dataConfirmDelete: student.item.id })}
-                                        />}
-                                    />
-                                </CustomList>}
+                                keyExtractor={this._keyExtractor1}
+                                renderItem={this._renderItem1}
                             />
                         </List.AccordionGroup>
                     </View>: 
@@ -247,7 +256,7 @@ export default class Page3 extends Component<IProps, IState> {
                         </Dialog.Content>
                         <Dialog.Actions>
                             <Button onPress={()=>this.setState({ showConfirmDelete: false })}>Cancelar</Button>
-                            <Button onPress={()=>this.setState({ showConfirmDelete: false }, ()=>this.deleteStudent(this.state.dataConfirmDelete))}>Aceptar</Button>
+                            <Button onPress={()=>this.setState({ showConfirmDelete: false }, this.deleteStudent)}>Aceptar</Button>
                         </Dialog.Actions>
                     </Dialog>
                 </Portal>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Image, ImageBackground, ImageSourcePropType } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import { ActivityIndicator, Provider as PaperProvider, Text } from 'react-native-paper';
 import CustomModal from '../Components/CustomModal';
 import Theme from '../Themes';
@@ -41,8 +42,8 @@ export default class ScreenLoading extends Component<IProps, IState> {
         return(<CustomModal visible={this.props.visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>
             <PaperProvider theme={Theme}>
                 <ImageBackground source={require('../Assets/background-loading.webp')} style={{ flex: 1, backgroundColor: Theme.colors.background, alignItems: 'center', justifyContent: 'center' }}>
-                    {(this.state.logo)&&<Image
-                        source={this.state.logo}
+                    {(this.state.logo)&&<FastImage
+                        source={this.state.logo as any}
                         style={{
                             width: 200,
                             height: 200,

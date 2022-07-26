@@ -1,6 +1,6 @@
 import { decode } from "base-64";
 import React, { Component, ReactNode } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, Linking, PermissionsAndroid, Pressable, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, Linking, ListRenderItemInfo, PermissionsAndroid, Pressable, ToastAndroid, View } from "react-native";
 import { Button, Appbar, Avatar, Colors, Dialog, Divider, FAB, List, Paragraph, Portal, Provider as PaperProvider } from "react-native-paper";
 import FileViewer from "react-native-file-viewer";
 import CustomModal from "../Components/CustomModal";
@@ -8,6 +8,7 @@ import { Annotation, Assist, GeneratePDF, urlBase } from "../Scripts/ApiTecnica"
 import { AnnotationList, AssistUserData } from "../Scripts/ApiTecnica/types";
 import RNFS from "react-native-fs";
 import Theme from "../Themes";
+import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 
 type IProps = {
     visible: boolean;
@@ -42,18 +43,15 @@ export default class ViewAssist extends Component<IProps, IState> {
         this.openEditAssist = this.openEditAssist.bind(this);
         this.generatePdf = this.generatePdf.bind(this);
         this.openViewAnnotation = this.openViewAnnotation.bind(this);
+        this._renderItem = this._renderItem.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('show-dialog-add-annotation', (message: string)=>this.setState({ alertVisible: true, alertMessage: message }));
-        this.event2 = DeviceEventEmitter.addListener('restore-view-annotations', ()=>this.openViewAnnotation());
+        this.event2 = DeviceEventEmitter.addListener('restore-view-annotations', ()=>this.openViewAnnotation('auto'));
     }
     componentWillUnmount() {
-        this.setState({
-            alertMessage: '',
-            isLoadingAnnotations: false
-        });
         this.event?.remove();
         this.event2?.remove();
         this.event = null;
@@ -62,8 +60,8 @@ export default class ViewAssist extends Component<IProps, IState> {
     openEditAssist() {
         this.props.editAssist(this.props.select.id, this.props.select);
     }
-    openViewAnnotation() {
-        if (this.props.select.annotations == 0) return ToastAndroid.show('No se encontraron anotaciones.', ToastAndroid.SHORT);
+    openViewAnnotation(auto?: 'auto') {
+        if (this.props.select.annotations == 0) return (auto !== 'auto')&&ToastAndroid.show('No se encontraron anotaciones.', ToastAndroid.SHORT);
         this.setState({ isLoadingAnnotations: true }, ()=>
             Annotation.getAll(this.props.select.id)
                 .then((value)=>this.setState({ isLoadingAnnotations: false }, ()=>{
@@ -105,34 +103,49 @@ export default class ViewAssist extends Component<IProps, IState> {
     async verifyFolder() {
         if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`)) RNFS.mkdir(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`);
     }
+
+    // Flatlist
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
+    _keyExtractor(item: AssistUserData) {
+        return `view-assist-${item.id}`;
+    }
+    _renderItem({ item }: ListRenderItemInfo<AssistUserData>) {
+        return(<List.Item
+            key={`view-assist-${item.id}`}
+            title={decode(item.name)}
+            description={(item.status)? `${decode(item.time)}${(item.exist)? ' (Ingreso con credencial)': ''}`: undefined}
+            left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.openImage(`${urlBase}/image/${decode(item.picture)}`, decode(item.name))}>
+                <ImageLazyLoad
+                    size={48}
+                    circle
+                    source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
+                />
+            </Pressable>}
+            right={()=><List.Icon
+                icon={(item.status)? 'radiobox-marked': 'radiobox-blank'}
+                color={(item.status)? Colors.blue500: Colors.red500}
+            />}
+        />);
+    }
+
     render(): ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={()=>this.props.close()}>
+        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={()=>this.props.close()} />
+                        <Appbar.BackAction onPress={this.props.close} />
                         <Appbar.Content title={`Ver registro: ${this.props.select.curse}`}  />
                         <Appbar.Action icon={'pencil'} onPress={this.openEditAssist} />
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
                         <FlatList
                             data={this.props.data}
-                            ItemSeparatorComponent={()=><Divider />}
-                            keyExtractor={(item)=>`view-assist-${item.id}`}
+                            ItemSeparatorComponent={this._ItemSeparatorComponent}
+                            keyExtractor={this._keyExtractor}
                             contentContainerStyle={{ paddingBottom: 72 }}
-                            renderItem={({ item })=><List.Item
-                                key={`view-assist-${item.id}`}
-                                title={decode(item.name)}
-                                description={(item.status)? decode(item.time): undefined}
-                                left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.openImage(`${urlBase}/image/${decode(item.picture)}`, decode(item.name))}><Avatar.Image
-                                size={48}
-                                source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
-                            /></Pressable>}
-                                right={()=><List.Icon
-                                    icon={(item.status)? 'radiobox-marked': 'radiobox-blank'}
-                                    color={(item.status)? Colors.blue500: Colors.red500}
-                                />}
-                            />}
+                            renderItem={this._renderItem}
                         />
                     </View>
                 </View>

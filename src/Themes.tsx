@@ -15,7 +15,6 @@ const Theme = {
         accent: '#3dc2ff',
         onSurface: '#FFFFFF'
     },
-    dark: false,
-    version: 3
+    dark: false
 };
 export default Theme;

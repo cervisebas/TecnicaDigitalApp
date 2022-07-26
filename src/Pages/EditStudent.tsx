@@ -86,6 +86,8 @@ export default class EditStudent extends Component<IProps, IState> {
             errorFormDNI: false
         };
         this.closeAndClean = this.closeAndClean.bind(this);
+        this.changeImage = this.changeImage.bind(this);
+        this.sendData = this.sendData.bind(this);
     }
     private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     componentDidUpdate() {
@@ -262,7 +264,7 @@ export default class EditStudent extends Component<IProps, IState> {
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2, backgroundColor: Theme.colors.background }}>
                         <View style={{ width: '100%', height: 124, flexDirection: 'row' }}>
-                            <TouchableHighlight disabled={this.state.isLoading} onPress={()=>this.changeImage()} style={{ position: 'relative', marginTop: 16, marginBottom: 16, marginRight: 16, marginLeft: 16, height: 100, width: 100, borderRadius: 168, overflow: 'hidden', elevation: 2, backgroundColor: '#FFFFFF' }}>
+                            <TouchableHighlight disabled={this.state.isLoading} onPress={this.changeImage} style={{ position: 'relative', marginTop: 16, marginBottom: 16, marginRight: 16, marginLeft: 16, height: 100, width: 100, borderRadius: 168, overflow: 'hidden', elevation: 2, backgroundColor: '#FFFFFF' }}>
                                 <View>
                                     <Image
                                         source={this.state.imageShow}
@@ -335,7 +337,7 @@ export default class EditStudent extends Component<IProps, IState> {
                                     mode={'contained'}
                                     disabled={this.state.isLoading}
                                     loading={this.state.isLoading}
-                                    onPress={()=>this.sendData()}
+                                    onPress={this.sendData}
                                 >Enviar</Button>
                             </View>
                         </View>

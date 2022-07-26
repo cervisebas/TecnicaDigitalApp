@@ -49,6 +49,7 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
             errorFormHour: !calcHour
         };
         this.createGroup = this.createGroup.bind(this);
+        this.closeAndClean = this.closeAndClean.bind(this);
     }
     private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     closeAndClean() {
@@ -84,10 +85,10 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
             });
     }
     render(): ReactNode {
-        return(<CustomModal visible={this.props.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={()=>this.closeAndClean()} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+        return(<CustomModal visible={this.props.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <View style={{ backgroundColor: Theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={()=>this.closeAndClean()} />
+                    <Appbar.BackAction onPress={this.closeAndClean} />
                     <Appbar.Content title={'Agregar nuevo grupo'}  />
                     <Appbar.Action icon={'check'} onPress={this.createGroup} />
                 </Appbar.Header>

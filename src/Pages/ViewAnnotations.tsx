@@ -1,7 +1,7 @@
 import { decode } from "base-64";
 import React, { Component } from "react";
 import { DeviceEventEmitter, FlatList, ListRenderItemInfo, ToastAndroid, View } from "react-native";
-import { Appbar, Avatar, Card, IconButton, Text } from "react-native-paper";
+import { Appbar, Avatar, Button, Card, Dialog, IconButton, Paragraph, Portal, Provider, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Annotation, urlBase } from "../Scripts/ApiTecnica";
 import { AnnotationList } from "../Scripts/ApiTecnica/types";
@@ -14,17 +14,27 @@ type IProps= {
     data: AnnotationList[];
     goLoading: (visible: boolean, text: string, then?: ()=>any)=>any;
 };
-type IState= {};
+type IState= {
+    showDeleteDialog: boolean;
+    dataDelete: string;
+};
 
 export default class ViewAnnotations extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
+        this.state = {
+            showDeleteDialog: false,
+            dataDelete: ''
+        };
         this._renderItem = this._renderItem.bind(this);
+        this.deleteNow = this.deleteNow.bind(this);
+        this.onClose = this.onClose.bind(this);
     }
 
-    deleteNow(idAnnotation: string) {
+    deleteNow() {
+        this.setState({ showDeleteDialog: false });
         this.props.goLoading(true, 'Borrando anotación...', ()=>
-            Annotation.delete(idAnnotation)
+            Annotation.delete(this.state.dataDelete)
                 .then(()=>this.props.goLoading(false, '', ()=>{
                     ToastAndroid.show('Anotación borrada con éxito', ToastAndroid.SHORT);
                     DeviceEventEmitter.emit('restore-view-annotations');
@@ -54,28 +64,45 @@ export default class ViewAnnotations extends Component<IProps, IState> {
                 right={(props)=><IconButton
                     {...props}
                     icon={'delete-outline'}
-                    onPress={()=>this.deleteNow(item.id)}
+                    onPress={()=>this.setState({ showDeleteDialog: true, dataDelete: item.id })}
                 />}
             />
             <Card.Content><Text>{decode(item.note)}</Text></Card.Content>
         </Card>);
     }
+    onClose() {
+        this.setState({ showDeleteDialog: false, dataDelete: '' });
+    }
 
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={()=>this.props.close()}>
+        return(<CustomModal visible={this.props.visible} onClose={this.onClose} onRequestClose={this.props.close}>
             <View style={{ flex: 1, backgroundColor: Theme.colors.background, margin: 12, overflow: 'hidden', borderRadius: 8 }}>
-                <Appbar.Header>
-                    <Appbar.BackAction onPress={()=>this.props.close()} />
-                    <Appbar.Content title={'Ver anotaciones'} />
-                </Appbar.Header>
-                <View style={{ flex: 2 }}>
-                    {(this.props.visible)&&<FlatList
-                        data={this.props.data}
-                        contentContainerStyle={{ paddingTop: 8 }}
-                        keyExtractor={this._keyExtractor}
-                        renderItem={this._renderItem}
-                    />}
-                </View>
+                <Provider theme={Theme}>
+                    <Appbar.Header>
+                        <Appbar.BackAction onPress={this.props.close} />
+                        <Appbar.Content title={'Ver anotaciones'} />
+                    </Appbar.Header>
+                    <View style={{ flex: 2 }}>
+                        {(this.props.visible)&&<FlatList
+                            data={this.props.data}
+                            contentContainerStyle={{ paddingTop: 8 }}
+                            keyExtractor={this._keyExtractor}
+                            renderItem={this._renderItem}
+                        />}
+                    </View>
+                    <Portal>
+                        <Dialog visible={this.state.showDeleteDialog} onDismiss={()=>this.setState({ showDeleteDialog: false })}>
+                            <Dialog.Title>Espere por favor...</Dialog.Title>
+                            <Dialog.Content>
+                                <Paragraph>¿Estás seguro que quiere eliminar esta anotación? Esta acción no se podrá deshacer luego.</Paragraph>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={()=>this.setState({ showDeleteDialog: false })}>Cancelar</Button>
+                                <Button onPress={this.deleteNow}>Aceptar</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>
+                </Provider>
             </View>
         </CustomModal>);
     }

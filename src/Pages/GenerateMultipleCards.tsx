@@ -57,17 +57,10 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
     _keyExtractor(item: StudentsData) {
         return `credential-${decode(item.dni)}`;
     }
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
     _renderItem({ item }: ListRenderItemInfo<StudentsData>) {
-        /*return(<CustomCredential
-            key={`credential-${decode(item.dni)}`}
-            scale={this.state.scaleImage}
-            style={styles.target}
-            image={`${urlBase}/image/${decode(item.picture)}`}
-            name={decode(item.name)}
-            dni={decode(item.dni)}
-            type={this.props.type}
-            onPress={(ref)=>this.downloadImageTarget(ref, decode(item.curse), item.id)}
-        />);*/
         return(<CustomCredentialDownload
             key={`credential-${decode(item.dni)}`}
             type={this.props.type}
@@ -77,17 +70,17 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={()=>this.props.close()}>
+        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
             {(this.props.datas)?<View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={()=>this.props.close()} />
+                    <Appbar.BackAction onPress={this.props.close} />
                     <Appbar.Content title={`Generar credenciales (${decode(this.props.datas[0].curse)})`}  />
                 </Appbar.Header>
                 <View style={{ flex: 2 }}>
                     {(this.props.visible)&&<FlatList
                         data={this.props.datas}
                         contentContainerStyle={{ paddingTop: 4, paddingBottom: 4 }}
-                        ItemSeparatorComponent={()=><Divider />}
+                        ItemSeparatorComponent={this._ItemSeparatorComponent}
                         keyExtractor={this._keyExtractor}
                         renderItem={this._renderItem}
                     />}

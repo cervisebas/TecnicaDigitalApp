@@ -60,7 +60,7 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={()=>this.props.close(0)} />
                     <Appbar.Content title={`Generar credenciales`} />
-                    <Appbar.Action icon={'pencil-ruler'} onPress={()=>this.props.openChangeDesing()} />
+                    <Appbar.Action icon={'pencil-ruler'} onPress={this.props.openChangeDesing} />
                     <Appbar.Action icon={'send-outline'} onPress={this.send} />
                 </Appbar.Header>
                 <View style={{ marginTop: 4, marginBottom: 8 }}>

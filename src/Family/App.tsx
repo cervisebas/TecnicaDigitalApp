@@ -18,8 +18,6 @@ import LoadingController from "../Components/loading/loading-controller";
 import FamilyOptions from "../Pages/FamilyOptions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MainWidget from "../Scripts/MainWidget";
-import BackgroundFetch from "react-native-background-fetch";
-import BackgroundTask from "./BackgroundTask";
 
 type IProps = {};
 type IState = {
@@ -48,6 +46,9 @@ type IState = {
     viewOptions: boolean;
     viewLogOut: boolean;
     disableButtonDetailAssist: boolean;
+    dialogVisible: boolean;
+    dialogTitle: string;
+    dialogText: string;
 };
 
 const { width } = Dimensions.get('window');
@@ -80,7 +81,10 @@ export default class AppFamily extends Component<IProps, IState> {
             textLoading: '',
             viewOptions: false,
             viewLogOut: false,
-            disableButtonDetailAssist: false
+            disableButtonDetailAssist: false,
+            dialogVisible: false,
+            dialogTitle: '',
+            dialogText: ''
         };
         this.loadData = this.loadData.bind(this);
         this.loadDataAssist = this.loadDataAssist.bind(this);
@@ -100,7 +104,6 @@ export default class AppFamily extends Component<IProps, IState> {
         this.setState({ scaleImage: scaleUse });
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.loadData();
-        BackgroundTask.init();
     }
     componentWillUnmount() {
         this.event?.remove();
@@ -130,7 +133,6 @@ export default class AppFamily extends Component<IProps, IState> {
                         numTotalAssist: data.length.toString(),
                         disableButtonDetailAssist: disable
                     });
-                    if (await BackgroundFetch.status() !== BackgroundFetch.STATUS_AVAILABLE) await BackgroundFetch.start();
                 })
                 .catch((error)=>this.setState({ isLoadingAssist: false, isErrorAssist: true, messageErrorAssist: error.cause }))
         );
@@ -202,9 +204,8 @@ export default class AppFamily extends Component<IProps, IState> {
     closeSession() {
         this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: false }, async()=>{
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
-            await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
+            await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData', 'BackgroundTask']);
             await MainWidget.init();
-            await BackgroundFetch.stop();
             DeviceEventEmitter.emit('reVerifySession');
             this.setState({ showLoading: false });
         });
@@ -314,6 +315,15 @@ export default class AppFamily extends Component<IProps, IState> {
                             <Button onPress={this.closeSession}>Aceptar</Button>
                         </Dialog.Actions>
                     </Dialog>
+                    <Dialog visible={this.state.dialogVisible} onDismiss={()=>this.setState({ dialogVisible: false })}>
+                        <Dialog.Title>{this.state.dialogTitle}</Dialog.Title>
+                        <Dialog.Content>
+                            <Paragraph>{this.state.dialogText}</Paragraph>
+                        </Dialog.Content>
+                        <Dialog.Actions>
+                            <Button onPress={()=>this.setState({ dialogVisible: false, viewOptions: true })}>Aceptar</Button>
+                        </Dialog.Actions>
+                    </Dialog>
                 </Portal>
 
                 <ChangeCardDesign
@@ -340,6 +350,7 @@ export default class AppFamily extends Component<IProps, IState> {
                     close={()=>this.setState({ viewOptions: false })}
                     closeSession={()=>this.setState({ viewLogOut: true, viewOptions: false })}
                     openImage={()=>this.setState({ viewImage: true, viewImageSource: `${urlBase}/image/${decode(this.state.studentData!.picture)}` })}
+                    openDialog={(title, text)=>this.setState({ viewOptions: false, dialogVisible: true, dialogTitle: title, dialogText: text })}
                 />
                 <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
             </PaperProvider>

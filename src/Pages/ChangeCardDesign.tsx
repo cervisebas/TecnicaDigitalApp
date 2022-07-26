@@ -1,5 +1,6 @@
 import React, { Component, PureComponent } from "react";
-import { Dimensions, FlatList, Image, ImageSourcePropType, StyleProp, TouchableHighlight, View, ViewStyle } from "react-native";
+import { FlatList, Image, ImageSourcePropType, ListRenderItemInfo, StyleProp, TouchableHighlight, View, ViewStyle } from "react-native";
+import FastImage from "react-native-fast-image";
 import { Appbar, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
@@ -14,11 +15,10 @@ type IState = {
 };
 
 type Item = {
+    id: number;
     source: ImageSourcePropType;
     option: number | undefined;
 };
-
-const { width } = Dimensions.get('window');
 
 export default class ChangeCardDesign extends Component<IProps, IState> {
     constructor(props: IProps) {
@@ -26,16 +26,34 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         this.state = {
             width: 0
         };
+        this._renderItem = this._renderItem.bind(this);
     }
     private list: Item[] | undefined = [
-        { source: require('../Assets/Examples/desing1.webp'), option: undefined },
-        { source: require('../Assets/Examples/desing2.webp'), option: 1 },
-        { source: require('../Assets/Examples/desing4.webp'), option: 2 },
-        { source: require('../Assets/Examples/desing3.webp'), option: 3 },
-        { source: require('../Assets/Examples/desing5.webp'), option: 4 },
-        { source: require('../Assets/Examples/desing6.webp'), option: 5 },
-        { source: require('../Assets/Examples/desing7.webp'), option: 6 }
+        { id: 1, source: require('../Assets/Examples/desing1.webp'), option: undefined },
+        { id: 2, source: require('../Assets/Examples/desing2.webp'), option: 1 },
+        { id: 3, source: require('../Assets/Examples/desing4.webp'), option: 2 },
+        { id: 4, source: require('../Assets/Examples/desing3.webp'), option: 3 },
+        { id: 5, source: require('../Assets/Examples/desing5.webp'), option: 4 },
+        { id: 6, source: require('../Assets/Examples/desing6.webp'), option: 5 },
+        { id: 7, source: require('../Assets/Examples/desing7.webp'), option: 6 }
     ];
+    _keyExtractor(item: Item) {
+        return `card-desing-${item.id}`;
+    }
+    _renderItem({ item }: ListRenderItemInfo<Item>) {
+        return(<CardImages
+            key={`card-desing-${item.id}`}
+            width={this.state.width}
+            styles={{
+                marginTop: 0,
+                marginBottom: 12,
+                marginLeft: 12,
+                marginRight: 12
+            }}
+            source={item.source}
+            onPress={()=>this.props.onPress(item.option)}
+        />);
+    }
     render(): React.ReactNode {
         return(<CustomModal visible={this.props.visible} style={{ padding: 16 }} animationIn={'fadeInUp'} animationOut={'fadeOutDown'} onRequestClose={()=>this.props.close()}>
             <PaperProvider theme={Theme}>
@@ -48,20 +66,10 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
                         {(this.list && this.state.width !== 0)&&<FlatList
                             data={this.list}
                             contentContainerStyle={{ paddingTop: 12 }}
-                            renderItem={({ item, index })=><CardImages
-                                key={index.toString()}
-                                width={this.state.width}
-                                styles={{
-                                    marginTop: 0,
-                                    marginBottom: 12,
-                                    marginLeft: 12,
-                                    marginRight: 12
-                                }}
-                                source={item.source}
-                                onPress={()=>this.props.onPress(item.option)}
-                            />}
+                            keyExtractor={this._keyExtractor}
+                            renderItem={this._renderItem}
                         />}
-                    </View>: <View></View>}
+                    </View>: <></>}
                 </View>
             </PaperProvider>
         </CustomModal>);
@@ -102,10 +110,6 @@ class CardImages extends PureComponent<IProps2, IState2> {
         alignItems: 'center',
         justifyContent: 'center'
     };
-    componentWillUnmount() {
-        this.styles = undefined;
-        this.setState({ width: 0, height: 0 });
-    }
     componentDidMount() {
         var scales: number[] = [];
         for (let i = 1; i > 0; i -= 0.001) { scales.push(i); }
@@ -115,10 +119,9 @@ class CardImages extends PureComponent<IProps2, IState2> {
         return(<TouchableHighlight
             style={[this.styles, this.props.styles, { height: this.state.height, width: this.state.width }]}
             onPress={()=>(this.props.onPress)&&this.props.onPress()}>
-            <Image
-                source={this.props.source}
+            <FastImage
+                source={this.props.source as any}
                 resizeMode={'cover'}
-                resizeMethod={'auto'}
                 style={{
                     borderColor: '#000000',
                     borderWidth: 2,

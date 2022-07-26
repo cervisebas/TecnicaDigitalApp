@@ -214,7 +214,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
                     imageShow: require('../Assets/profile.png'),
                     actualDatePicker: new Date(),
                     actualDate: moment(new Date()).format('DD/MM/YYYY')
-                }, ()=>DeviceEventEmitter.emit('reloadPage3'))).catch((error)=>this.setState({
+                }, ()=>DeviceEventEmitter.emit('reloadPage3', true))).catch((error)=>this.setState({
                     isLoading: false,
                     snackBarView: true,
                     snackBarText: error.cause

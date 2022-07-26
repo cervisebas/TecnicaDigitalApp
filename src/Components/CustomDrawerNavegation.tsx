@@ -92,8 +92,8 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
                 />
             </DrawerContentScrollView>
             <View style={{ position: 'absolute', bottom: 0, right: 0, left: 0, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                <Text style={{ color: '#3a3a3a', fontWeight: 'normal', fontSize: 12 }}>from</Text>
-                <Text style={{ color: '#FF2E2E', fontWeight: 'bold', fontSize: 18 }}>SCAPPS</Text>
+                <Text style={styles.textSubBrand}>from</Text>
+                <Text style={styles.textBrand}>SCAPPS</Text>
             </View>
         </View>);
     }
@@ -116,5 +116,15 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.22,
         shadowRadius: 2.22,
         elevation: 3
+    },
+    textSubBrand: {
+        color: '#3a3a3a',
+        fontWeight: 'normal',
+        fontSize: 13
+    },
+    textBrand: {
+        color: '#FF2E2E',
+        fontSize: 18,
+        fontFamily: 'Organetto-Bold'
     }
 });

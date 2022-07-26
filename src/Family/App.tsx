@@ -240,7 +240,7 @@ export default class AppFamily extends Component<IProps, IState> {
                                 />
                                 <Card.Content>
                                     <PointItemList title="Presentes" text={this.state.numAssist} />
-                                    <PointItemList title="Aunsentes" text={this.state.numNotAssist} />
+                                    <PointItemList title="Ausentes" text={this.state.numNotAssist} />
                                     <PointItemList title="Total" text={this.state.numTotalAssist} />
                                 </Card.Content>
                                 <Card.Actions style={{ justifyContent: 'flex-end' }}>
@@ -280,7 +280,7 @@ export default class AppFamily extends Component<IProps, IState> {
                                 />
                             </Card.Content>
                             <Card.Actions style={{ justifyContent: 'flex-end' }}>
-                                <Button icon={'cloud-download-outline'} onPress={this.downloadImageTarget}>Dercargar</Button>
+                                <Button icon={'cloud-download-outline'} onPress={this.downloadImageTarget}>Descargar</Button>
                                 <Button icon={'share-variant-outline'} onPress={this.shareImageTarget}>Compartir</Button>
                             </Card.Actions>
                         </Card>

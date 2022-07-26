@@ -22,6 +22,7 @@ type IProps = {
 type IState = {
     idStudent: string;
     switchNotifications: boolean;
+    showEasterEgg: boolean;
 };
 
 export default class FamilyOptions extends Component<IProps, IState> {
@@ -29,7 +30,8 @@ export default class FamilyOptions extends Component<IProps, IState> {
         super(props);
         this.state = {
             idStudent: '#00000',
-            switchNotifications: false
+            switchNotifications: false,
+            showEasterEgg: false
         };
         this.loadData = this.loadData.bind(this);
         this.setSwitchSubscription = this.setSwitchSubscription.bind(this);
@@ -37,12 +39,17 @@ export default class FamilyOptions extends Component<IProps, IState> {
     componentDidMount() {
         this.loadData(true);
     }
+    runEasterEgg() {
+        var random = Math.floor(Math.random() * (21 - 1) + 1);
+        this.setState({ showEasterEgg: (random == 10) });
+    }
     loadData(s?: boolean) {
         if (!s) {
             var id = '';
             for (let i = 0; i < 5 - this.props.data!.id.length; i++) { id += '0'; }
             this.setState({ idStudent: `#${id}${this.props.data!.id}` });
         }
+        this.runEasterEgg();
         Family.getSubscribeData()
             .then((v)=>this.setState({ switchNotifications: v }))
             .catch(()=>this.setState({ switchNotifications: false }));
@@ -79,6 +86,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                         margin: 10
                     }}
                 />
+                {(this.state.showEasterEgg)&&<Text style={styles.textBrand}>SCAPPS</Text>}
                 <View style={{ width: '100%', alignItems: 'center' }}>
                     <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
                     <View style={{ marginTop: 16, width: '100%' }}>
@@ -161,5 +169,14 @@ const styles = StyleSheet.create({
         height: 61.51,
         top: -24,
         left: -11
+    },
+    textBrand: {
+        color: '#FF2E2E',
+        fontSize: 18,
+        fontFamily: 'Organetto-Bold',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        margin: 18
     }
 });

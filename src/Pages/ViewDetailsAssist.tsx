@@ -70,7 +70,7 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
         return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.props.close}>
             <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={()=>this.props.close} />
+                    <Appbar.BackAction onPress={this.props.close} />
                     <Appbar.Content title={'Ver más detalles'}  />
                 </Appbar.Header>
                 <View style={{ flex: 2 }}>

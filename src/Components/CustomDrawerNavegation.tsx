@@ -59,10 +59,8 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
         });
     }
     async closeSession() {
-        await Directive.closeSession();
-        await MainWidget.init();
+        DeviceEventEmitter.emit('CloseSessionAdmin');
         this.props.navigation.closeDrawer();
-        DeviceEventEmitter.emit('reVerifySession');
     }
     render(): ReactNode {
         return(<View style={{ flex: 1, position: 'relative' }}>

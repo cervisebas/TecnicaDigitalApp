@@ -1,7 +1,8 @@
 import Barcode from "@kichiyaki/react-native-barcode-generator";
 import React, { PureComponent } from "react";
-import { Image } from "react-native";
+import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
+import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
 
 type IPropsCard = {
     scale: number;
@@ -25,14 +26,14 @@ export default class CardVip extends PureComponent<IPropsCard, IStateCard> {
     }
     render(): React.ReactNode {
         return(<>
-            <Image
+            <FastImage
                 source={require('../../Assets/Desings/vip.png')}
                 style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
                 resizeMode={'cover'}
-                resizeMethod={'scale'}
             />
-            <Image
+            <ImageLazyLoadCard
                 source={{ uri: this.props.image }}
+                size={this.getScale(300)}
                 style={{
                     position: 'absolute',
                     top: this.getScale(80),
@@ -40,9 +41,7 @@ export default class CardVip extends PureComponent<IPropsCard, IStateCard> {
                     overflow: 'hidden',
                     borderWidth: this.getScale(8),
                     borderColor: '#020202',
-                    borderRadius: this.getScale(16),
-                    width: this.getScale(300),
-                    height: this.getScale(300)
+                    borderRadius: this.getScale(16)
                 }}
             />
             <Text

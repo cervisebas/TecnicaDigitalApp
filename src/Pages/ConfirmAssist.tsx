@@ -1,7 +1,7 @@
 import { decode } from "base-64";
 import React, { Component, ReactNode } from "react";
 import { DeviceEventEmitter, FlatList, ListRenderItemInfo, Pressable, ToastAndroid, View } from "react-native";
-import { Appbar, Avatar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
+import { Appbar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";

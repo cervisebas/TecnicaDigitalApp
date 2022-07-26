@@ -6,7 +6,6 @@ import { DeviceEventEmitter, EmitterSubscription, StyleSheet, View } from "react
 import FastImage from "react-native-fast-image";
 import { Avatar, Drawer, Text, Title } from "react-native-paper";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
-import MainWidget from "../Scripts/MainWidget";
 import Theme from "../Themes";
 import ImageLazyLoad from "./Elements/ImageLazyLoad";
 

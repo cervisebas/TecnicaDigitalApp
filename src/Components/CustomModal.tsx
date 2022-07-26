@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Dimensions, StyleProp, View, ViewStyle } from "react-native";
+import { Dimensions, StyleProp, ViewStyle } from "react-native";
 import Modal from "react-native-modal";
 import DeviceDimensions from 'react-native-extra-dimensions-android';
 

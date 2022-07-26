@@ -1,5 +1,4 @@
 import { createMaterialTopTabNavigator, MaterialTopTabNavigationOptions } from "@react-navigation/material-top-tabs";
-import { NavigationContainer } from "@react-navigation/native";
 import { decode } from "base-64";
 import moment from "moment";
 import React, { Component } from "react";

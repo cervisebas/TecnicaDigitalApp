@@ -1,13 +1,13 @@
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
 import { Dimensions, FlatList, ListRenderItemInfo, PermissionsAndroid, StyleSheet, View } from "react-native";
-import { Text, Appbar, FAB, Snackbar, Divider, ActivityIndicator } from "react-native-paper";
+import { Text, Appbar, Snackbar, Divider, ActivityIndicator } from "react-native-paper";
 import ViewShot, { captureRef } from "react-native-view-shot";
 import RNFS from "react-native-fs";
 import CustomCredential from "../Components/CustomCredential";
 import CustomModal from "../Components/CustomModal";
 import { urlBase } from "../Scripts/ApiTecnica";
-import { OrderCurses, StudentsData } from "../Scripts/ApiTecnica/types";
+import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Theme from "../Themes";
 

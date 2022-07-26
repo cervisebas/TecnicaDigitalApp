@@ -1,7 +1,7 @@
 import { decode } from "base-64";
 import moment from "moment";
 import React, { Component, PureComponent } from "react";
-import { Dimensions, Image, Linking, PermissionsAndroid, ScrollView, StyleSheet, ToastAndroid, TouchableHighlight, View } from "react-native";
+import { Dimensions, Linking, PermissionsAndroid, ScrollView, StyleSheet, ToastAndroid, TouchableHighlight, View } from "react-native";
 import { Appbar, Button, Card, IconButton, ProgressBar, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import ViewShot, { captureRef } from "react-native-view-shot";
 import CustomCredential from "../Components/CustomCredential";

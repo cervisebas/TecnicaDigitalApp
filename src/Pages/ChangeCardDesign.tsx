@@ -1,5 +1,5 @@
 import React, { Component, PureComponent } from "react";
-import { FlatList, Image, ImageSourcePropType, ListRenderItemInfo, StyleProp, TouchableHighlight, View, ViewStyle } from "react-native";
+import { FlatList, ImageSourcePropType, ListRenderItemInfo, StyleProp, TouchableHighlight, View, ViewStyle } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Appbar, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";

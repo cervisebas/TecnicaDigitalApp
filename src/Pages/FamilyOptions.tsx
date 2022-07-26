@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
-import { Image, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableHighlight, View } from "react-native";
 import { Button, IconButton, List, Switch, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Family, urlBase } from "../Scripts/ApiTecnica";

@@ -1,7 +1,6 @@
 import React, { PureComponent } from "react";
 import { StyleProp, ViewStyle, View, Text } from "react-native";
-import { List, Avatar, Menu, IconButton, Divider } from "react-native-paper";
-import { AvatarImageSource } from "react-native-paper/lib/typescript/components/Avatar/AvatarImage";
+import { List, Menu, IconButton, Divider } from "react-native-paper";
 import ImageLazyLoad from "./ImageLazyLoad";
 
 type IProps2 = {

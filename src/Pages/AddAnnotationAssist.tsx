@@ -1,7 +1,7 @@
 import { encode } from "base-64";
 import React, { Component } from "react";
 import { View, Keyboard, TouchableWithoutFeedback, StyleSheet, DeviceEventEmitter, ToastAndroid } from "react-native";
-import { ActivityIndicator, Appbar, Button, TextInput } from "react-native-paper";
+import { Appbar, Button, TextInput } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Annotation } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";

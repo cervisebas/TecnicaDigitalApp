@@ -1,6 +1,6 @@
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
-import { Image, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableHighlight, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { IconButton, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";

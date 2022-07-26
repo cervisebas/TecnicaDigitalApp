@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Image, ImageBackground, ImageSourcePropType } from 'react-native';
+import { View, ImageBackground, ImageSourcePropType } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { ActivityIndicator, Provider as PaperProvider, Text } from 'react-native-paper';
 import CustomModal from '../Components/CustomModal';

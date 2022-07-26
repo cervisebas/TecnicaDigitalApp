@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { StyleProp, ViewStyle, View, Text } from "react-native";
-import { List, Avatar, Menu, IconButton, Divider } from "react-native-paper";
+import { List, Menu, IconButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageLazyLoad from "./ImageLazyLoad";
 

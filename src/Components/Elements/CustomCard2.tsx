@@ -1,6 +1,5 @@
 import React, { PureComponent, ReactNode } from "react";
-import { StyleProp, ViewStyle } from "react-native";
-import { Button, Card, Chip, Colors, Text } from "react-native-paper";
+import { Button, Card, Text } from "react-native-paper";
 
 type IProps = {
     title: string;

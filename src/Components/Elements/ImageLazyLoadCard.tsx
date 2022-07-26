@@ -1,8 +1,8 @@
 import React, { PureComponent } from "react";
 import { ImageSourcePropType, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
-import FastImage, { ResizeMode } from "react-native-fast-image";
 import RNFS from "react-native-fs";
+import FastImage from "react-native-fast-image";
 
 type IProps = {
     source: {
@@ -11,7 +11,11 @@ type IProps = {
     style?: StyleProp<ViewStyle>;
     circle?: boolean;
     size?: number;
-    resizeMode?: ResizeMode | undefined; 
+    enableCustomSize?: boolean;
+    customSize?: {
+        width: number;
+        height: number;
+    }
     onLoad?: ()=>any;
 };
 type IState = {
@@ -19,7 +23,7 @@ type IState = {
     source: ImageSourcePropType | undefined;
 };
 
-export default class ImageLazyLoad extends PureComponent<IProps, IState> {
+export default class ImageLazyLoadCard extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -38,14 +42,14 @@ export default class ImageLazyLoad extends PureComponent<IProps, IState> {
         .catch(()=>this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
     }
     render(): React.ReactNode {
-        return(<View style={[{ position: 'relative', overflow: 'hidden' }, { width: this.props.size, height: this.props.size }, this.props.style, (this.props.circle)&&styles.circle]}>
+        return(<View style={[{ position: 'relative', overflow: 'hidden' }, (this.props.enableCustomSize)? this.props.customSize: { width: this.props.size, height: this.props.size }, this.props.style, (this.props.circle)&&styles.circle]}>
             {(this.state.isLoading)?<SkeletonPlaceholder>
                 <SkeletonPlaceholder.Item width={'100%'} height={'100%'} />
             </SkeletonPlaceholder>:
             <FastImage
                 source={this.state.source! as any}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode={this.props.resizeMode}
+                style={(this.props.enableCustomSize)? this.props.customSize: { width: this.props.size, height: this.props.size }}
+                resizeMode={'cover'}
                 onLoad={this.props.onLoad}
                 onError={this.props.onLoad}
             />}
@@ -55,14 +59,6 @@ export default class ImageLazyLoad extends PureComponent<IProps, IState> {
 
 const styles = StyleSheet.create({
     circle: {
-        shadowColor: "#000",
-        shadowOffset:{
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.20,
-        shadowRadius: 1.41,
-        elevation: 2,
         borderRadius: 1000000,
         overflow: 'hidden'
     }

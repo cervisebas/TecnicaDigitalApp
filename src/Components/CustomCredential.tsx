@@ -1,7 +1,5 @@
-import Barcode from "@kichiyaki/react-native-barcode-generator";
 import React, { PureComponent } from "react";
-import { Image, Pressable, StyleProp, View, ViewStyle } from "react-native";
-import { Text } from "react-native-paper";
+import { Pressable, StyleProp, View, ViewStyle } from "react-native";
 import ViewShot from "react-native-view-shot";
 import Card1 from "./Cards/Card1";
 import Card2 from "./Cards/Card2";

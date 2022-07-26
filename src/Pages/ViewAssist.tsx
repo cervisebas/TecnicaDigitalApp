@@ -1,7 +1,7 @@
 import { decode } from "base-64";
 import React, { Component, ReactNode } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, Linking, ListRenderItemInfo, PermissionsAndroid, Pressable, ToastAndroid, View } from "react-native";
-import { Button, Appbar, Avatar, Colors, Dialog, Divider, FAB, List, Paragraph, Portal, Provider as PaperProvider } from "react-native-paper";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, PermissionsAndroid, Pressable, ToastAndroid, View } from "react-native";
+import { Button, Appbar, Colors, Dialog, Divider, FAB, List, Paragraph, Portal, Provider as PaperProvider } from "react-native-paper";
 import FileViewer from "react-native-file-viewer";
 import CustomModal from "../Components/CustomModal";
 import { Annotation, Assist, GeneratePDF, urlBase } from "../Scripts/ApiTecnica";

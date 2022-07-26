@@ -29,6 +29,8 @@ type IState = {
 
     scaleImage: number;
 
+    // Extra Data
+    idStudent: string;
     // Assist
     isLoadAssist: boolean;
     existAssist: boolean;
@@ -46,6 +48,7 @@ export default class ViewDetails extends Component<IProps, IState> {
             snackBarView: false,
             snackBarText: '',
             scaleImage: 0.3,
+            idStudent: '',
             isLoadAssist: false,
             existAssist: false,
             dataAssist: [],
@@ -103,7 +106,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                 nameFile += `-credential-${codeName}`;
                 RNFS.copyFile(uri, `${RNFS.DownloadDirectoryPath}/tecnica-digital/${(this.props.data)? decode(this.props.data.curse): ''}/${nameFile}.png`)
                     .then(()=>this.setState({ snackBarView: true, snackBarText: 'Imagen guardada con éxito' }))
-                    .catch((e)=>this.setState({ snackBarView: true, snackBarText: 'Error al guardar la imagen' }, ()=>console.log(e)));
+                    .catch((e)=>this.setState({ snackBarView: true, snackBarText: 'Error al guardar la imagen' }));
             })
             .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
     }
@@ -132,7 +135,9 @@ export default class ViewDetails extends Component<IProps, IState> {
         }
     }
     loadAssist() {
-        this.setState({ isLoadAssist: true }, ()=>
+        var id = '';
+        for (let i = 0; i < 5 - this.props.data!.id.length; i++) { id += '0'; }
+        this.setState({ isLoadAssist: true, idStudent: `#${id}${this.props.data!.id}` }, ()=>
             Assist.getIndividual(this.props.data?.id!)
                 .then((data)=>{
                     var assists: number = 0;
@@ -194,6 +199,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                         <Card style={{ marginLeft: 8, marginRight: 8, marginBottom: 12 }} elevation={3}>
                             <Card.Title title={'información:'} />
                             <Card.Content>
+                                <PointItemList title="ID" data={this.state.idStudent} />
                                 <PointItemList title="Fecha de nacimiento" data={decode(this.props.data.date)} />
                                 <PointItemList title="Edad" data={`${this.calcYears(decode(this.props.data.date))} años`} />
                                 <PointItemList title="D.N.I" data={decode(this.props.data.dni)} />

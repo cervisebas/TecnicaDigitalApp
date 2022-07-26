@@ -196,7 +196,7 @@ export default class Page4 extends Component<IProps, IState> {
                         data={this.state.datas}
                         extraData={this.state}
                         contentContainerStyle={{ paddingTop: 8 }}
-                        refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
+                        refreshControl={<RefreshControl refreshing={this.state.isRefresh} colors={[Theme.colors.primary]} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
                         getItemLayout={this._getItemLayout}
                         keyExtractor={this._keyExtractor}

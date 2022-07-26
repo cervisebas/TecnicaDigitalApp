@@ -15,11 +15,17 @@ type IProps = {
     data: DirectivesList | undefined;
     openImage: ()=>any;
 };
-type IState = {};
+type IState = {
+    idDirective: string;
+};
 
 export default class ViewDirective extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
+        this.state = {
+            idDirective: ''
+        };
+        this.loadData = this.loadData.bind(this);
     }
     getLevelPermission(permission: string) {
         switch (permission) {
@@ -45,8 +51,13 @@ export default class ViewDirective extends Component<IProps, IState> {
             return 0;
         }
     }
+    loadData() {
+        var id = '';
+        for (let i = 0; i < 5 - this.props.data!.id.length; i++) { id += '0'; }
+        this.setState({ idDirective: `#${id}${this.props.data!.id}` });
+    }
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
+        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.props.close}>
             {(this.props.data)? <View style={styles.content}>
                 <View style={styles.contentImage}>
                     <TouchableHighlight onPress={this.props.openImage} style={styles.touchImage}>
@@ -71,6 +82,7 @@ export default class ViewDirective extends Component<IProps, IState> {
                 <View style={{ width: '100%', alignItems: 'center' }}>
                     <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
                     <View style={{ marginTop: 16, width: '100%' }}>
+                        <TextView title={'ID'} text={this.state.idDirective} />
                         <TextView title={'DNI'} text={decode(this.props.data.dni)} />
                         <TextView title={'Usuario'} text={`@${decode(this.props.data.username)}`} />
                         <TextView title={'Posición'} text={decode(this.props.data.position)} />

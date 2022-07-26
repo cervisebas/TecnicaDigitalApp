@@ -73,13 +73,14 @@ type AssistIndividualData = {
     date: string;
     hour: string;
     status: boolean;
+    credential: boolean;
 };
 type FamilyDataAssist = {
     id: string;
     date: string;
     hour: string;
     status: string;
-    credential: string;
+    credential: boolean;
 };
 
 // Annotations

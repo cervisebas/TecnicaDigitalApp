@@ -99,7 +99,8 @@ class ViewAssistPanel extends Component<IProps2> {
     _renderItem({ item }: ListRenderItemInfo<AssistIndividualData>) {
         return(<List.Item
             key={`detail-assist-${item.id}`}
-            title={`${decode(item.date)} (${(item.status)? 'Presente': 'Ausente'})`}
+            title={`${decode(item.date)}`}
+            description={`${(item.status)? 'Presente': 'Ausente'} ${(item.credential)? ' (Accedió con credencial)': ''}`}
             right={()=><View style={{ height: '100%', justifyContent: 'center', paddingRight: 8 }}>
                 <Text>{decode(item.hour)}</Text>
             </View>}
@@ -120,11 +121,14 @@ class ViewAssistPanel extends Component<IProps2> {
             index
         };
     }
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
     render(): React.ReactNode {
         return(<View style={{ flex: 3 }}>
             <FlatList
                 data={this.props.datas}
-                ItemSeparatorComponent={()=><Divider />}
+                ItemSeparatorComponent={this._ItemSeparatorComponent}
                 keyExtractor={this._keyExtractor}
                 getItemLayout={this._getItemLayout}
                 renderItem={this._renderItem}

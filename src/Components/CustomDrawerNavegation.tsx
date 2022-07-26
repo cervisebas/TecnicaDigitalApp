@@ -14,6 +14,7 @@ type IState = {
     pictureUser: string;
     loadingUser: boolean;
     widht: number;
+    backgroundImage: number;
 };
 export default class CustomDrawerNavegation extends Component<DrawerContentComponentProps, IState> {
     constructor(props: DrawerContentComponentProps) {
@@ -22,15 +23,19 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
             nameUser: 'Cargando...',
             pictureUser: '',
             loadingUser: false,
-            widht: 0
+            widht: 0,
+            backgroundImage: require('../Assets/animation-top.gif')
         };
         this.closeSession = this.closeSession.bind(this);
         this.loadData = this.loadData.bind(this);
+        this.changeBackgroundImage = this.changeBackgroundImage.bind(this);
     }
-    private event: EmitterSubscription | undefined = undefined;
+    private event: EmitterSubscription | null = null;
+    private interval: NodeJS.Timer | null = null;
     componentWillUnmount() {
         this.event?.remove();
-        this.event = undefined;
+        this.event = null;
+        clearInterval(this.interval as any);
     }
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
@@ -39,6 +44,15 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
             pictureUser: '',
             loadingUser: false
         });
+        this.changeBackgroundImage();
+        this.interval = setInterval(this.changeBackgroundImage, 120000);
+    }
+    changeBackgroundImage() {
+        var random = Math.floor(Math.random() * (4 - 0) + 0);
+        if (random == 1) return this.setState({ backgroundImage: require('../Assets/animation-top-1.gif') });
+        if (random == 2) return this.setState({ backgroundImage: require('../Assets/animation-top-2.gif') });
+        if (random == 3) return this.setState({ backgroundImage: require('../Assets/animation-top-3.gif') });
+        this.setState({ backgroundImage: require('../Assets/animation-top.gif') });
     }
     componentDidUpdate() {
         if (Directive.openSession) if (!this.state.loadingUser) this.loadData();
@@ -59,7 +73,7 @@ export default class CustomDrawerNavegation extends Component<DrawerContentCompo
         return(<View style={{ flex: 1, position: 'relative' }}>
             <DrawerContentScrollView onLayout={({ nativeEvent })=>this.setState({ widht: nativeEvent.layout.width })} {...this.props} style={{ backgroundColor: Theme.colors.background }}>
                 <View style={styles.headerImage}>
-                    <FastImage source={require('../Assets/animation-top.gif')} style={{ width: '100%', height: '100%', opacity: 0.7 }} resizeMode={'cover'} />
+                    <FastImage source={this.state.backgroundImage} style={{ width: '100%', height: '100%', opacity: 0.7 }} resizeMode={'cover'} />
                     <View style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', position: 'absolute', bottom: 18, width: '100%' }}>
                         {(!this.state.loadingUser)? <Avatar.Image size={46} source={require('../Assets/profile.png')} style={{ marginLeft: 12 }} />
                         :<ImageLazyLoad size={46} source={{ uri: this.state.pictureUser }} circle style={{ marginLeft: 12 }} />}

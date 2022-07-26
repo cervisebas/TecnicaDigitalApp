@@ -204,7 +204,7 @@ export default class AppFamily extends Component<IProps, IState> {
     closeSession() {
         this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: false }, async()=>{
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
-            await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData', 'BackgroundTask']);
+            await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
             await MainWidget.init();
             DeviceEventEmitter.emit('reVerifySession');
             this.setState({ showLoading: false });

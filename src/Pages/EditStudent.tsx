@@ -249,7 +249,7 @@ export default class EditStudent extends Component<IProps, IState> {
                     isLoading: false,
                     snackBarView: true,
                     snackBarText: error.cause
-                }, ()=>console.log(error)));
+                }));
             })    
         );
     }

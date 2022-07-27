@@ -93,26 +93,32 @@ export default class Page1 extends Component<IProps, IState> {
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
+    private _isMount: boolean = false;
     componentDidMount() {
+        this._isMount = true;
         this.loadData();
         this.event = DeviceEventEmitter.addListener('p1-reload', (number?: number | undefined, isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, ()=>this.loadData(number, isRefresh)));
         this.event2 = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
     }
     componentWillUnmount() {
+        this._isMount = false;
         this.event?.remove();
         this.event2?.remove();
         this.event = null;
         this.event2 = null;
     }
     loadData(code?: number | undefined, isRefresh?: boolean): any {
+        if (!this._isMount) return;
         (!isRefresh)&&this.setState({ dataGroups: [] });
         this.setState({ isLoading: !isRefresh, isError: false }, ()=>
             Assist.getGroups()
                 .then((v)=>{
-                    this.setState({ dataGroups: v, isLoading: false, isRefresh: false });
-                    if (code) this.reloadData(code, v);
+                    if (this._isMount) {
+                        this.setState({ dataGroups: v, isLoading: false, isRefresh: false });
+                        if (code) this.reloadData(code, v);
+                    }
                 })
-                .catch((err)=>this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
+                .catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
         );
     }
     reloadData(code: number, newData: DataGroup[]) {

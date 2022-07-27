@@ -91,13 +91,23 @@ export default class Index extends Component<IProps, IState> {
             <StatusBar backgroundColor={'#FF3232'} barStyle={'light-content'} />
             <PaperProvider theme={Theme}>
                 <NavigationContainer ref={(ref)=>this.refNavigate = ref} theme={Theme}>
-                    <Stack.Navigator initialRouteName={'Admin'} screenOptions={{ headerShown: false }}>
+                    <Stack.Navigator initialRouteName={'Default'} screenOptions={{ headerShown: false }}>
                         <Stack.Screen name="Admin" component={AppAdmin} />
                         <Stack.Screen name="Family" component={AppFamily} />
+                        <Stack.Screen name="Default" component={Default} />
                     </Stack.Navigator>
                 </NavigationContainer>
                 <Others />
             </PaperProvider>
         </View>);
+    }
+}
+
+class Default extends Component {
+    constructor(props: any) {
+        super(props);
+    }
+    render(): React.ReactNode {
+        return(<View></View>);
     }
 }

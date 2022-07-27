@@ -171,7 +171,7 @@ export default class Page3 extends Component<IProps, IState> {
         />);
     }
     _renderItem1({ item, index }: ListRenderItemInfo<OrderCurses>) {
-        return(<CustomList id={index + 1} key={`p3-list-${item.label}`} style={styles.cardsLists} title={(item.label.indexOf('Profesor') !== -1)? item.label: `Curso ${item.label}`}>
+        return(<CustomList id={index + 1} key={`p3-list-${item.label}`} style={styles.cardsLists} title={(item.label.indexOf('Profesor') !== -1 || item.label.indexOf('Archivado') !== -1)? item.label: `Curso ${item.label}`}>
             <FlatList
                 data={item.students}
                 style={{ paddingBottom: 8 }}

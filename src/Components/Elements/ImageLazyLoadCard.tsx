@@ -31,15 +31,20 @@ export default class ImageLazyLoadCard extends PureComponent<IProps, IState> {
             source: undefined
         };
     }
+    private _isMount: boolean = false;
     componentDidMount() {
+        this._isMount = true;
         var fileName = this.props.source.uri.split('/').pop();
         RNFS.exists(`${RNFS.CachesDirectoryPath}/${fileName}`).then((val)=>{
-            if (val) return this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false });
+            if (val) return (this._isMount)&&this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false });
             RNFS.downloadFile({ fromUrl: this.props.source.uri, toFile: `${RNFS.CachesDirectoryPath}/${fileName}` }).promise
-                .then(()=>this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false }))
-                .catch(()=>this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
+                .then(()=>(this._isMount)&&this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false }))
+                .catch(()=>(this._isMount)&&this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
         })
-        .catch(()=>this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
+        .catch(()=>(this._isMount)&&this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
+    }
+    componentWillUnmount() {
+        this._isMount = false;
     }
     render(): React.ReactNode {
         return(<View style={[{ position: 'relative', overflow: 'hidden' }, (this.props.enableCustomSize)? this.props.customSize: { width: this.props.size, height: this.props.size }, this.props.style, (this.props.circle)&&styles.circle]}>

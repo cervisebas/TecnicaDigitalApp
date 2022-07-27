@@ -89,7 +89,7 @@ export default class EditStudent extends Component<IProps, IState> {
         this.changeImage = this.changeImage.bind(this);
         this.sendData = this.sendData.bind(this);
     }
-    private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
+    private listCourses: string[] = ['- Seleccionar -', 'Archivados', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     componentDidUpdate() {
         if (this.props.visible && !this.state.loadData && this.props.data) {
             this.setState({
@@ -243,7 +243,7 @@ export default class EditStudent extends Component<IProps, IState> {
                     actualDatePicker: new Date(),
                     actualDate: moment(new Date()).format('DD/MM/YYYY')
                 }, ()=>{
-                    DeviceEventEmitter.emit('reloadPage3');
+                    DeviceEventEmitter.emit('reloadPage3', true);
                     this.closeAndClean();
                 })).catch((error)=>this.setState({
                     isLoading: false,

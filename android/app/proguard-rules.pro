@@ -124,3 +124,11 @@
   **[] $VALUES;
   public *;
 }
+
+# @react-native-masked-view/masked-view
+-keep class org.reactnative.maskedview.** { *; }
+-dontwarn org.reactnative.maskedview.**
+
+# react-native-linear-gradient
+-keep class com.BV.LinearGradient.** { *; }
+-dontwarn com.BV.LinearGradient.**

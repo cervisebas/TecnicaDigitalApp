@@ -183,6 +183,13 @@ export default class Page1 extends Component<IProps, IState> {
             openView={()=>this._openView(item.id, item.curse, item.date, item.date, item.annotations)}
         />);
     }
+    _getItemLayout(data: DataGroup[] | null | undefined, index: number) {
+        return {
+            length: 125,
+            offset: 125 * data!.length,
+            index
+        };
+    }
 
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
@@ -198,8 +205,9 @@ export default class Page1 extends Component<IProps, IState> {
                         data={this.state.dataGroups}
                         extraData={this.state}
                         keyExtractor={this._keyExtractor}
+                        getItemLayout={this._getItemLayout}
                         refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={()=>this.loadData(undefined, true)} />}
-                        contentContainerStyle={{ flex: (this.state.dataGroups.length == 0)? 2: undefined }}
+                        contentContainerStyle={{ flex: (this.state.dataGroups.length == 0)? 2: undefined, paddingTop: 8 }}
                         ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
                         renderItem={this._renderItem}
                     />:

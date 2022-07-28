@@ -1,6 +1,6 @@
 import { decode } from "base-64";
 import React, { Component, ReactNode } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, PermissionsAndroid, Pressable, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, PermissionsAndroid, Pressable, StyleSheet, ToastAndroid, View } from "react-native";
 import { Button, Appbar, Colors, Dialog, Divider, FAB, List, Paragraph, Portal, Provider as PaperProvider } from "react-native-paper";
 import FileViewer from "react-native-file-viewer";
 import CustomModal from "../Components/CustomModal";
@@ -115,6 +115,7 @@ export default class ViewAssist extends Component<IProps, IState> {
         return(<List.Item
             key={`view-assist-${item.id}`}
             title={decode(item.name)}
+            style={styles.itemHeight}
             description={(item.status)? `${decode(item.time)}${(item.exist)? ' (Ingreso con credencial)': ''}`: undefined}
             left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.openImage(`${urlBase}/image/${decode(item.picture)}`, decode(item.name))}>
                 <ImageLazyLoad
@@ -128,6 +129,13 @@ export default class ViewAssist extends Component<IProps, IState> {
                 color={(item.status)? Colors.blue500: Colors.red500}
             />}
         />);
+    }
+    _getItemLayout(data: AssistUserData[] | null | undefined, index: number) {
+        return {
+            length: 72,
+            offset: 72 * data!.length,
+            index
+        };
     }
 
     render(): ReactNode {
@@ -144,6 +152,7 @@ export default class ViewAssist extends Component<IProps, IState> {
                             data={this.props.data}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
                             keyExtractor={this._keyExtractor}
+                            getItemLayout={this._getItemLayout}
                             contentContainerStyle={{ paddingBottom: 72 }}
                             renderItem={this._renderItem}
                         />
@@ -205,3 +214,9 @@ export default class ViewAssist extends Component<IProps, IState> {
         </CustomModal>);
     }
 }
+
+const styles = StyleSheet.create({
+    itemHeight: {
+        height: 72
+    }
+});

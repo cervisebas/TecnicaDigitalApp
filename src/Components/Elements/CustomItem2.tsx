@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { StyleProp, ViewStyle, View, Text } from "react-native";
+import { StyleProp, ViewStyle, View, Text, StyleSheet } from "react-native";
 import { List, Menu, IconButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageLazyLoad from "./ImageLazyLoad";
@@ -36,7 +36,7 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         return(<List.Item
             title={this.props.title}
             description={this._description}
-            style={{ height: 64 }}
+            style={styles.items}
             onPress={(this.props.onPress)&&this.props.onPress}
             onLongPress={()=>this.setState({ menuVisible: true })}
             left={(props)=><ImageLazyLoad {...props} size={48} circle={true} source={this.props.source} />}
@@ -50,3 +50,9 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         />);
     }
 }
+
+const styles = StyleSheet.create({
+    items: {
+        height: 64
+    }
+});

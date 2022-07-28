@@ -1,6 +1,6 @@
 import { decode } from "base-64";
 import React, { Component, ReactNode } from "react";
-import { DeviceEventEmitter, FlatList, ListRenderItemInfo, Pressable, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, FlatList, ListRenderItemInfo, Pressable, StyleSheet, ToastAndroid, View } from "react-native";
 import { Appbar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
@@ -104,6 +104,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
             description={(item.exist)? 'Ingreso con credencial': undefined}
             disabled={this.state.isLoading}
             onPress={()=>this.checkAction(item.id, index)}
+            style={styles.items}
             left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.openImage(`${urlBase}/image/${decode(item.picture)}`, decode(item.name))}>
                 <ImageLazyLoad
                     size={48}
@@ -120,6 +121,13 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                     onPress={()=>this.checkAction(item.id, index)} />
             </View>}
         />);
+    }
+    _getItemLayout(data: AssistUserData[] | null | undefined, index: number) {
+        return {
+            length: 64,
+            offset: 64 * data!.length,
+            index
+        };
     }
 
     render(): ReactNode {
@@ -145,6 +153,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                             extraData={this.state}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
                             keyExtractor={this._keyExtractor}
+                            getItemLayout={this._getItemLayout}
                             contentContainerStyle={{ paddingBottom: 80, flex: (this.props.data.length == 0)? 2: undefined }}
                             ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún estudiante</Text></View>}
                             renderItem={this._renderItem}
@@ -191,3 +200,9 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         </CustomModal>);
     }
 }
+
+const styles = StyleSheet.create({
+    items: {
+        height: 64
+    }
+});

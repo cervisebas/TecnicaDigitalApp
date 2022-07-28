@@ -170,6 +170,13 @@ export default class Page3 extends Component<IProps, IState> {
             onDelete={()=>this.setState({ showConfirmDelete: true, dataConfirmDelete: item.id })}
         />);
     }
+    _getItemLayout2(data: StudentsData[] | null | undefined, index: number) {
+        return {
+            length: 64,
+            offset: 64 * data!.length,
+            index
+        };
+    }
     _renderItem1({ item, index }: ListRenderItemInfo<OrderCurses>) {
         return(<CustomList id={index + 1} key={`p3-list-${item.label}`} style={styles.cardsLists} title={(item.label.indexOf('Profesor') !== -1 || item.label.indexOf('Archivado') !== -1)? item.label: `Curso ${item.label}`}>
             <FlatList
@@ -177,6 +184,7 @@ export default class Page3 extends Component<IProps, IState> {
                 style={{ paddingBottom: 8 }}
                 keyExtractor={this._keyExtractor2}
                 ItemSeparatorComponent={this._ItemSeparatorComponent2}
+                getItemLayout={this._getItemLayout2}
                 renderItem={this._renderItem2}
             />
         </CustomList>);

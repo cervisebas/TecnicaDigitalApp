@@ -1,5 +1,5 @@
 import React, { PureComponent, ReactNode } from "react";
-import { StyleProp, ViewStyle } from "react-native";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { Button, Card, Chip, Colors, Text } from "react-native-paper";
 
 type IProps = {
@@ -16,7 +16,7 @@ export default class CustomCard extends PureComponent<IProps, IState> {
         super(props);
     }
     render(): ReactNode {
-        return(<Card style={{ margin: 8 }} elevation={3}>
+        return(<Card style={styles.card} elevation={3}>
             <Card.Title
                 title={this.props.title}
                 right={(props)=><Text style={{ marginRight: 16 }} {...props}>{this.props.date}</Text>} />
@@ -50,3 +50,12 @@ class CustomChip extends PureComponent<IProps2> {
         </Chip>);
     }
 }
+
+const styles = StyleSheet.create({
+    card: {
+        height: 125,
+        marginLeft: 8,
+        marginRight: 8,
+        marginBottom: 8
+    }
+});

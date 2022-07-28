@@ -77,6 +77,13 @@ export default class SearchStudents extends Component<IProps, IState> {
             onDelete={()=>this.props.onDelete(item.id)}
         />);
     }
+    _getItemLayout(data: StudentsData[] | null | undefined, index: number) {
+        return {
+            length: 64,
+            offset: 64 * data!.length,
+            index
+        };
+    }
 
     render(): React.ReactNode {
         return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
@@ -91,6 +98,7 @@ export default class SearchStudents extends Component<IProps, IState> {
                             data={this.state.list}
                             extraData={this.state}
                             keyExtractor={this._keyExtractor}
+                            getItemLayout={this._getItemLayout}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
                             ListHeaderComponent={<Searchbar
                                 value={this.state.searchQuery}

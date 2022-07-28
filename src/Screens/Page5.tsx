@@ -112,11 +112,18 @@ export default class Page5 extends Component<IProps, IState> {
         });
     }
     _filterNormal() {
-        if (this.state.filterActive == 'normal') return this.setState({ menuVisible: false }, ()=>ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT));
+        if (this.state.filterActive == 'normal') return this.setState({ menuVisible: false }, ()=>ToastAndroid.show("No hay filtros establecidos.", ToastAndroid.SHORT));
         this.setState({ menuVisible: false, datas: this.state.actualDatas, filterActive: 'normal' });
     }
     _closeMenu() {
         this.setState({ menuVisible: false });
+    }
+    _getItemLayout(data: RecordData[] | null | undefined, index: number) {
+        return {
+            length: 64,
+            offset: 64 * data!.length,
+            index
+        };
     }
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
@@ -128,10 +135,10 @@ export default class Page5 extends Component<IProps, IState> {
                         visible={this.state.menuVisible}
                         onDismiss={this._closeMenu}
                         anchor={<Appbar.Action icon={'filter-variant'} color={'#FFFFFF'} onPress={()=>this.setState({ menuVisible: true })} disabled={(this.state.isLoading || this.state.isRefresh)} />}>
-                        <Menu.Item title={"Por importancia (ascendente)"} onPress={this._filterAsc} />
-                        <Menu.Item title={"Por importancia (descendente)"} onPress={this._filterDesc} />
-                        <Menu.Item title={"Normal"} onPress={this._filterNormal} />
-                        <Menu.Item title={'Cancelar'} onPress={this._closeMenu} />
+                        <Menu.Item title={"Por importancia (ascendente)"} icon={'sort-numeric-ascending'} onPress={this._filterAsc} />
+                        <Menu.Item title={"Por importancia (descendente)"} icon={'sort-numeric-descending'} onPress={this._filterDesc} />
+                        <Menu.Item title={"Limpiar filtros"} icon={'filter-off-outline'} onPress={this._filterNormal} />
+                        <Menu.Item title={'Cancelar'} icon={'close'} onPress={this._closeMenu} />
                     </Menu>
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
@@ -140,6 +147,7 @@ export default class Page5 extends Component<IProps, IState> {
                         extraData={this.state}
                         contentContainerStyle={{ paddingTop: 8 }}
                         refreshControl={<RefreshControl refreshing={this.state.isRefresh} colors={[Theme.colors.primary]} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
+                        getItemLayout={this._getItemLayout}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
                         keyExtractor={this._keyExtractor}
                         renderItem={this._renderItem}
@@ -193,6 +201,8 @@ class RecordItem extends PureComponent<IProps2, IState2> {
         return(<List.Item
             title={useUtf8(decode(this.props.title))}
             description={useUtf8(decode(this.props.description))}
+            style={{ height: 72 }}
+            onLayout={({ nativeEvent: { layout: { height } } })=>console.log(height)}
             left={(props)=><List.Icon
                 {...props}
                 icon={this.state.icon}

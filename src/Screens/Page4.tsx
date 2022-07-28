@@ -86,8 +86,8 @@ export default class Page4 extends Component<IProps, IState> {
         this.selectEditOptions = this.selectEditOptions.bind(this);
         this.deleteNow = this.deleteNow.bind(this);
     }
-    private event: EmitterSubscription | undefined = undefined;
-    private event2: EmitterSubscription | undefined = undefined;
+    private event: EmitterSubscription | null = null;
+    private event2: EmitterSubscription | null = null;
     // Action Sheet
     private actionSheet: ActionSheet | null = null;
     private optionsMenuEdit: any[] = [
@@ -104,9 +104,9 @@ export default class Page4 extends Component<IProps, IState> {
     }
     componentWillUnmount() {
         this.event?.remove();
-        this.event = undefined;
         this.event2?.remove();
-        this.event2 = undefined;
+        this.event = null;
+        this.event2 = null;
     }
     loadData() {
         var isLoading = !this.state.isRefresh;

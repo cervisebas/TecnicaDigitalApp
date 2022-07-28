@@ -122,6 +122,28 @@ type DataList = {
     exist: boolean;
 };
 
+// Records
+type RecordData = {
+    id: string;
+    movent: string;
+    date: string;
+    hour: string;
+    importance: string;
+    admin: {
+        ok: boolean;
+        cause: string;
+        datas: {
+            id: string;
+            name: string;
+            position: string;
+            username: string;
+            picture: string;
+        };
+    };
+    type: string;
+    section: string;
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -137,5 +159,6 @@ export type {
     AssistIndividualData,
     AnnotationList,
     DirectivesList,
-    FamilyDataAssist
+    FamilyDataAssist,
+    RecordData
 };

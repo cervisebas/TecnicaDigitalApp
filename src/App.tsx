@@ -13,6 +13,7 @@ import MainWidget from "./Scripts/MainWidget";
 import LoadingController from "./Components/loading/loading-controller";
 import RNFS from "react-native-fs";
 import FastImage from "react-native-fast-image";
+import Page5 from "./Screens/Page5";
 
 type IProps = {};
 type IState = {
@@ -93,6 +94,11 @@ export default class AppAdmin extends Component<IProps, IState> {
                     name="Directivos"
                     component={Page4}
                     options={{ drawerLabel: 'Directivos', drawerIcon: 'shield-crown-outline' as any }}
+                />
+                <Drawer.Screen
+                    name="Registros de actividad"
+                    component={Page5}
+                    options={{ drawerLabel: 'Registros de actividad', drawerIcon: 'folder-text-outline' as any }}
                 />
             </Drawer.Navigator>
             <Portal>

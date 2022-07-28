@@ -5,6 +5,7 @@ import AssistSystem from "./ApiTecnica/assists";
 import DirectiveSystem from "./ApiTecnica/directives";
 import FamilySystem from "./ApiTecnica/family";
 import GenerateRegister from "./ApiTecnica/generate-register";
+import { RecordSystem } from "./ApiTecnica/records";
 import StudentSystem from "./ApiTecnica/student";
 
 const keyCode: string = encode('Zr4u7x!A%D*G-KaNdRgUkXp2s5v8y/B?E(H+MbQeShVmYq3t6w9z$C&F)J@NcRfU');
@@ -17,6 +18,7 @@ const Directive = new DirectiveSystem(urlBase, keyCode);
 const Assist = new AssistSystem(urlBase, keyCode);
 const Annotation = new AnnotationSystem(urlBase, keyCode);
 const Family = new FamilySystem(urlBase, keyCodeFamily);
+const Records = new RecordSystem(urlBase, keyCode);
 const GeneratePDF = new GenerateRegister();
 const Actions = new ApiActions();
 
@@ -28,5 +30,6 @@ export {
     Annotation,
     Family,
     GeneratePDF,
-    Actions
+    Actions,
+    Records
 };

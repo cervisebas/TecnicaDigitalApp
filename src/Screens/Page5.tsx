@@ -135,9 +135,12 @@ export default class Page5 extends Component<IProps, IState> {
                         visible={this.state.menuVisible}
                         onDismiss={this._closeMenu}
                         anchor={<Appbar.Action icon={'filter-variant'} color={'#FFFFFF'} onPress={()=>this.setState({ menuVisible: true })} disabled={(this.state.isLoading || this.state.isRefresh)} />}>
-                        <Menu.Item title={"Por importancia (ascendente)"} icon={'sort-numeric-ascending'} onPress={this._filterAsc} />
-                        <Menu.Item title={"Por importancia (descendente)"} icon={'sort-numeric-descending'} onPress={this._filterDesc} />
+                        <Menu.Item title={"Ascendente"} icon={'sort-numeric-ascending'} onPress={this._filterAsc} />
+                        <Divider />
+                        <Menu.Item title={"Descendente"} icon={'sort-numeric-descending'} onPress={this._filterDesc} />
+                        <Divider />
                         <Menu.Item title={"Limpiar filtros"} icon={'filter-off-outline'} onPress={this._filterNormal} />
+                        <Divider />
                         <Menu.Item title={'Cancelar'} icon={'close'} onPress={this._closeMenu} />
                     </Menu>
                 </Appbar>

@@ -17,7 +17,7 @@
 -keep class io.invertase.notifee.** { *; }
 -dontwarn io.invertase.notifee.**
 
-# @react-native-async-storage/async-storag
+# @react-native-async-storage/async-storage
 -keep class com.reactnativecommunity.asyncstorage.** { *; }
 -dontwarn com.reactnativecommunity.asyncstorage.**
 

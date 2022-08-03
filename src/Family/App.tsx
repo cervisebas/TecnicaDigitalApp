@@ -1,5 +1,5 @@
 import React, { Component, PureComponent } from "react";
-import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View, NativeModules } from "react-native";
+import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, ProgressBar, Provider as PaperProvider, Snackbar, Text, Title } from "react-native-paper";
 import Theme from "../Themes";

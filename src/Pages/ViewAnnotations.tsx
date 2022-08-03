@@ -45,8 +45,8 @@ export default class ViewAnnotations extends Component<IProps, IState> {
         );
     }
 
-    _keyExtractor(item: AnnotationList) {
-        return `annotation-${item.id}`;
+    _keyExtractor({ id }: AnnotationList) {
+        return `annotation-${id}`;
     }
     _renderItem({ item }: ListRenderItemInfo<AnnotationList>) {
         return(<Card style={{ marginLeft: 8, marginBottom: 10, marginRight: 8 }} elevation={3}>

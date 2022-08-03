@@ -1,4 +1,5 @@
 import React, { PureComponent, ReactNode } from "react";
+import { StyleSheet } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
 
 type IProps = {
@@ -11,11 +12,23 @@ export default class CustomCard2 extends PureComponent<IProps, IState> {
         super(props);
     }
     render(): ReactNode {
-        return(<Card style={{ margin: 8 }} elevation={3}>
-            <Card.Actions style={{ justifyContent: 'flex-end' }}>
-                <Text style={{ position: 'absolute', left: 16, fontSize: 18 }}>{this.props.title}</Text>
+        return(<Card style={styles.card} elevation={3}>
+            <Card.Actions style={styles.cardAction}>
+                <Text style={styles.text}>{this.props.title}</Text>
                 <Button icon={'eye-outline'}>Ver</Button>
             </Card.Actions>
         </Card>);
     }
 }
+
+const styles = StyleSheet.create({
+    card: {
+        margin: 8
+    },
+    cardAction: {
+        justifyContent: 'flex-end'
+    },
+    text: {
+        position: 'absolute', left: 16, fontSize: 18
+    }
+});

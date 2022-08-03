@@ -119,13 +119,13 @@ export default class Page4 extends Component<IProps, IState> {
     }
 
     /* ###### Flatlist ###### */
-    _keyExtractor(item: DirectivesList) {
-        return `directive-list-${item.id}`;
+    _keyExtractor({ id }: DirectivesList) {
+        return `directive-list-${id}`;
     }
-    _getItemLayout(data: DirectivesList[] | null | undefined, index: number) {
+    _getItemLayout(_data: DirectivesList[] | null | undefined, index: number) {
         return {
             length: 64,
-            offset: 64 * data!.length,
+            offset: 64 * index,
             index
         };
     }

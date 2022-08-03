@@ -170,10 +170,10 @@ export default class Page3 extends Component<IProps, IState> {
             onDelete={()=>this.setState({ showConfirmDelete: true, dataConfirmDelete: item.id })}
         />);
     }
-    _getItemLayout2(data: StudentsData[] | null | undefined, index: number) {
+    _getItemLayout2(_data: StudentsData[] | null | undefined, index: number) {
         return {
             length: 64,
-            offset: 64 * data!.length,
+            offset: 64 * index,
             index
         };
     }

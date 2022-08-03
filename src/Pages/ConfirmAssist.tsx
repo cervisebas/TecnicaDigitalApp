@@ -29,6 +29,7 @@ type IState = {
 
     data: AssistUserData[];
     dataLog: DataList[];
+    notify: boolean;
 };
 
 export default class ConfirmAssist extends Component<IProps, IState> {
@@ -41,11 +42,13 @@ export default class ConfirmAssist extends Component<IProps, IState> {
             isMenuOpen: false,
             isLoading: false,
             data: [],
-            dataLog: []
+            dataLog: [],
+            notify: true
         };
         this.closeAndClean = this.closeAndClean.bind(this);
         this.loadData = this.loadData.bind(this);
         this._renderItem = this._renderItem.bind(this);
+        this._changeNotifyState = this._changeNotifyState.bind(this);
     }
     checkAction(idStudent: string, index: number) {
         let dataLog = this.state.dataLog;
@@ -65,13 +68,13 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     }
     closeAndClean() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.setState({ dataLog: [], data: [] });
+        this.setState({ dataLog: [], data: [], notify: true });
         this.props.close();
     }
     send() {
         if (this.props.data.length == 0) return ToastAndroid.show('Opción no disponible, no se encontró ningún estudiante en la lista...', ToastAndroid.SHORT);
         this.setState({ isLoading: true }, ()=>
-            Assist.confirmAssist(this.props.select.id, this.state.dataLog)
+            Assist.confirmAssist(this.props.select.id, this.state.notify, this.state.dataLog)
                 .then(()=>this.setState({ isLoading: false }, ()=>{
                     DeviceEventEmitter.emit('p1-reload', undefined, true);
                     this.props.showSnackbar(true, `Se confirmo el registro de "${this.props.select.curse}".`, ()=>this.closeAndClean());
@@ -94,8 +97,8 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     _ItemSeparatorComponent() {
         return(<Divider />);
     }
-    _keyExtractor(item: AssistUserData) {
-        return `confirm-assist-${item.id}`;
+    _keyExtractor({ id }: AssistUserData) {
+        return `confirm-assist-${id}`;
     }
     _renderItem({ item, index }: ListRenderItemInfo<AssistUserData>) {
         return(<List.Item
@@ -122,12 +125,15 @@ export default class ConfirmAssist extends Component<IProps, IState> {
             </View>}
         />);
     }
-    _getItemLayout(data: AssistUserData[] | null | undefined, index: number) {
+    _getItemLayout(_data: AssistUserData[] | null | undefined, index: number) {
         return {
             length: 64,
-            offset: 64 * data!.length,
+            offset: 64 * index,
             index
         };
+    }
+    _changeNotifyState() {
+        this.setState({ notify: !this.state.notify });
     }
 
     render(): ReactNode {
@@ -142,9 +148,10 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                             onDismiss={()=>this.setState({ isMenuOpen: false })}
                             anchor={<Appbar.Action color={'#FFFFFF'} disabled={this.state.isLoading} icon={'dots-vertical'} onPress={()=>this.setState({ isMenuOpen: true })} />}>
                             <Menu.Item icon={'delete-outline'} onPress={()=>this.setState({ isMenuOpen: false, deleteVisible: true })} title={"Eliminar"} />
-                            <Menu.Item icon={'note-edit-outline'} onPress={()=>this.setState({ isMenuOpen: false }, ()=>this.props.openAddAnnotation())} title={"Añadir anotación"} />
+                            <Menu.Item icon={'note-edit-outline'} onPress={()=>this.setState({ isMenuOpen: false }, this.props.openAddAnnotation)} title={"Añadir anotación"} />
+                            <Menu.Item icon={(this.state.notify)? 'bell-outline': 'bell-off-outline'} onPress={this._changeNotifyState} title={"Notificar"} />
                             <Divider />
-                            <Menu.Item icon={'close'} onPress={()=>this.setState({ isMenuOpen: false })} title="Cerrar" />
+                            <Menu.Item icon={'close'} onPress={()=>this.setState({ isMenuOpen: false })} title={"Cerrar"} />
                         </Menu>
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>

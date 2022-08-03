@@ -1,7 +1,7 @@
 import { DrawerContentComponentProps, DrawerContentScrollView } from "@react-navigation/drawer";
 import { CommonActions, DrawerActions } from "@react-navigation/native";
 import { decode } from "base-64";
-import React, { Component, ReactNode } from "react";
+import React, { Component, PureComponent, ReactNode } from "react";
 import { DeviceEventEmitter, EmitterSubscription, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Avatar, Badge, Drawer, Text, Title } from "react-native-paper";
@@ -18,7 +18,7 @@ type IState = {
     backgroundImage: number;
     sizeCache: string;
 };
-export default class CustomDrawerNavegation extends Component<DrawerContentComponentProps, IState> {
+export default class CustomDrawerNavegation extends PureComponent<DrawerContentComponentProps, IState> {
     constructor(props: DrawerContentComponentProps) {
         super(props);
         this.state = {

@@ -66,12 +66,15 @@ export default class Others extends Component<IProps, IState> {
                         messageLoading: action.cause
                     }));
             }
-        }).catch(()=>this.setState({
-            showScreenLoading: false,
-            showMessageLoading: undefined,
-            messageLoading: undefined,
-            showSessionView: true
-        }));
+        }).catch(()=>{
+            DeviceEventEmitter.emit('ChangeIndexNavigation', 'Default');
+            this.setState({
+                showScreenLoading: false,
+                showMessageLoading: undefined,
+                messageLoading: undefined,
+                showSessionView: true
+            })
+        });
     }
     render(): React.ReactNode {
         return(<>

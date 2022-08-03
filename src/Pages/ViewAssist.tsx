@@ -108,8 +108,8 @@ export default class ViewAssist extends Component<IProps, IState> {
     _ItemSeparatorComponent() {
         return(<Divider />);
     }
-    _keyExtractor(item: AssistUserData) {
-        return `view-assist-${item.id}`;
+    _keyExtractor({ id }: AssistUserData) {
+        return `view-assist-${id}`;
     }
     _renderItem({ item }: ListRenderItemInfo<AssistUserData>) {
         return(<List.Item
@@ -130,10 +130,10 @@ export default class ViewAssist extends Component<IProps, IState> {
             />}
         />);
     }
-    _getItemLayout(data: AssistUserData[] | null | undefined, index: number) {
+    _getItemLayout(_data: AssistUserData[] | null | undefined, index: number) {
         return {
             length: 72,
-            offset: 72 * data!.length,
+            offset: 72 * index,
             index
         };
     }

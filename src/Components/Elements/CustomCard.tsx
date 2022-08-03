@@ -23,16 +23,12 @@ export default class CustomCard extends PureComponent<IProps, IState> {
             <Card.Actions style={{ position: 'relative' }}>
                 <Button
                     icon={(this.props.state)? 'eye-outline': 'account-multiple-check-outline'}
-                    onPress={()=>(this.props.state)? (this.props.openView)&&this.props.openView(): (this.props.openConfirm)&&this.props.openConfirm()}
+                    onPress={(this.props.state)? (this.props.openView)&&this.props.openView: (this.props.openConfirm)&&this.props.openConfirm}
                 >{(this.props.state)? 'Ver': 'Confirmar'}</Button>
                 <CustomChip
                     title={(this.props.state)? 'Confirmado': 'Sin confirmar'}
                     color={(this.props.state)? Colors.blue500: Colors.red500}
-                    style={{
-                        position: 'absolute',
-                        bottom: 12,
-                        right: 16,
-                    }}
+                    style={styles.customChip}
                 />
             </Card.Actions>
         </Card>);
@@ -57,5 +53,10 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         marginRight: 8,
         marginBottom: 8
+    },
+    customChip: {
+        position: 'absolute',
+        bottom: 12,
+        right: 16
     }
 });

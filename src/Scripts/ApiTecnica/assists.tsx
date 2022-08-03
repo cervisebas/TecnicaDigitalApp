@@ -71,12 +71,12 @@ export default class AssistSystem {
             }
         });
     }
-    confirmAssist(idGroup: string, datasList: DataList[]): Promise<boolean> {
+    confirmAssist(idGroup: string, notify: boolean, datasList: DataList[]): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
                 var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
                 Directives.getDataLocal().then((session)=>{
-                    var dataPost = { confirmGroupAssist: true, username: session.username, password: session.password, idGroup: idGroup, datas: encode(JSON.stringify(datasList)) };
+                    var dataPost = { confirmGroupAssist: true, username: session.username, password: session.password, idGroup: idGroup, notify: (notify)? '1': '0', datas: encode(JSON.stringify(datasList)) };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
                         var res: TypicalRes = result.data;
                         if (res.ok) resolve(true); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });

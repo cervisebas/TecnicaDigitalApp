@@ -5,6 +5,7 @@ import Page1 from "./Screens/Page1";
 import Page2 from "./Screens/Page2";
 import Page3 from "./Screens/Page3";
 import Page4 from "./Screens/Page4";
+import messaging from '@react-native-firebase/messaging';
 import { Button, Dialog, Paragraph, Portal, Provider, Text } from "react-native-paper";
 import Theme from "./Themes";
 import { DeviceEventEmitter, EmitterSubscription, ToastAndroid } from "react-native";
@@ -41,6 +42,7 @@ export default class AppAdmin extends Component<IProps, IState> {
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('CloseSessionAdmin', ()=>this.setState({ viewLogOut: true }));
         this.event2 = DeviceEventEmitter.addListener('ClearNowCache', ()=>this.setState({ viewClearCache: true }));
+        messaging().subscribeToTopic("directives");
     }
     componentWillUnmount() {
         this.event?.remove();
@@ -50,6 +52,7 @@ export default class AppAdmin extends Component<IProps, IState> {
     }
     async closeSession() {
         await Directive.closeSession();
+        await messaging().unsubscribeFromTopic("directives");
         await MainWidget.init();
         DeviceEventEmitter.emit('reVerifySession');
     }

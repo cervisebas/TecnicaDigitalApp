@@ -111,13 +111,13 @@ class ViewAssistPanel extends Component<IProps2> {
             style={{ height: 70 }}
         />);
     }
-    _keyExtractor(item: AssistIndividualData) {
-        return `detail-assist-${item.id}`;
+    _keyExtractor({ id }: AssistIndividualData) {
+        return `detail-assist-${id}`;
     }
-    _getItemLayout(data: AssistIndividualData[] | null | undefined, index: number) {
+    _getItemLayout(_data: AssistIndividualData[] | null | undefined, index: number) {
         return {
             length: 70,
-            offset: 70 * data!.length,
+            offset: 70 * index,
             index
         };
     }

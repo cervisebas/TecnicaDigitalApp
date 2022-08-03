@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Dimensions, StyleProp, ViewStyle } from "react-native";
+import { Dimensions, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import Modal from "react-native-modal";
 import DeviceDimensions from 'react-native-extra-dimensions-android';
 
@@ -46,8 +46,14 @@ export default class CustomModal extends Component<IProps, IState> {
             useNativeDriver={true}
             deviceWidth={width}
             deviceHeight={height}
-            style={[this.props.style, { margin: 0 }]}>
+            style={[this.props.style, styles.modal]}>
             {this.props.children}
         </Modal>);
     }
 }
+
+const styles = StyleSheet.create({
+    modal: {
+        margin: 0
+    }
+});

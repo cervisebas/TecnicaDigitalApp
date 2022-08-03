@@ -47,7 +47,7 @@ export default class ImageLazyLoadCard extends PureComponent<IProps, IState> {
         this._isMount = false;
     }
     render(): React.ReactNode {
-        return(<View style={[{ position: 'relative', overflow: 'hidden' }, (this.props.enableCustomSize)? this.props.customSize: { width: this.props.size, height: this.props.size }, this.props.style, (this.props.circle)&&styles.circle]}>
+        return(<View style={[styles.view, (this.props.enableCustomSize)? this.props.customSize: { width: this.props.size, height: this.props.size }, this.props.style, (this.props.circle)&&styles.circle]}>
             {(this.state.isLoading)?<SkeletonPlaceholder>
                 <SkeletonPlaceholder.Item width={'100%'} height={'100%'} />
             </SkeletonPlaceholder>:
@@ -63,6 +63,10 @@ export default class ImageLazyLoadCard extends PureComponent<IProps, IState> {
 }
 
 const styles = StyleSheet.create({
+    view: {
+        position: 'relative',
+        overflow: 'hidden'
+    },
     circle: {
         borderRadius: 1000000,
         overflow: 'hidden'

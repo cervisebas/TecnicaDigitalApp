@@ -1,5 +1,5 @@
-import React, { Component, PureComponent } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, ToastAndroid, View } from "react-native";
+import React, { PureComponent } from "react";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
 import { ActivityIndicator, Appbar, Colors, Divider, IconButton, List, Menu, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Records } from "../Scripts/ApiTecnica";
@@ -32,8 +32,16 @@ type IState = {
     menuVisible: boolean;
     filterActive: 'upward' | 'falling' | 'normal';
 };
+type leftProps = {
+    color: string;
+    style: {
+        marginLeft: number;
+        marginRight: number;
+        marginVertical?: number | undefined;
+    };
+};
 
-export default class Page5 extends Component<IProps, IState> {
+export default class Page5 extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -73,20 +81,6 @@ export default class Page5 extends Component<IProps, IState> {
                 .catch(({ cause })=>this.setState({ isError: true, isLoading: false, messageError: cause  }))
         );
     }
-    _ItemSeparatorComponent() {
-        return(<Divider />);
-    }
-    _keyExtractor({ id }: RecordData) {
-        return `page5-item${id}`;
-    }
-    _renderItem({ item }: ListRenderItemInfo<RecordData>) {
-        return(<RecordItem
-            title={item.type}
-            description={item.movent}
-            importance={parseInt(item.importance)}
-            onPress={()=>this.setState({ viewDetails: true, viewDetailsData: item })}
-        />);
-    }
     _filterAsc() {
         if (this.state.filterActive == 'upward') return this.setState({ menuVisible: false }, ()=>ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT));
         var data: RecordData[] = this.state.datas;
@@ -118,10 +112,24 @@ export default class Page5 extends Component<IProps, IState> {
     _closeMenu() {
         this.setState({ menuVisible: false });
     }
-    _getItemLayout(data: RecordData[] | null | undefined, index: number) {
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
+    _keyExtractor({ id }: RecordData) {
+        return `page5-item${id}`;
+    }
+    _renderItem({ item }: ListRenderItemInfo<RecordData>) {
+        return(<RecordItem
+            title={item.type}
+            description={item.movent}
+            importance={parseInt(item.importance)}
+            onPress={()=>this.setState({ viewDetails: true, viewDetailsData: item })}
+        />);
+    }
+    _getItemLayout(_data: RecordData[] | null | undefined, index: number) {
         return {
-            length: 64,
-            offset: 64 * data!.length,
+            length: 72,
+            offset: 72 * index,
             index
         };
     }
@@ -165,12 +173,12 @@ export default class Page5 extends Component<IProps, IState> {
                             </View>
                         </View>}
                     </View>}
-                    <ViewDetailsRecord
-                        visible={this.state.viewDetails}
-                        close={()=>this.setState({ viewDetails: false, viewDetailsData: undefined })}
-                        datas={this.state.viewDetailsData}
-                    />
                 </View>
+                <ViewDetailsRecord
+                    visible={this.state.viewDetails}
+                    close={()=>this.setState({ viewDetails: false, viewDetailsData: undefined })}
+                    datas={this.state.viewDetailsData}
+                />
             </PaperProvider>
         </View>);
     }
@@ -185,33 +193,48 @@ type IProps2 = {
 type IState2 = {
     icon: string;
     color: string;
+    title: string;
+    description: string;
 };
 class RecordItem extends PureComponent<IProps2, IState2> {
     constructor(props: IProps2) {
         super(props);
         this.state = {
             icon: 'close',
-            color: 'red'
+            color: 'red',
+            title: '',
+            description: ''
         };
+        this.leftIcon = this.leftIcon.bind(this);
     }
     componentDidMount() {
         this.setState({
             icon: (this.props.importance == 1)? 'alert-outline': (this.props.importance == 2)? 'alert-octagon-outline': (this.props.importance == 3)? 'alert-decagram-outline': 'alert-circle-outline',
-            color: (this.props.importance == 1)? Colors.red500: (this.props.importance == 2)? Colors.yellow500: (this.props.importance == 3)? Colors.blue500: Colors.green500
+            color: (this.props.importance == 1)? Colors.red500: (this.props.importance == 2)? Colors.yellow500: (this.props.importance == 3)? Colors.blue500: Colors.green500,
+            title: useUtf8(decode(this.props.title)),
+            description: useUtf8(decode(this.props.description))
         });
+    }
+    leftIcon(props: leftProps) {
+        return(<List.Icon
+            {...props}
+            icon={this.state.icon}
+            color={this.state.color}
+        />);
     }
     render(): React.ReactNode {
         return(<List.Item
-            title={useUtf8(decode(this.props.title))}
-            description={useUtf8(decode(this.props.description))}
-            style={{ height: 72 }}
-            onLayout={({ nativeEvent: { layout: { height } } })=>console.log(height)}
-            left={(props)=><List.Icon
-                {...props}
-                icon={this.state.icon}
-                color={this.state.color}
-            />}
+            title={this.state.title}
+            description={this.state.description}
+            style={styles.item}
+            left={this.leftIcon}
             onPress={(this.props.onPress)&&this.props.onPress}
         />);
     }
 }
+
+const styles = StyleSheet.create({
+    item: {
+        height: 72
+    }
+});

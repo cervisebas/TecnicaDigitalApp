@@ -93,7 +93,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                         <TextView title={'ID Estudiante'} text={this.state.idStudent} />
                         <TextView title={'Curso'} text={decode(this.props.data.curse)} />
                         <TextView title={'DNI'} text={decode(this.props.data.dni)} />
-                        <TextView title={'Cumpleaños'} text={decode(this.props.data.date)} />
+                        <TextView title={'Nacimiento'} text={decode(this.props.data.date)} />
                         <TextView title={'Teléfono'} text={decode(this.props.data.tel)} />
                         {(this.props.data.email.length !== 0)&&<TextView title={'E-Mail'} text={decode(this.props.data.email)} />}
                     </View>

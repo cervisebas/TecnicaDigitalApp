@@ -18,6 +18,15 @@ type IProps2 = {
 type IState2 = {
     menuVisible: boolean;
 };
+type leftProps = {
+    color: string;
+    style: {
+        marginLeft: number;
+        marginRight: number;
+        marginVertical?: number | undefined;
+    };
+};
+
 export default class ItemDirective extends PureComponent<IProps2, IState2> {
     constructor(props: IProps2) {
         super(props);
@@ -25,6 +34,11 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
             menuVisible: false
         };
         this._description = this._description.bind(this);
+        this.showMenu = this.showMenu.bind(this);
+        this.hideMenu = this.hideMenu.bind(this);
+        this.onEdit = this.onEdit.bind(this);
+        this.onDelete = this.onDelete.bind(this);
+        this.leftImage = this.leftImage.bind(this);
     }
     _description() {
         return(<View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -32,20 +46,40 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
             <Text style={{ marginLeft: 4 }}>{this.props.position}</Text>
         </View>);
     }
+    showMenu() {
+        this.setState({ menuVisible: true });
+    }
+    hideMenu() {
+        this.setState({ menuVisible: false });
+    }
+    onEdit() {
+        this.setState({ menuVisible: false }, (this.props.onEdit)&&this.props.onEdit);
+    }
+    onDelete() {
+        this.setState({ menuVisible: false }, (this.props.onDelete)&&this.props.onDelete);
+    }
+    leftImage(props: leftProps) {
+        return(<ImageLazyLoad
+            {...props}
+            size={48}
+            circle={true}
+            source={this.props.source}
+        />);
+    }
     render(): React.ReactNode {
         return(<List.Item
             title={this.props.title}
             description={this._description}
             style={styles.items}
             onPress={(this.props.onPress)&&this.props.onPress}
-            onLongPress={()=>this.setState({ menuVisible: true })}
-            left={(props)=><ImageLazyLoad {...props} size={48} circle={true} source={this.props.source} />}
+            onLongPress={this.showMenu}
+            left={this.leftImage}
             right={()=><Menu
                 visible={this.state.menuVisible}
-                onDismiss={()=>this.setState({ menuVisible: false })}
-                anchor={<IconButton icon={'dots-vertical'} onPress={()=>this.setState({ menuVisible: true })} />}>
-                <Menu.Item onPress={()=>this.setState({ menuVisible: false }, ()=>(this.props.onEdit)&&this.props.onEdit())} title="Editar" />
-                <Menu.Item onPress={()=>this.setState({ menuVisible: false }, ()=>(this.props.onDelete)&&this.props.onDelete())} style={{ backgroundColor: '#FF0000' }} title={<Text style={{ color: '#FFFFFF' }}>Eliminar</Text>} />
+                onDismiss={this.hideMenu}
+                anchor={<IconButton icon={'dots-vertical'} onPress={this.showMenu} />}>
+                <Menu.Item onPress={this.onEdit} title="Editar" />
+                <Menu.Item onPress={this.onDelete} style={{ backgroundColor: '#FF0000' }} title={<Text style={{ color: '#FFFFFF' }}>Eliminar</Text>} />
             </Menu>}
         />);
     }

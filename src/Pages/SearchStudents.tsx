@@ -1,5 +1,5 @@
 import { decode } from "base-64";
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { FlatList, ListRenderItemInfo, View } from "react-native";
 import { ActivityIndicator, Appbar, Divider, Provider as PaperProvider, Searchbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
@@ -22,7 +22,7 @@ type IState = {
     isLoading: boolean;
 };
 
-export default class SearchStudents extends Component<IProps, IState> {
+export default class SearchStudents extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -77,10 +77,10 @@ export default class SearchStudents extends Component<IProps, IState> {
             onDelete={()=>this.props.onDelete(item.id)}
         />);
     }
-    _getItemLayout(data: StudentsData[] | null | undefined, index: number) {
+    _getItemLayout(_data: StudentsData[] | null | undefined, index: number) {
         return {
             length: 64,
-            offset: 64 * data!.length,
+            offset: 64 * index,
             index
         };
     }

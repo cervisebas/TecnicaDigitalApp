@@ -164,8 +164,8 @@ export default class Page1 extends Component<IProps, IState> {
     }
 
     // Flatlist
-    _keyExtractor(item: DataGroup) {
-        return `p1-card-${item.id}`;
+    _keyExtractor({ id }: DataGroup) {
+        return `p1-card-${id}`;
     }
     _openConfirm(id: string, curse: string) {
         this.openConfirm(id, { id: id, curse: decode(curse) });
@@ -183,10 +183,10 @@ export default class Page1 extends Component<IProps, IState> {
             openView={()=>this._openView(item.id, item.curse, item.date, item.date, item.annotations)}
         />);
     }
-    _getItemLayout(data: DataGroup[] | null | undefined, index: number) {
+    _getItemLayout(_data: DataGroup[] | null | undefined, index: number) {
         return {
             length: 125,
-            offset: 125 * data!.length,
+            offset: 125 * index,
             index
         };
     }

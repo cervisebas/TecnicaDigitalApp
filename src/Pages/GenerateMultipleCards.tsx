@@ -51,10 +51,8 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
         });
     }
 
-    
-
-    _keyExtractor(item: StudentsData) {
-        return `credential-${decode(item.dni)}`;
+    _keyExtractor({ dni }: StudentsData) {
+        return `credential-${decode(dni)}`;
     }
     _ItemSeparatorComponent() {
         return(<Divider />);

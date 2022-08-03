@@ -42,7 +42,6 @@ export default class AppAdmin extends Component<IProps, IState> {
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('CloseSessionAdmin', ()=>this.setState({ viewLogOut: true }));
         this.event2 = DeviceEventEmitter.addListener('ClearNowCache', ()=>this.setState({ viewClearCache: true }));
-        messaging().subscribeToTopic("directives");
     }
     componentWillUnmount() {
         this.event?.remove();

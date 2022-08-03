@@ -4,6 +4,7 @@ import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, 
 import { ActivityIndicator, Appbar, IconButton, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageView from "react-native-image-viewing";
+import messaging from '@react-native-firebase/messaging';
 import CustomCard from "../Components/Elements/CustomCard";
 import LoadingController from "../Components/loading/loading-controller";
 import AddNewGroupAssist from "../Pages/AddNewGroupAssist";
@@ -113,6 +114,7 @@ export default class Page1 extends Component<IProps, IState> {
         this.setState({ isLoading: !isRefresh, isError: false }, ()=>
             Assist.getGroups()
                 .then((v)=>{
+                    messaging().subscribeToTopic("directives");
                     if (this._isMount) {
                         this.setState({ dataGroups: v, isLoading: false, isRefresh: false });
                         if (code) this.reloadData(code, v);

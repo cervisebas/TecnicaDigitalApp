@@ -56,7 +56,7 @@ export default class DirectiveSystem {
         });
     }
     async closeSession() {
-        await AsyncStorage.multiRemove(['DataSession', 'DataSession'])
+        await AsyncStorage.multiRemove(['DataSession', 'DataSession', 'PreferencesAssist'])
     }
 
     /* ########################################################################### */

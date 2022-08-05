@@ -81,7 +81,6 @@ export default class Page4 extends Component<IProps, IState> {
             showConfirmDelete: false
         };
         this._renderItem = this._renderItem.bind(this);
-        this._ListFooterComponent = this._ListFooterComponent.bind(this);
         this.loadData = this.loadData.bind(this);
         this.selectEditOptions = this.selectEditOptions.bind(this);
         this.deleteNow = this.deleteNow.bind(this);
@@ -143,14 +142,6 @@ export default class Page4 extends Component<IProps, IState> {
             onDelete={()=>this.setState({ idOptionSelect: item.id, showConfirmDelete: true })}
         />);
     }
-    _ListFooterComponent() {
-        return(<List.Item
-            left={()=><List.Icon icon={'account-plus-outline'} />}
-            title={'Añadir directivo'}
-            onPress={()=>this.setState({ visibleAddDirective: true })}
-            style={{ height: 70 }}
-        />);
-    }
     _ItemSeparatorComponent() {
         return(<Divider />);
     }
@@ -188,8 +179,9 @@ export default class Page4 extends Component<IProps, IState> {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
                 <Appbar>
-                    <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
+                    <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Directivos'}  />
+                    <Appbar.Action icon={'account-plus-outline'} onPress={()=>this.setState({ visibleAddDirective: true })} />
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
                     {(!this.state.isLoading && !this.state.isError)? <FlatList
@@ -201,7 +193,6 @@ export default class Page4 extends Component<IProps, IState> {
                         getItemLayout={this._getItemLayout}
                         keyExtractor={this._keyExtractor}
                         renderItem={this._renderItem}
-                        ListFooterComponent={this._ListFooterComponent}
                     />:
                     <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
                         {(!this.state.isError)? <ActivityIndicator size={'large'} animating />:

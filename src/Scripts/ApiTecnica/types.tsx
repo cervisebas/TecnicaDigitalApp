@@ -144,6 +144,14 @@ type RecordData = {
     section: string;
 };
 
+// Prefences
+type PreferencesAssist = {
+    idDirective: string;
+    date: string;
+    time: string;
+    curses: string[];
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -160,5 +168,6 @@ export type {
     AnnotationList,
     DirectivesList,
     FamilyDataAssist,
-    RecordData
+    RecordData,
+    PreferencesAssist
 };

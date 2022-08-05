@@ -1,7 +1,7 @@
 import { decode } from "base-64";
 import React, { PureComponent } from "react";
-import { FlatList, ListRenderItemInfo, View } from "react-native";
-import { ActivityIndicator, Appbar, Divider, Provider as PaperProvider, Searchbar } from "react-native-paper";
+import { FlatList, ListRenderItemInfo, NativeSyntheticEvent, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
+import { Appbar, Divider, ProgressBar, Provider as PaperProvider, Searchbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import ItemStudent from "../Components/Elements/CustomItem";
 import { urlBase } from "../Scripts/ApiTecnica";
@@ -19,7 +19,6 @@ type IProps = {
 type IState = {
     list: StudentsData[] | undefined;
     searchQuery: string;
-    isLoading: boolean;
 };
 
 export default class SearchStudents extends PureComponent<IProps, IState> {
@@ -27,10 +26,11 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         super(props);
         this.state = {
             list: undefined,
-            searchQuery: '',
-            isLoading: false
+            searchQuery: ''
         };
         this._renderItem = this._renderItem.bind(this);
+        this.onChangeSearch = this.onChangeSearch.bind(this);
+        this.goSearch = this.goSearch.bind(this);
     }
     componentDidUpdate() {
         if (this.props.visible) {
@@ -38,7 +38,6 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         } else {
             if (this.state.list) this.setState({ list: undefined });
             if (this.state.searchQuery.length !== 0) this.setState({ searchQuery: '' });
-            if (this.state.isLoading) this.setState({ isLoading: false });
         }
     }
     
@@ -47,15 +46,13 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         if (this.state.searchQuery.length > Query.length) return this.setState({ searchQuery: Query, list: this.props.list });
         this.setState({ searchQuery: Query });
     }
-    goSearch(Query: string) {
-        this.setState({ isLoading: true }, ()=>{
-            const formattedQuery = Query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trimStart().trimEnd();
-            const search = this.props.list.filter((user)=>{
-                var name1 = decode(user.name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                return name1.indexOf(formattedQuery) !== -1;
-            });
-            this.setState({ list: search, isLoading: false });
+    goSearch({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+        const formattedQuery = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trimStart().trimEnd();
+        const search = this.props.list.filter((user)=>{
+            var name1 = decode(user.name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            return name1.indexOf(formattedQuery) !== -1;
         });
+        this.setState({ list: search });
     }
     /* ################## */
 
@@ -94,26 +91,75 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
                         <Appbar.Content title={'Buscar estudiante'}  />
                     </Appbar.Header>
                     <View style={{ flex: 2 }}>
-                        {(!this.state.isLoading)? (this.state.list)&&<FlatList
+                        <View style={styles.viewSearchbar}>
+                            <CustomSearchbar
+                                onEmpty={()=>this.setState({ list: this.props.list })}
+                                onSubmit={this.goSearch}
+                            />
+                        </View>
+                        {(this.state.list)&&<FlatList
                             data={this.state.list}
                             extraData={this.state}
                             keyExtractor={this._keyExtractor}
                             getItemLayout={this._getItemLayout}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
-                            ListHeaderComponent={<Searchbar
-                                value={this.state.searchQuery}
-                                style={{ marginTop: 8, marginLeft: 8, marginRight: 8, marginBottom: 12 }}
-                                placeholder={'Escribe para buscar...'}
-                                onChangeText={(query: string)=>this.onChangeSearch(query)}
-                                onSubmitEditing={({ nativeEvent })=>this.goSearch(nativeEvent.text)}
-                            />}
+                            contentContainerStyle={styles.listStyle}
                             renderItem={this._renderItem}
-                        />: <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-                            <ActivityIndicator animating size={'large'} />
-                        </View>}
+                        />}
                     </View>
                 </View>
             </PaperProvider>
         </CustomModal>);
     }
 }
+
+type IProps2 = {
+    onEmpty: ()=>any;
+    onSubmit: (event: NativeSyntheticEvent<TextInputSubmitEditingEventData>)=>any;
+};
+type IState2 = {
+    searchQuery: string;
+};
+class CustomSearchbar extends PureComponent<IProps2, IState2> {
+    constructor(props: IProps2) {
+        super(props);
+        this.state = {
+            searchQuery: ''
+        };
+        this.onChangeSearch = this.onChangeSearch.bind(this);
+    }
+    onChangeSearch(Query: string) {
+        if (this.state.searchQuery.length > Query.length) return this.setState({ searchQuery: Query }, this.props.onEmpty);
+        this.setState({ searchQuery: Query });
+    }
+    render(): React.ReactNode {
+        return(<Searchbar
+            value={this.state.searchQuery}
+            style={styles.searchbar}
+            placeholder={'Escribe para buscar...'}
+            onChangeText={this.onChangeSearch}
+            onSubmitEditing={this.props.onSubmit}
+        />);
+    }
+}
+
+const styles = StyleSheet.create({
+    searchbar: {
+        marginTop: 8,
+        marginLeft: 8,
+        marginRight: 8,
+        marginBottom: 12
+    },
+    viewLoading: {
+        flex: 3,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    viewSearchbar: {
+        backgroundColor: Theme.colors.primary,
+        marginTop: -8
+    },
+    listStyle: {
+        paddingTop: 4
+    }
+});

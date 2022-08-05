@@ -1,5 +1,5 @@
 import { decode } from "base-64";
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
 import { ActivityIndicator, Appbar, Button, Dialog, Divider, FAB, IconButton, List, Paragraph, Portal, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -65,7 +65,7 @@ type IState = {
     dataViewDetailsAssist: AssistIndividualData[];
 };
 
-export default class Page3 extends Component<IProps, IState> {
+export default class Page3 extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -156,7 +156,7 @@ export default class Page3 extends Component<IProps, IState> {
         return `p3-list-item-${item.id}`;
     }
     _ItemSeparatorComponent2() {
-        return(<Divider style={{ marginLeft: 8, marginRight: 8 }} />);
+        return(<Divider style={styles.marginList2} />);
     }
     _renderItem2({ item }: ListRenderItemInfo<StudentsData>) {
         return(<ItemStudent
@@ -164,7 +164,7 @@ export default class Page3 extends Component<IProps, IState> {
             source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
             title={decode(item.name)}
             noLine={true}
-            style={{ marginLeft: 8, marginRight: 8 }}
+            style={styles.marginList2}
             onPress={()=>this.setState({ showDetails: true, dataDetails: item })}
             onEdit={()=>this.setState({ showEditStudent: true, dataEditStudent: item })}
             onDelete={()=>this.setState({ showConfirmDelete: true, dataConfirmDelete: item.id })}
@@ -204,7 +204,8 @@ export default class Page3 extends Component<IProps, IState> {
                             <FlatList
                                 data={this.state.datas}
                                 extraData={this.state}
-                                style={{ paddingTop: 8 }}
+                                //style={styles.listStyle}
+                                contentContainerStyle={styles.listStyle}
                                 refreshControl={<RefreshControl
                                     refreshing={this.state.isRefresh}
                                     colors={[Theme.colors.primary]}
@@ -363,6 +364,14 @@ const styles = StyleSheet.create({
         position: 'absolute',
         margin: 16,
         right: 0,
-        bottom: 0,
+        bottom: 0
+    },
+    listStyle: {
+        paddingTop: 8,
+        paddingBottom: 80
+    },
+    marginList2: {
+        marginLeft: 8,
+        marginRight: 8
     }
 });

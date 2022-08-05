@@ -63,10 +63,10 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         if (Directive.openSession) if (!this.state.loadingUser) this.loadData();
     }
     changeBackgroundImage() {
-        var random = Math.floor(Math.random() * (4 - 0) + 0);
-        if (random == 1) return this.setState({ backgroundImage: require('../Assets/animation-top-1.gif') });
-        if (random == 2) return this.setState({ backgroundImage: require('../Assets/animation-top-2.gif') });
-        if (random == 3) return this.setState({ backgroundImage: require('../Assets/animation-top-3.gif') });
+        var random = Math.floor(Math.random() * (7 - 0) + 0);
+        if (random == 2 || random == 4) return this.setState({ backgroundImage: require('../Assets/animation-top-2.gif') });
+        if (random == 3 || random == 6) return this.setState({ backgroundImage: require('../Assets/animation-top-3.gif') });
+        if (random == 5) return this.setState({ backgroundImage: require('../Assets/animation-top-1.gif') });
         this.setState({ backgroundImage: require('../Assets/animation-top.gif') });
     }
     async loadData() {

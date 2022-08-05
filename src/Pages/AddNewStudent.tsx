@@ -205,7 +205,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
                     snackBarView: true,
                     snackBarText: 'Estudiante añadido con exito.',
                     formName: '',
-                    formCourse: '1°1',
+                    formCourse: '- Seleccionar -',
                     formTel: '',
                     formEmail: '',
                     formDNI: '',

@@ -29,7 +29,6 @@ type IState = {
     messageError: string;
     viewDetails: boolean;
     viewDetailsData: RecordData | undefined;
-    menuVisible: boolean;
     filterActive: 'upward' | 'falling' | 'normal';
 };
 type leftProps = {
@@ -53,7 +52,6 @@ export default class Page5 extends PureComponent<IProps, IState> {
             messageError: '',
             viewDetails: false,
             viewDetailsData: undefined,
-            menuVisible: false,
             filterActive: 'normal'
         };
         this.loadData = this.loadData.bind(this);
@@ -61,7 +59,6 @@ export default class Page5 extends PureComponent<IProps, IState> {
         this._filterAsc = this._filterAsc.bind(this);
         this._filterDesc = this._filterDesc.bind(this);
         this._filterNormal = this._filterNormal.bind(this);
-        this._closeMenu = this._closeMenu.bind(this);
     }
     private event: EmitterSubscription | null = null;
     componentDidMount() {
@@ -82,9 +79,9 @@ export default class Page5 extends PureComponent<IProps, IState> {
         );
     }
     _filterAsc() {
-        if (this.state.filterActive == 'upward') return this.setState({ menuVisible: false }, ()=>ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT));
+        if (this.state.filterActive == 'upward') return ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT);
         var data: RecordData[] = this.state.datas;
-        this.setState({ isRefresh: true, menuVisible: false, actualDatas: data }, ()=>{
+        this.setState({ isRefresh: true, actualDatas: data }, ()=>{
             var high = data.filter((value)=>parseInt(value.importance) == 1);
             var medium = data.filter((value)=>parseInt(value.importance) == 2);
             var normal = data.filter((value)=>parseInt(value.importance) == 3);
@@ -94,9 +91,9 @@ export default class Page5 extends PureComponent<IProps, IState> {
         });
     }
     _filterDesc() {
-        if (this.state.filterActive == 'falling') return this.setState({ menuVisible: false }, ()=>ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT));
+        if (this.state.filterActive == 'falling') return ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT);
         var data: RecordData[] = this.state.datas;
-        this.setState({ isRefresh: true, menuVisible: false }, ()=>{
+        this.setState({ isRefresh: true }, ()=>{
             var high = data.filter((value)=>parseInt(value.importance) == 1);
             var medium = data.filter((value)=>parseInt(value.importance) == 2);
             var normal = data.filter((value)=>parseInt(value.importance) == 3);
@@ -106,11 +103,8 @@ export default class Page5 extends PureComponent<IProps, IState> {
         });
     }
     _filterNormal() {
-        if (this.state.filterActive == 'normal') return this.setState({ menuVisible: false }, ()=>ToastAndroid.show("No hay filtros establecidos.", ToastAndroid.SHORT));
-        this.setState({ menuVisible: false, datas: this.state.actualDatas, filterActive: 'normal' });
-    }
-    _closeMenu() {
-        this.setState({ menuVisible: false });
+        if (this.state.filterActive == 'normal') return ToastAndroid.show("No hay filtros establecidos.", ToastAndroid.SHORT);
+        this.setState({ datas: this.state.actualDatas, filterActive: 'normal' });
     }
     _ItemSeparatorComponent() {
         return(<Divider />);
@@ -139,18 +133,12 @@ export default class Page5 extends PureComponent<IProps, IState> {
                 <Appbar>
                     <Appbar.Action icon={"menu"} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros de actividad'} />
-                    <Menu
-                        visible={this.state.menuVisible}
-                        onDismiss={this._closeMenu}
-                        anchor={<Appbar.Action icon={'filter-variant'} color={'#FFFFFF'} onPress={()=>this.setState({ menuVisible: true })} disabled={(this.state.isLoading || this.state.isRefresh)} />}>
-                        <Menu.Item title={"Ascendente"} icon={'sort-numeric-ascending'} onPress={this._filterAsc} />
-                        <Divider />
-                        <Menu.Item title={"Descendente"} icon={'sort-numeric-descending'} onPress={this._filterDesc} />
-                        <Divider />
-                        <Menu.Item title={"Limpiar filtros"} icon={'filter-off-outline'} onPress={this._filterNormal} />
-                        <Divider />
-                        <Menu.Item title={'Cancelar'} icon={'close'} onPress={this._closeMenu} />
-                    </Menu>
+                    <CustomMenu
+                        disable={this.state.isLoading || this.state.isError}
+                        filterAsc={this._filterAsc}
+                        filterDesc={this._filterDesc}
+                        filterNormal={this._filterNormal}
+                    />
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
                     {(!this.state.isLoading && !this.state.isError)? <FlatList
@@ -230,6 +218,58 @@ class RecordItem extends PureComponent<IProps2, IState2> {
             left={this.leftIcon}
             onPress={(this.props.onPress)&&this.props.onPress}
         />);
+    }
+}
+
+type IProps3 = {
+    disable: boolean;
+    filterAsc: ()=>any;
+    filterDesc: ()=>any;
+    filterNormal: ()=>any;
+};
+type IState3 = {
+    isOpen: boolean;
+};
+class CustomMenu extends PureComponent<IProps3, IState3> {
+    constructor(props: IProps3) {
+        super(props);
+        this.state = {
+            isOpen: false
+        };
+        this._close = this._close.bind(this);
+        this._open = this._open.bind(this);
+        this._filterAsc = this._filterAsc.bind(this);
+        this._filterDesc = this._filterDesc.bind(this);
+        this._filterNormal = this._filterNormal.bind(this);
+    }
+    _close() {
+        this.setState({ isOpen: false });
+    }
+    _open() {
+        this.setState({ isOpen: true });
+    }
+    _filterAsc() {
+        this.setState({ isOpen: false }, this.props.filterAsc);
+    }
+    _filterDesc() {
+        this.setState({ isOpen: false }, this.props.filterDesc);
+    }
+    _filterNormal() {
+        this.setState({ isOpen: false }, this.props.filterNormal);
+    }
+    render(): React.ReactNode {
+        return(<Menu
+            visible={this.state.isOpen}
+            onDismiss={this._close}
+            anchor={<Appbar.Action icon={'filter-variant'} color={'#FFFFFF'} onPress={this._open} disabled={this.props.disable} />}>
+            <Menu.Item title={"Ascendente"} icon={'sort-numeric-ascending'} onPress={this._filterAsc} />
+            <Divider />
+            <Menu.Item title={"Descendente"} icon={'sort-numeric-descending'} onPress={this._filterDesc} />
+            <Divider />
+            <Menu.Item title={"Limpiar filtros"} icon={'filter-off-outline'} onPress={this._filterNormal} />
+            <Divider />
+            <Menu.Item title={'Cancelar'} icon={'close'} onPress={this._close} />
+        </Menu>);
     }
 }
 

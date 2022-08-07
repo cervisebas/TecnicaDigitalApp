@@ -10,12 +10,11 @@ import Theme from "../Themes";
 import { Assist } from "../Scripts/ApiTecnica";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
     createNow: (datas: { course: string; date: string; time: string; }, then?: ()=>any)=>Promise<string>;
     openConfirm: (idGroup: string, select: { id: string; curse: string; })=>any;
 };
 type IState = {
+    visible: boolean;
     // interface
     visibleDatePicker: boolean;
     visibleTimePicker: boolean;
@@ -35,6 +34,7 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
         super(props);
         var calcHour = Assist.getCalcHour();
         this.state = {
+            visible: false,
             // Interface
             visibleDatePicker: false,
             visibleTimePicker: false,
@@ -50,10 +50,11 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
         };
         this.createGroup = this.createGroup.bind(this);
         this.closeAndClean = this.closeAndClean.bind(this);
+        this.close = this.close.bind(this);
     }
     private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     closeAndClean() {
-        this.props.close();
+        this.close();
         var calcHour = Assist.getCalcHour();
         this.setState({
             actualDatePicker: new Date(),
@@ -78,14 +79,23 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
     }
     createGroup() {
         if (!this.verifyInputs()) return;
-        this.props.createNow({ course: this.state.formCourse, date: this.state.formDate, time: this.state.formHour }, ()=>this.props.close())
+        this.props.createNow({ course: this.state.formCourse, date: this.state.formDate, time: this.state.formHour }, this.close)
             .then((id)=>{
                 this.props.openConfirm(id, { id, curse: this.state.formCourse });
                 this.closeAndClean();
             });
     }
+
+    // Controller
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+
     render(): ReactNode {
-        return(<CustomModal visible={this.props.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+        return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <View style={{ backgroundColor: Theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.closeAndClean} />

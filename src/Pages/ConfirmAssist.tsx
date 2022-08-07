@@ -10,16 +10,16 @@ import { AssistUserData, DataList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    select: { id: string; curse: string; };
-    data: AssistUserData[];
     showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
     showSnackbar: (v: boolean, t: string, a?: ()=>any)=>any;
     openImage: (source: string, text: string)=>any;
     openAddAnnotation: ()=>any;
 };
 type IState = {
+    visible: boolean;
+    select: { id: string; curse: string; };
+    setData: AssistUserData[];
+
     alertVisible: boolean;
     alertMessage: string;
     deleteVisible: boolean;
@@ -36,6 +36,9 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            select: { id: '', curse: '' },
+            setData: [],
             alertVisible: false,
             alertMessage: '',
             deleteVisible: false,
@@ -62,32 +65,32 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     }
     loadData() {
         this.setState({
-            data: this.props.data,
-            dataLog: this.props.data.map((s)=>({ check: s.status, idStudent: s.id, idAssist: s.idAssist, exist: s.exist }))
+            data: this.state.setData,
+            dataLog: this.state.setData.map((s)=>({ check: s.status, idStudent: s.id, idAssist: s.idAssist, exist: s.exist }))
         });
     }
     closeAndClean() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
         this.setState({ dataLog: [], data: [], notify: true });
-        this.props.close();
+        this.close();
     }
     send() {
-        if (this.props.data.length == 0) return ToastAndroid.show('Opción no disponible, no se encontró ningún estudiante en la lista...', ToastAndroid.SHORT);
+        if (this.state.setData.length == 0) return ToastAndroid.show('Opción no disponible, no se encontró ningún estudiante en la lista...', ToastAndroid.SHORT);
         this.setState({ isLoading: true }, ()=>
-            Assist.confirmAssist(this.props.select.id, this.state.notify, this.state.dataLog)
+            Assist.confirmAssist(this.state.select.id, this.state.notify, this.state.dataLog)
                 .then(()=>this.setState({ isLoading: false }, ()=>{
                     DeviceEventEmitter.emit('p1-reload', undefined, true);
-                    this.props.showSnackbar(true, `Se confirmo el registro de "${this.props.select.curse}".`, ()=>this.closeAndClean());
+                    this.props.showSnackbar(true, `Se confirmo el registro de "${this.state.select.curse}".`, ()=>this.closeAndClean());
                 }))
                 .catch((error)=>this.setState({ isLoading: false }, ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
         );
     }
     delete() {
         this.props.showLoading(true, 'Eliminando registro...', ()=>
-            Assist.deleteAssist(this.props.select.id)
+            Assist.deleteAssist(this.state.select.id)
                 .then(()=>this.props.showLoading(false, 'Eliminando registro...', ()=>{
                     DeviceEventEmitter.emit('p1-reload', undefined, true);
-                    this.props.showSnackbar(true, `Se elimino el registro de "${this.props.select.curse}".`, ()=>this.closeAndClean());
+                    this.props.showSnackbar(true, `Se elimino el registro de "${this.state.select.curse}".`, ()=>this.closeAndClean());
                 }))
                 .catch((error)=>this.props.showLoading(false, 'Eliminando registro...', ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
         );
@@ -136,13 +139,29 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         this.setState({ notify: !this.state.notify });
     }
 
+    // Controller
+    open(select: { id: string; curse: string; }, setData: AssistUserData[]) {
+        this.setState({
+            visible: true,
+            select,
+            setData
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            select: { id: '', curse: '' },
+            setData: []
+        });
+    }
+
     render(): ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.closeAndClean}>
+        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.closeAndClean}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
-                        <Appbar.Content title={`Registro: ${this.props.select.curse}`}  />
+                        <Appbar.Content title={`Registro: ${this.state.select.curse}`}  />
                         <Menu
                             visible={this.state.isMenuOpen}
                             onDismiss={()=>this.setState({ isMenuOpen: false })}
@@ -161,7 +180,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
                             keyExtractor={this._keyExtractor}
                             getItemLayout={this._getItemLayout}
-                            contentContainerStyle={{ paddingBottom: 80, flex: (this.props.data.length == 0)? 2: undefined }}
+                            contentContainerStyle={{ paddingBottom: 80, flex: (this.state.setData.length == 0)? 2: undefined }}
                             ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún estudiante</Text></View>}
                             renderItem={this._renderItem}
                         />

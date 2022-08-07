@@ -8,11 +8,10 @@ import { Directive } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
     showSnackbar: (visible: boolean, text: string)=>any;
 };
 type IState = {
+    visible: boolean;
     isLoading: boolean;
 
     showPassword: boolean;
@@ -42,6 +41,7 @@ export default class AddDirective extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
             isLoading: false,
             showPassword: true,
             showPassword2: true,
@@ -108,9 +108,9 @@ export default class AddDirective extends Component<IProps, IState> {
         this.setState({ isLoading: true }, ()=>
             Directive.add(this.state.formName.trimStart().trimEnd(), this.state.formPosition, this.state.formDNI, this.state.formUsername.trimStart().trimEnd(), this.state.formPassword, this.state.formPermission)
                 .then(()=>this.setState({ isLoading: false }, ()=>{
-                    this.props.close();
+                    this.close();
                     this.props.showSnackbar(true, 'Se añadió correctamente el directivo.');
-                    DeviceEventEmitter.emit('reload-page4');
+                    DeviceEventEmitter.emit('reload-page4', true);
                 }))
                 .catch((error)=>this.setState({ isLoading: false }, ()=>ToastAndroid.show(error.cause, ToastAndroid.SHORT)))
         );
@@ -149,11 +149,19 @@ export default class AddDirective extends Component<IProps, IState> {
     }
     goClose() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.props.close();
+        this.close();
+    }
+
+    // Control
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
     }
 
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onClose={this.clearNow} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+        return(<CustomModal visible={this.state.visible} onClose={this.clearNow} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <View style={styles.content}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>

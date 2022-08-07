@@ -1,4 +1,4 @@
-import { decode } from "base-64";
+import { decode, encode } from "base-64";
 import moment from "moment";
 import React, { Component, PureComponent } from "react";
 import { Dimensions, Linking, PermissionsAndroid, ScrollView, StyleSheet, ToastAndroid, TouchableHighlight, View } from "react-native";
@@ -14,21 +14,20 @@ import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 
 type IProps = {
-    visible: boolean;
-    data: StudentsData | undefined;
-    designCard: number | undefined;
-    close: ()=>any;
     openImage: (data: { uri: string })=>any;
     openDetailsAssist: (data: AssistIndividualData[])=>any;
     changeDesign: ()=>any;
     goLoading: (v: boolean, t: string, a?: ()=>any)=>any;
 };
 type IState = {
+    visible: boolean;
+    data: StudentsData;
+    designCard: number | undefined;
+    // SnackBar
     snackBarView: boolean;
     snackBarText: string;
-
+    // Card
     scaleImage: number;
-
     // Extra Data
     idStudent: string;
     // Assist
@@ -45,6 +44,9 @@ export default class ViewDetails extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            data: this.defaultData,
+            designCard: undefined,
             snackBarView: false,
             snackBarText: '',
             scaleImage: 0.3,
@@ -62,6 +64,16 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.shareImageTarget = this.shareImageTarget.bind(this);
         this.closeAndClear = this.closeAndClear.bind(this);
     }
+    private defaultData: StudentsData = {
+        id: '-1',
+        name: encode('none'),
+        dni: encode('none'),
+        curse: encode('none'),
+        tel: encode('none'),
+        email: encode('none'),
+        date: encode('none'),
+        picture: encode('default.png')
+    };
     private refTarget: ViewShot | null | any = null;
     componentDidMount() {
         var scales: number[] = [];
@@ -102,9 +114,9 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.generateImage()
             .then((uri)=>{
                 var codeName: number = Math.floor(Math.random() * (99999 - 10000)) + 10000;
-                var nameFile: string = (this.props.data)? `student-${this.props.data.id}`: '';
+                var nameFile: string = (this.state.data)? `student-${this.state.data.id}`: '';
                 nameFile += `-credential-${codeName}`;
-                RNFS.copyFile(uri, `${RNFS.DownloadDirectoryPath}/tecnica-digital/${(this.props.data)? decode(this.props.data.curse): ''}/${nameFile}.png`)
+                RNFS.copyFile(uri, `${RNFS.DownloadDirectoryPath}/tecnica-digital/${(this.state.data)? decode(this.state.data.curse): ''}/${nameFile}.png`)
                     .then(()=>this.setState({ snackBarView: true, snackBarText: 'Imagen guardada con éxito' }))
                     .catch((e)=>this.setState({ snackBarView: true, snackBarText: 'Error al guardar la imagen' }));
             })
@@ -114,7 +126,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.props.goLoading(true, 'Espere por favor...', ()=>
             this.generateImage('base64')
                 .then((base64)=>{
-                    var nameFile: string = `student-${this.props.data!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
+                    var nameFile: string = `student-${this.state.data!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
                     this.props.goLoading(false, 'Espere por favor...', ()=>
                         Share.open({
                             url: `data:image/png;base64,${base64}`,
@@ -129,16 +141,16 @@ export default class ViewDetails extends Component<IProps, IState> {
         );
     }
     async verifyFolder() {
-        if (this.props.data) {
+        if (this.state.data) {
             if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`)) RNFS.mkdir(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`);
-            if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/${decode(this.props.data.curse)}/`)) RNFS.mkdir(`${RNFS.DownloadDirectoryPath}/tecnica-digital/${decode(this.props.data.curse)}/`);
+            if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/${decode(this.state.data.curse)}/`)) RNFS.mkdir(`${RNFS.DownloadDirectoryPath}/tecnica-digital/${decode(this.state.data.curse)}/`);
         }
     }
     loadAssist() {
         var id = '';
-        for (let i = 0; i < 5 - this.props.data!.id.length; i++) { id += '0'; }
-        this.setState({ isLoadAssist: true, idStudent: `#${id}${this.props.data!.id}` }, ()=>
-            Assist.getIndividual(this.props.data?.id!)
+        for (let i = 0; i < 5 - this.state.data!.id.length; i++) { id += '0'; }
+        this.setState({ isLoadAssist: true, idStudent: `#${id}${this.state.data!.id}` }, ()=>
+            Assist.getIndividual(this.state.data?.id!)
                 .then((data)=>{
                     var assists: number = 0;
                     var notAssists: number = 0;
@@ -173,26 +185,46 @@ export default class ViewDetails extends Component<IProps, IState> {
             numNotAssist: 'Cargando...'
         });
         this.refTarget = null;
-        this.props.close();
+        this.close();
     }
+
+    // Controller
+    open(data: StudentsData, designCard: number | undefined) {
+        this.setState({
+            visible: true,
+            data,
+            designCard
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            data: this.defaultData,
+            designCard: undefined
+        });
+    }
+    updateCardDesign(designCard: number | undefined) {
+        this.setState({ designCard });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadAssist} onRequestClose={this.closeAndClear}>
+        return(<CustomModal visible={this.state.visible} onShow={this.loadAssist} onRequestClose={this.closeAndClear}>
             <PaperProvider theme={Theme}>
-                {(this.props.data)&&<View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
+                <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClear} />
                         <Appbar.Content title={'Ver más detalles'}  />
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2 }}>
                         <View style={{ margin: 20, height: 100, width: (width - 40), flexDirection: 'row' }}>
-                            <TouchableHighlight style={styles.imageProfile} onPress={()=>this.props.openImage({ uri: `${urlBase}/image/${(this.props.data)? decode(this.props.data.picture): ''}` })}>
-                                <ImageLazyLoad style={{ width: '100%', height: '100%' }} source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }} circle={true} />
+                            <TouchableHighlight style={styles.imageProfile} onPress={()=>this.props.openImage({ uri: `${urlBase}/image/${(this.state.data)? decode(this.state.data.picture): ''}` })}>
+                                <ImageLazyLoad style={{ width: '100%', height: '100%' }} source={{ uri: `${urlBase}/image/${decode(this.state.data.picture)}` }} circle={true} />
                             </TouchableHighlight>
                             <View style={styles.textProfile}>
-                                <Text numberOfLines={2} style={{ fontSize: 20 }}>{decode(this.props.data.name)}</Text>
+                                <Text numberOfLines={2} style={{ fontSize: 20 }}>{decode(this.state.data.name)}</Text>
                                 <Text style={{ marginTop: 8, marginLeft: 12, color: 'rgba(0, 0, 0, 0.7)' }}>
                                     <Text style={{ fontWeight: 'bold', color: '#000000' }}>Curso: </Text>
-                                    {decode(this.props.data.curse)}
+                                    {decode(this.state.data.curse)}
                                 </Text>
                             </View>
                         </View>
@@ -200,9 +232,9 @@ export default class ViewDetails extends Component<IProps, IState> {
                             <Card.Title title={'información:'} />
                             <Card.Content>
                                 <PointItemList title="ID" data={this.state.idStudent} />
-                                <PointItemList title="Fecha de nacimiento" data={decode(this.props.data.date)} />
-                                <PointItemList title="Edad" data={`${this.calcYears(decode(this.props.data.date))} años`} />
-                                <PointItemList title="D.N.I" data={decode(this.props.data.dni)} />
+                                <PointItemList title="Fecha de nacimiento" data={decode(this.state.data.date)} />
+                                <PointItemList title="Edad" data={`${this.calcYears(decode(this.state.data.date))} años`} />
+                                <PointItemList title="D.N.I" data={decode(this.state.data.dni)} />
                             </Card.Content>
                         </Card>
                         <Card style={{ marginLeft: 8, marginRight: 8, marginBottom: 12, overflow: 'hidden' }} elevation={3}>
@@ -228,10 +260,10 @@ export default class ViewDetails extends Component<IProps, IState> {
                             <Card.Title title={'Medios de contacto:'} />
                             <Card.Content>
                                 <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 12 }}>
-                                    <IconButton disabled={this.state.isLoadAssist} color="#15b2f7" animated icon={'phone'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`tel:+549${(this.props.data)? decode(this.props.data.tel): ''}`)}/>
-                                    <IconButton disabled={this.state.isLoadAssist} color="#eb5c23" animated icon={'message'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`sms:+549${(this.props.data)? decode(this.props.data.tel): ''}`)}/>
-                                    <IconButton disabled={this.state.isLoadAssist} color="#25D366" animated icon={'whatsapp'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`whatsapp://send?phone=+549${(this.props.data)? decode(this.props.data.tel): ''}`)}/>
-                                    {(this.props.data.email.length !== 0)&&<IconButton disabled={this.state.isLoadAssist} color="#ffce00" animated icon={'email'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`mailto:${(this.props.data)? decode(this.props.data.email): ''}`)}/>}
+                                    <IconButton disabled={this.state.isLoadAssist} color="#15b2f7" animated icon={'phone'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`tel:+549${(this.state.data)? decode(this.state.data.tel): ''}`)}/>
+                                    <IconButton disabled={this.state.isLoadAssist} color="#eb5c23" animated icon={'message'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`sms:+549${(this.state.data)? decode(this.state.data.tel): ''}`)}/>
+                                    <IconButton disabled={this.state.isLoadAssist} color="#25D366" animated icon={'whatsapp'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`whatsapp://send?phone=+549${(this.state.data)? decode(this.state.data.tel): ''}`)}/>
+                                    {(this.state.data.email.length !== 0)&&<IconButton disabled={this.state.isLoadAssist} color="#ffce00" animated icon={'email'} style={styles.buttonsContacts} onPress={()=>Linking.openURL(`mailto:${(this.state.data)? decode(this.state.data.email): ''}`)}/>}
                                 </View>
                             </Card.Content>
                         </Card>
@@ -249,13 +281,13 @@ export default class ViewDetails extends Component<IProps, IState> {
                             <Card.Content>
                                 <CustomCredential
                                     scale={this.state.scaleImage}
-                                    image={`${urlBase}/image/${decode(this.props.data.picture)}`}
-                                    name={decode(this.props.data.name)}
-                                    dni={decode(this.props.data.dni)}
+                                    image={`${urlBase}/image/${decode(this.state.data.picture)}`}
+                                    name={decode(this.state.data.name)}
+                                    dni={decode(this.state.data.dni)}
                                     refTarget={(ref)=>this.refTarget = ref}
                                     onPress={this.viewImageTarget}
                                     style={styles.target}
-                                    type={this.props.designCard}
+                                    type={this.state.designCard}
                                 />
                             </Card.Content>
                             <Card.Actions style={{ justifyContent: 'flex-end' }}>
@@ -264,7 +296,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                             </Card.Actions>
                         </Card>
                     </ScrollView>
-                </View>}
+                </View>
                 <Snackbar
                     visible={this.state.snackBarView}
                     onDismiss={()=>this.setState({ snackBarView: false })}

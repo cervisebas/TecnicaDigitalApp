@@ -7,14 +7,19 @@ import { Annotation, urlBase } from "../Scripts/ApiTecnica";
 import { AnnotationList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
+type Select = {
+    id: string;
+    curse: string;
+    date: string;
+    annotations: number;
+};
 type IProps= {
-    visible: boolean;
-    close: ()=>any;
-    select: { id: string; curse: string; date: string; annotations: number; };
-    data: AnnotationList[];
     goLoading: (visible: boolean, text: string, then?: ()=>any)=>any;
 };
 type IState= {
+    visible: boolean;
+    select: Select;
+    data: AnnotationList[];
     showDeleteDialog: boolean;
     dataDelete: string;
 };
@@ -23,13 +28,23 @@ export default class ViewAnnotations extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            select: this.selectDefault,
+            data: [],
             showDeleteDialog: false,
             dataDelete: ''
         };
         this._renderItem = this._renderItem.bind(this);
         this.deleteNow = this.deleteNow.bind(this);
         this.onClose = this.onClose.bind(this);
+        this.close = this.close.bind(this);
     }
+    private selectDefault: Select = {
+        id: '',
+        curse: '',
+        date: '',
+        annotations: 0
+    };
 
     deleteNow() {
         this.setState({ showDeleteDialog: false });
@@ -39,7 +54,7 @@ export default class ViewAnnotations extends Component<IProps, IState> {
                     ToastAndroid.show('Anotación borrada con éxito', ToastAndroid.SHORT);
                     DeviceEventEmitter.emit('restore-view-annotations');
                     DeviceEventEmitter.emit('p1-reload', 1);
-                    this.props.close();
+                    this.close();
                 }))
                 .catch((error)=>this.props.goLoading(false, 'Borrando anotación...', ()=>ToastAndroid.show(error.cause, ToastAndroid.SHORT)))
         );
@@ -74,21 +89,37 @@ export default class ViewAnnotations extends Component<IProps, IState> {
         this.setState({ showDeleteDialog: false, dataDelete: '' });
     }
 
+    // Controller
+    open(select: Select, data: AnnotationList[]) {
+        this.setState({
+            visible: true,
+            select,
+            data
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            select: this.selectDefault,
+            data: []
+        });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onClose={this.onClose} onRequestClose={this.props.close}>
+        return(<CustomModal visible={this.state.visible} onClose={this.onClose} onRequestClose={this.close}>
             <View style={{ flex: 1, backgroundColor: Theme.colors.background, margin: 12, overflow: 'hidden', borderRadius: 8 }}>
                 <Provider theme={Theme}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={this.props.close} />
+                        <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={'Ver anotaciones'} />
                     </Appbar.Header>
                     <View style={{ flex: 2 }}>
-                        {(this.props.visible)&&<FlatList
-                            data={this.props.data}
+                        <FlatList
+                            data={this.state.data}
                             contentContainerStyle={{ paddingTop: 8 }}
                             keyExtractor={this._keyExtractor}
                             renderItem={this._renderItem}
-                        />}
+                        />
                     </View>
                     <Portal>
                         <Dialog visible={this.state.showDeleteDialog} onDismiss={()=>this.setState({ showDeleteDialog: false })}>

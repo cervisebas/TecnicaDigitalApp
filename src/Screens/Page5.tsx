@@ -27,8 +27,6 @@ type IState = {
     isError: boolean;
     isRefresh: boolean;
     messageError: string;
-    viewDetails: boolean;
-    viewDetailsData: RecordData | undefined;
     filterActive: 'upward' | 'falling' | 'normal';
 };
 type leftProps = {
@@ -50,8 +48,6 @@ export default class Page5 extends PureComponent<IProps, IState> {
             isError: false,
             isRefresh: false,
             messageError: '',
-            viewDetails: false,
-            viewDetailsData: undefined,
             filterActive: 'normal'
         };
         this.loadData = this.loadData.bind(this);
@@ -61,6 +57,7 @@ export default class Page5 extends PureComponent<IProps, IState> {
         this._filterNormal = this._filterNormal.bind(this);
     }
     private event: EmitterSubscription | null = null;
+    private refViewDetailsRecords: ViewDetailsRecord | null = null;
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.loadData();
@@ -117,7 +114,8 @@ export default class Page5 extends PureComponent<IProps, IState> {
             title={item.type}
             description={item.movent}
             importance={parseInt(item.importance)}
-            onPress={()=>this.setState({ viewDetails: true, viewDetailsData: item })}
+            //onPress={()=>this.setState({ viewDetails: true, viewDetailsData: item })}
+            onPress={()=>this.refViewDetailsRecords?.open(item)}
         />);
     }
     _getItemLayout(_data: RecordData[] | null | undefined, index: number) {
@@ -157,16 +155,12 @@ export default class Page5 extends PureComponent<IProps, IState> {
                             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                                 <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />
                                 <Text style={{ marginTop: 14 }}>{this.state.messageError}</Text>
-                                <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.setState({ isRefresh: true, isError: false }, this.loadData)} style={{ marginTop: 12 }} />
+                                <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.setState({ isLoading: true, isError: false }, this.loadData)} style={{ marginTop: 12 }} />
                             </View>
                         </View>}
                     </View>}
                 </View>
-                <ViewDetailsRecord
-                    visible={this.state.viewDetails}
-                    close={()=>this.setState({ viewDetails: false, viewDetailsData: undefined })}
-                    datas={this.state.viewDetailsData}
-                />
+                <ViewDetailsRecord ref={(ref)=>this.refViewDetailsRecords = ref}/>
             </PaperProvider>
         </View>);
     }

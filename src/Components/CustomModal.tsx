@@ -28,9 +28,22 @@ export default class CustomModal extends Component<IProps, IState> {
         this.onRequestClose = this.onRequestClose.bind(this);
         this.onClose = this.onClose.bind(this);
     }
-    onShow() { if (this.props.onShow) this.props.onShow(); }
-    onRequestClose() { if (this.props.onRequestClose) this.props.onRequestClose(); }
-    onClose() { if (this.props.onClose) this.props.onClose(); }
+    private _isMount: boolean = false;
+    componentDidMount(): void {
+        this._isMount = true;
+    }
+    componentWillUnmount(): void {
+        this._isMount = false;
+    }
+    onShow() {
+        if (this.props.onShow && this._isMount) this.props.onShow();
+    }
+    onRequestClose() {
+        if (this.props.onRequestClose && this._isMount) this.props.onRequestClose();
+    }
+    onClose() {
+        if (this.props.onClose && this._isMount) this.props.onClose();
+    }
     render(): React.ReactNode {
         return(<Modal
             isVisible={this.props.visible}

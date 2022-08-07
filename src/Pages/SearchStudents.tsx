@@ -1,7 +1,8 @@
 import { decode } from "base-64";
 import React, { PureComponent } from "react";
 import { FlatList, ListRenderItemInfo, NativeSyntheticEvent, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
-import { Appbar, Divider, ProgressBar, Provider as PaperProvider, Searchbar } from "react-native-paper";
+import { Appbar, Divider, Provider as PaperProvider, Searchbar, Text } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
 import ItemStudent from "../Components/Elements/CustomItem";
 import { urlBase } from "../Scripts/ApiTecnica";
@@ -9,15 +10,14 @@ import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    list: StudentsData[];
     openDetails: (data: StudentsData)=>any;
     onEdit: (data: StudentsData)=>any;
     onDelete: (userId: string)=>any;
 };
 type IState = {
-    list: StudentsData[] | undefined;
+    visible: boolean;
+    list: StudentsData[];
+    listShow: StudentsData[];
     searchQuery: string;
 };
 
@@ -25,36 +25,30 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            list: undefined,
+            visible: false,
+            list: [],
+            listShow: [],
             searchQuery: ''
         };
         this._renderItem = this._renderItem.bind(this);
         this.onChangeSearch = this.onChangeSearch.bind(this);
         this.goSearch = this.goSearch.bind(this);
-    }
-    componentDidUpdate() {
-        if (this.props.visible) {
-            if (this.state.list == undefined) this.setState({ list: this.props.list });
-        } else {
-            if (this.state.list) this.setState({ list: undefined });
-            if (this.state.searchQuery.length !== 0) this.setState({ searchQuery: '' });
-        }
+        this.close = this.close.bind(this);
     }
     
-    /* ##### Search ##### */
+    // Search
     onChangeSearch(Query: string) {
-        if (this.state.searchQuery.length > Query.length) return this.setState({ searchQuery: Query, list: this.props.list });
+        if (this.state.searchQuery.length > Query.length) return this.setState({ searchQuery: Query, listShow: this.state.list });
         this.setState({ searchQuery: Query });
     }
     goSearch({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
         const formattedQuery = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trimStart().trimEnd();
-        const search = this.props.list.filter((user)=>{
+        const search = this.state.list.filter((user)=>{
             var name1 = decode(user.name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             return name1.indexOf(formattedQuery) !== -1;
         });
-        this.setState({ list: search });
+        this.setState({ listShow: search });
     }
-    /* ################## */
 
     // Flatlist
     _keyExtractor(item: StudentsData) {
@@ -82,34 +76,62 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         };
     }
 
+    // Controller
+    open(list: StudentsData[]) {
+        this.setState({
+            visible: true,
+            list,
+            listShow: list
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            list: []
+        });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={this.props.close} />
+                        <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={'Buscar estudiante'}  />
                     </Appbar.Header>
                     <View style={{ flex: 2 }}>
                         <View style={styles.viewSearchbar}>
                             <CustomSearchbar
-                                onEmpty={()=>this.setState({ list: this.props.list })}
+                                onEmpty={()=>this.setState({ listShow: this.state.list })}
                                 onSubmit={this.goSearch}
                             />
                         </View>
-                        {(this.state.list)&&<FlatList
-                            data={this.state.list}
+                        <FlatList
+                            data={this.state.listShow}
                             extraData={this.state}
                             keyExtractor={this._keyExtractor}
                             getItemLayout={this._getItemLayout}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
-                            contentContainerStyle={styles.listStyle}
+                            contentContainerStyle={[styles.listStyle, { flex: (this.state.listShow.length == 0)? 3: undefined }]}
+                            ListEmptyComponent={<ListEmpty />}
                             renderItem={this._renderItem}
-                        />}
+                        />
                     </View>
                 </View>
             </PaperProvider>
         </CustomModal>);
+    }
+}
+
+class ListEmpty extends PureComponent {
+    constructor(props: any) {
+        super(props);
+    }
+    render(): React.ReactNode {
+        return(<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+            <Icon name={'list-box-outline'} size={48} />
+            <Text style={{ marginTop: 12 }}>No se encontraron resultados</Text>
+        </View>);
     }
 }
 

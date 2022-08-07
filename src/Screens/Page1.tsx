@@ -19,6 +19,8 @@ import ConfigurePreferences from "../Pages/ConfigurePreferences";
 import moment from "moment";
 import SearchGroups from "../Pages/SearchGroups";
 import SearchGroupsResult from "../Pages/SearchGroupsResult";
+import ImageViewerText from "../Pages/ImageViewerText";
+import LoadingComponent from "../Components/LoadingComponent";
 
 type IProps = {
     navigation: any;
@@ -31,46 +33,10 @@ type IState = {
     isRefresh: boolean;
     messageError: string;
     // Interfaz
-    confirmView: boolean;
-    confirmData: AssistUserData[];
-    confirmSelect: {
-        id: string;
-        curse: string;
-    } | undefined;
-
-    addNewGroup: boolean;
-
-    assistView: boolean;
-    assistData: AssistUserData[];
-    assistSelect: {
-        id: string;
-        curse: string;
-        date: string;
-        hour: string;
-        annotations: number;
-    } | undefined;
-
-    imageVisible: boolean;
-    imageSource: string | undefined;
-    imageText: string;
-
     visibleAddNewGroup: boolean;
-    visibleConfigurePreferences: boolean;
-    // Search
-    visibleSearch: boolean;
-    visibleSearchResult: boolean;
-    dataSearch: DataGroup[];
     // Snackbar
     snackBarView: boolean;
     snackBarText: string;
-    // LoadingController
-    showLoading: boolean;
-    textLoading: string;
-    // Add Annotation
-    visibleAddAnnotationAssist: boolean;
-    // Add Annotation
-    visibleViewAnnotations: boolean;
-    dataViewAnnotations: AnnotationList[];
 };
 
 export default class Page1 extends Component<IProps, IState> {
@@ -82,30 +48,13 @@ export default class Page1 extends Component<IProps, IState> {
             isError: false,
             isRefresh: false,
             messageError: '',
-            confirmView: false,
-            confirmData: [],
-            confirmSelect: undefined,
-            addNewGroup: false,
-            assistView: false,
-            assistData: [],
-            assistSelect: undefined,
-            imageVisible: false,
-            imageSource: undefined,
-            imageText: '',
             visibleAddNewGroup: false,
-            visibleConfigurePreferences: false,
-            visibleSearchResult: false,
-            visibleSearch: false,
-            dataSearch: [],
             snackBarView: false,
-            snackBarText: '',
-            showLoading: false,
-            textLoading: '',
-            visibleAddAnnotationAssist: false,
-            visibleViewAnnotations: false,
-            dataViewAnnotations: []
+            snackBarText: ''
         };
         this.loadData = this.loadData.bind(this);
+        this.openConfirm = this.openConfirm.bind(this);
+        this.createNewGroup = this.createNewGroup.bind(this);
         this._renderItem = this._renderItem.bind(this);
         this._showLoading = this._showLoading.bind(this);
         this._openAddAnnotation = this._openAddAnnotation.bind(this);
@@ -117,10 +66,24 @@ export default class Page1 extends Component<IProps, IState> {
         this._goSearch = this._goSearch.bind(this);
         this._openConfirm = this._openConfirm.bind(this);
         this._openView = this._openView.bind(this);
+        this._openAnnotations = this._openAnnotations.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     private _isMount: boolean = false;
+    // Refs Components
+    private refImageViewerText: ImageViewerText | null = null;
+    private refAddAnnotationAssist: AddAnnotationAssist | null = null;
+    private refConfirmAssist: ConfirmAssist | null = null;
+    private refViewAssist: ViewAssist | null = null;
+    private refViewAnnotations: ViewAnnotations | null = null;
+    private refAddNewGroupAssist: AddNewGroupAssist | null = null;
+    private refSearchGroups: SearchGroups | null = null;
+    private refSearchGroupsResult: SearchGroupsResult | null = null;
+    private refConfigurePreferences: ConfigurePreferences | null = null;
+    private refLoadingComponent: LoadingComponent | null = null;
+
+
     componentDidMount() {
         this._isMount = true;
         this.loadData();
@@ -157,43 +120,59 @@ export default class Page1 extends Component<IProps, IState> {
     reloadData(code: number, newData: DataGroup[]) {
         switch (code) {
             case 1:
-                if (!this.state.assistView) return;
-                var f = newData.find((v)=>this.state.assistSelect?.id == v.id);
-                if (f) this.setState({
-                    assistSelect: {
-                        id: f.id,
-                        curse: decode(f.curse),
-                        annotations: f.annotations,
-                        date: decode(f.date),
-                        hour: decode(f.hour)
-                    }
+                if (!this.refViewAssist?.state.visible) return;
+                var f = newData.find((v)=>this.refViewAssist?.state.select.id == v.id);
+                if (f) this.refViewAssist.updateSelect({
+                    id: f.id,
+                    curse: decode(f.curse),
+                    annotations: f.annotations,
+                    date: decode(f.date),
+                    hour: decode(f.hour)
                 });
                 break;
         }
     }
     createNewGroup(datas: { course: string; date: string; time: string; }, then?: ()=>any): Promise<string> {
-        return new Promise((resolve)=>
-            this.setState({ showLoading: true, textLoading: 'Creando grupo...' }, ()=>{
-                (then)&&then();
-                Assist.create(encode(datas.course), encode(datas.date), encode(datas.time))
-                    .then((a)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: 'Grupo creado correctamente.', isRefresh: true }, ()=>{ this.loadData(undefined, true); resolve(a); }))
-                    .catch((error)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: error.cause }));
-            })
-        );
+        return new Promise((resolve)=>{
+            this.refLoadingComponent?.open('Creando grupo...');
+            (then)&&then();
+            Assist.create(encode(datas.course), encode(datas.date), encode(datas.time))
+                .then((a)=>{
+                    this.refLoadingComponent?.close();
+                    this.setState({snackBarView: true, snackBarText: 'Grupo creado correctamente.', isRefresh: true }, ()=>{
+                        this.loadData(undefined, true);
+                        resolve(a);
+                    });
+                })
+                .catch((error)=>{
+                    this.refLoadingComponent?.close();
+                    this.setState({ snackBarView: true, snackBarText: error.cause });
+                });
+        });
     }
     openConfirm(idGroup: string, select: { id: string; curse: string; }) {
-        this.setState({ showLoading: true, textLoading: 'Cargando información...' }, ()=>
-            Assist.getGroup(idGroup)
-                .then((a)=>this.setState({ showLoading: false, confirmView: true, confirmData: a, confirmSelect: select }))
-                .catch((a)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: a.cause }))
-        );
+        this.refLoadingComponent?.open('Cargando información...');
+        Assist.getGroup(idGroup)
+            .then((a)=>{
+                this.refLoadingComponent?.close();
+                this.refConfirmAssist?.open(select, a);
+            })
+            .catch((a)=>{
+                this.refLoadingComponent?.close();
+                this.setState({ snackBarView: true, snackBarText: a.cause });
+            });
     }
     openView(idGroup: string, select: { id: string; curse: string; date: string; hour: string; annotations: number; }) {
-        this.setState({ showLoading: true, textLoading: 'Cargando información...' }, ()=>
-            Assist.getGroup(idGroup)
-                .then((a)=>this.setState({ showLoading: false, assistView: true, assistData: a, assistSelect: select }))
-                .catch((a)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: a.cause }))
-        );
+        this.refLoadingComponent?.open('Cargando información...');
+        Assist.getGroup(idGroup)
+            .then((a)=>{
+                this.refLoadingComponent?.close();
+                this.refViewAssist?.open(select, a);
+            })
+            .catch((a)=>{
+                this.refLoadingComponent?.close();
+                this.setState({ snackBarView: true, snackBarText: a.cause });
+            });
     }
 
     // Flatlist
@@ -226,20 +205,19 @@ export default class Page1 extends Component<IProps, IState> {
 
     // Global Functions
     _showLoading(visible: boolean, text: string, after?: ()=>any){
-        this.setState({
-            showLoading: visible,
-            textLoading: text
-        }, (after)&&after)
+        if (!visible) {
+            this.refLoadingComponent?.close();
+            return (after)&&after();
+        }
+        this.refLoadingComponent?.open(text);
+        (after)&&after();
     }
     _openAddAnnotation() {
-        this.setState({ visibleAddAnnotationAssist: true });
+        var idGroup = (this.refConfirmAssist?.state.visible)? this.refConfirmAssist.state.select.id: this.refViewAssist!.state.select.id;
+        this.refAddAnnotationAssist?.open(idGroup);
     }
     _openImage(source: string, text: string) {
-        this.setState({
-            imageVisible: true,
-            imageSource: source,
-            imageText: text
-        });
+        this.refImageViewerText?.open(source, text);
     }
     _showSnackbar(visible: boolean, text: string, after?: ()=>any){
         this.setState({
@@ -251,21 +229,29 @@ export default class Page1 extends Component<IProps, IState> {
     // New
     _openAddGroup() {
         if (Prefences.isIntoSyncHours()) return this.setState({ visibleAddNewGroup: true });
-        this.setState({ addNewGroup: true });
+        this.refAddNewGroupAssist?.open();
     }
     _openConfigurePreferences() {
-        this.setState({ visibleConfigurePreferences: true });
+        this.refConfigurePreferences?.open();
     }
     _openSearch() {
-        this.setState({ visibleSearch: true });
+        this.refSearchGroups?.open();
     }
     _goSearch(dateSearch: Date) {
-        this.setState({ showLoading: true, textLoading: 'Buscando...', visibleSearch: false }, ()=>{
-            var date = moment(dateSearch).format('DD/MM/YYYY');
-            var filter = this.state.dataGroups.filter((data)=>decode(data.date) == date);
-            if (filter.length == 0) return this.setState({ visibleSearch: true, showLoading: false }, ()=>ToastAndroid.show('No se encontraron resultados', ToastAndroid.SHORT));
-            setTimeout(()=>this.setState({ dataSearch: filter, showLoading: false, visibleSearchResult: true }), 1200);
-        });
+        this.refLoadingComponent?.open('Buscando...');
+        var date = moment(dateSearch).format('DD/MM/YYYY');
+        var filter = this.state.dataGroups.filter((data)=>decode(data.date) == date);
+        if (filter.length == 0) {
+            this.refSearchGroups?.open();
+            this.refLoadingComponent?.close();
+            return ToastAndroid.show('No se encontraron resultados', ToastAndroid.SHORT);
+        }
+        this.refLoadingComponent?.close();
+        this.refSearchGroupsResult?.open(filter);
+    }
+    _openAnnotations(data: AnnotationList[]) {
+        var select = this.refViewAssist!.state.select;
+        this.refViewAnnotations?.open(select, data);
     }
 
     render(): React.ReactNode {
@@ -318,80 +304,47 @@ export default class Page1 extends Component<IProps, IState> {
                         </Dialog.Content>
                         <Dialog.Actions>
                             <Button onPress={()=>this.setState({ visibleAddNewGroup: false })}>Cancelar</Button>
-                            <Button onPress={()=>this.setState({ visibleAddNewGroup: false, addNewGroup: true })}>Proceder</Button>
+                            <Button onPress={()=>this.setState({ visibleAddNewGroup: false }, ()=>this.refAddNewGroupAssist?.open())}>Proceder</Button>
                         </Dialog.Actions>
                     </Dialog>
                 </Portal>
 
                 {/* ##### Modal's ##### */}
-                <ImageView
-                    images={(this.state.imageSource)? [{ uri: this.state.imageSource }]: []}
-                    imageIndex={0}
-                    visible={this.state.imageVisible}
-                    onRequestClose={()=>this.setState({ imageVisible: false, imageSource: undefined, imageText: '' })}
-                    FooterComponent={()=><View style={{ width: '100%', alignItems: 'center', marginBottom: 50 }}>
-                        <Text style={{ color: '#FFFFFF' }}>{this.state.imageText}</Text>
-                    </View>}
+                <ImageViewerText ref={(ref)=>this.refImageViewerText = ref} />
+                <AddAnnotationAssist ref={(ref)=>this.refAddAnnotationAssist = ref} />
+                <ConfirmAssist
+                    ref={(ref)=>this.refConfirmAssist = ref}
+                    showLoading={this._showLoading}
+                    showSnackbar={this._showSnackbar}
+                    openImage={this._openImage}
+                    openAddAnnotation={this._openAddAnnotation}
                 />
-                {(this.state.confirmView || this.state.assistView)&&<>
-                    <AddAnnotationAssist
-                        visible={this.state.visibleAddAnnotationAssist}
-                        close={()=>this.setState({ visibleAddAnnotationAssist: false })}
-                        idGroup={(this.state.confirmSelect)? this.state.confirmSelect.id: this.state.assistSelect!.id}
-                    />
-                </>}
-                {(this.state.confirmSelect)&&<>
-                    <ConfirmAssist
-                        visible={this.state.confirmView}
-                        close={()=>this.setState({ confirmView: false, confirmData: [], confirmSelect: undefined })}
-                        select={this.state.confirmSelect}
-                        data={this.state.confirmData}
-                        showLoading={this._showLoading}
-                        showSnackbar={this._showSnackbar}
-                        openImage={this._openImage}
-                        openAddAnnotation={this._openAddAnnotation}
-                    />
-                </>}
-                {(this.state.assistSelect)&&<>
-                    <ViewAssist
-                        visible={this.state.assistView}
-                        close={()=>this.setState({ assistView: false, assistData: [], assistSelect: undefined })}
-                        select={this.state.assistSelect}
-                        data={this.state.assistData}
-                        editAssist={(id, select)=>{
-                            this.openConfirm(id, select);
-                            this.setState({ assistView: false, assistData: [], assistSelect: undefined });
-                        }}
-                        showSnackbar={this._showSnackbar}
-                        showLoading={this._showLoading}
-                        openAnnotations={(data)=>this.setState({ dataViewAnnotations: data, visibleViewAnnotations: true })}
-                        openImage={this._openImage}
-                        openAddAnnotation={this._openAddAnnotation}
-                    />
-                    <ViewAnnotations
-                        visible={this.state.visibleViewAnnotations}
-                        close={()=>this.setState({ visibleViewAnnotations: false, dataViewAnnotations: [] })}
-                        select={this.state.assistSelect}
-                        data={this.state.dataViewAnnotations}
-                        goLoading={this._showLoading}
-                    />
-                </>}
+                <ViewAssist
+                    ref={(ref)=>this.refViewAssist = ref}
+                    editAssist={this.openConfirm}
+                    showSnackbar={this._showSnackbar}
+                    showLoading={this._showLoading}
+                    openAnnotations={this._openAnnotations}
+                    openImage={this._openImage}
+                    openAddAnnotation={this._openAddAnnotation}
+                />
+                <ViewAnnotations
+                    ref={(ref)=>this.refViewAnnotations = ref}
+                    goLoading={this._showLoading}
+                />
                 <AddNewGroupAssist
-                    visible={this.state.addNewGroup}
-                    close={()=>this.setState({ addNewGroup: false })}
-                    createNow={(datas, then)=>this.createNewGroup(datas, ()=>(then)&&then())}
-                    openConfirm={(a, d)=>this.openConfirm(a, d)}
+                    ref={(ref)=>this.refAddNewGroupAssist = ref}
+                    createNow={this.createNewGroup}
+                    openConfirm={this.openConfirm}
                 />
-                <SearchGroups visible={this.state.visibleSearch} close={()=>this.setState({ visibleSearch: false })} goSearch={this._goSearch} />
+                <SearchGroups ref={(ref)=>this.refSearchGroups = ref} goSearch={this._goSearch} />
                 <SearchGroupsResult
-                    visible={this.state.visibleSearchResult}
-                    close={()=>this.setState({ visibleSearchResult: false, dataSearch: [] })}
-                    datas={this.state.dataSearch}
+                    ref={(ref)=>this.refSearchGroupsResult = ref}
                     openConfirm={this._openConfirm}
                     openView={this._openView}
                 />
-                <ConfigurePreferences visible={this.state.visibleConfigurePreferences} close={()=>this.setState({ visibleConfigurePreferences: false })} />
-                <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
+                <ConfigurePreferences ref={(ref)=>this.refConfigurePreferences = ref} />
+                <LoadingComponent ref={(ref)=>this.refLoadingComponent = ref} />
             </PaperProvider>
         </View>);
     }

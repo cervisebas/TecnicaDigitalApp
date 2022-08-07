@@ -12,11 +12,9 @@ type Curses = {
     check: "checked" | "unchecked";
 };
 
-type IProps = {
-    visible: boolean;
-    close: ()=>any;
-};
+type IProps = {};
 type IState = {
+    visible: boolean;
     isLoading: boolean;
     curses: Curses[];
     showBanner: boolean;
@@ -28,6 +26,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
             isLoading: false,
             curses: this.default,
             showBanner: true
@@ -37,6 +36,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
         this.finishLoad = this.finishLoad.bind(this);
         this.loadData = this.loadData.bind(this);
         this._renderItem = this._renderItem.bind(this);
+        this.close = this.close.bind(this);
     }
     private default: Curses[] = [
         { id: 11, label: '1°1', check: 'unchecked' },
@@ -129,12 +129,20 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
             index
         }
     }
+
+    // Controller
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
     
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.props.close}>
+        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
             <View style={styles.content}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={this.props.close} />
+                    <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={'Preferencias de registros'} />
                     <Appbar.Action icon={'autorenew'} onPress={this.clear} />
                 </Appbar.Header>

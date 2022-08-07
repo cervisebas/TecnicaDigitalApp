@@ -12,12 +12,11 @@ import { Directive, Student, urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
-type IProps = {
-    visible: boolean;
-    data?: StudentsData;
-    close: ()=>any;
-};
+type IProps = {};
 type IState = {
+    visible: boolean;
+    data: StudentsData | undefined;
+
     isLoadImage: boolean;
     imageShow: ImageSourcePropType;
     viewModalDate: boolean;
@@ -59,6 +58,8 @@ export default class EditStudent extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            data: undefined,
             isLoadImage: false,
             imageShow: require('../Assets/profile.png'),
             viewModalDate: false,
@@ -91,17 +92,17 @@ export default class EditStudent extends Component<IProps, IState> {
     }
     private listCourses: string[] = ['- Seleccionar -', 'Archivados', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     componentDidUpdate() {
-        if (this.props.visible && !this.state.loadData && this.props.data) {
+        if (this.state.visible && !this.state.loadData && this.state.data) {
             this.setState({
-                formName: ifDecodeBase64(this.props.data.name),
-                formCourse: ifDecodeBase64(this.props.data.curse),
-                formTel: ifDecodeBase64(this.props.data.tel),
-                formEmail: ifDecodeBase64(this.props.data.email),
-                formDNI: ifDecodeBase64(this.props.data.dni),
-                formDate: ifDecodeBase64(this.props.data.date),
-                imageShow: { uri: `${urlBase}/image/${ifDecodeBase64(this.props.data.picture)}` },
-                actualDatePicker: moment(decode(this.props.data.date), 'DD/MM/YYYY').toDate(),
-                actualDate: decode(this.props.data.date),
+                formName: ifDecodeBase64(this.state.data.name),
+                formCourse: ifDecodeBase64(this.state.data.curse),
+                formTel: ifDecodeBase64(this.state.data.tel),
+                formEmail: ifDecodeBase64(this.state.data.email),
+                formDNI: ifDecodeBase64(this.state.data.dni),
+                formDate: ifDecodeBase64(this.state.data.date),
+                imageShow: { uri: `${urlBase}/image/${ifDecodeBase64(this.state.data.picture)}` },
+                actualDatePicker: moment(decode(this.state.data.date), 'DD/MM/YYYY').toDate(),
+                actualDate: decode(this.state.data.date),
                 loadData: true
             });
         }
@@ -133,7 +134,7 @@ export default class EditStudent extends Component<IProps, IState> {
             errorFormDate: false,
             errorFormDNI: false
         }, ()=>{
-            this.props.close();
+            this.close();
             this.setState({ loadData: false });
         });
     }
@@ -218,7 +219,7 @@ export default class EditStudent extends Component<IProps, IState> {
                 form.append('editStudent', '1');
                 form.append('username', dataDirective.username);
                 form.append('password', dataDirective.password);
-                form.append('id', (this.props.data)? this.props.data.id: '-1');
+                form.append('id', (this.state.data)? this.state.data.id: '-1');
                 form.append('name', encode(this.state.formName.trimStart().trimEnd()));
                 form.append('dni', encode(this.state.formDNI));
                 form.append('course', encode(this.state.formCourse));
@@ -253,9 +254,23 @@ export default class EditStudent extends Component<IProps, IState> {
             })    
         );
     }
+
+    // Controller
+    open(data: StudentsData) {
+        this.setState({
+            visible: true,
+            data
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            data: undefined
+        });
+    }
     
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={this.closeAndClean}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={this.closeAndClean}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>

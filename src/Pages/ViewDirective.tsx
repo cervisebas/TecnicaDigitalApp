@@ -10,12 +10,11 @@ import { DirectivesList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    data: DirectivesList | undefined;
-    openImage: ()=>any;
+    openImage: (image: string)=>any;
 };
 type IState = {
+    visible: boolean;
+    data: DirectivesList;
     idDirective: string;
 };
 
@@ -23,10 +22,23 @@ export default class ViewDirective extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            data: this.defaultData,
             idDirective: ''
         };
         this.loadData = this.loadData.bind(this);
+        this.close = this.close.bind(this);
+        this.openImage = this.openImage.bind(this);
     }
+    private defaultData: DirectivesList = {
+        id: '',
+        name: '',
+        position: '',
+        dni: '',
+        picture: '',
+        username: '',
+        permission: ''
+    };
     getLevelPermission(permission: string) {
         switch (permission) {
             case '0':
@@ -53,43 +65,50 @@ export default class ViewDirective extends Component<IProps, IState> {
     }
     loadData() {
         var id = '';
-        for (let i = 0; i < 5 - this.props.data!.id.length; i++) { id += '0'; }
-        this.setState({ idDirective: `#${id}${this.props.data!.id}` });
+        for (let i = 0; i < 5 - this.state.data.id.length; i++) { id += '0'; }
+        this.setState({ idDirective: `#${id}${this.state.data.id}` });
+    }
+    open(data: DirectivesList) {
+        this.setState({
+            visible: true,
+            data
+        });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+    openImage() {
+        this.props.openImage(`${urlBase}/image/${decode(this.state.data.picture)}`);
     }
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.props.close}>
-            {(this.props.data)? <View style={styles.content}>
+        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
+            <View style={styles.content}>
                 <View style={styles.contentImage}>
-                    <TouchableHighlight onPress={this.props.openImage} style={styles.touchImage}>
+                    <TouchableHighlight onPress={this.openImage} style={styles.touchImage}>
                         <ImageLazyLoad
-                            source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }}
+                            source={{ uri: `${urlBase}/image/${decode(this.state.data.picture)}` }}
                             circle
                             style={{ width: '100%', height: '100%' }}
                         />
                     </TouchableHighlight>
-                    {(this.getIntPermission(this.props.data.permission) >= 4)&&<FastImage source={require('../Assets/Corona.webp')} style={styles.crownImage} />}
+                    {(this.getIntPermission(this.state.data.permission) >= 4)&&<FastImage source={require('../Assets/Corona.webp')} style={styles.crownImage} />}
                 </View>
                 <IconButton
                     icon={'arrow-left'}
-                    onPress={this.props.close}
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        margin: 10
-                    }}
+                    onPress={this.close}
+                    style={styles.buttonClose}
                 />
                 <View style={{ width: '100%', alignItems: 'center' }}>
-                    <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
+                    <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.state.data.name)}</Text>
                     <View style={{ marginTop: 16, width: '100%' }}>
                         <TextView title={'ID'} text={this.state.idDirective} />
-                        <TextView title={'DNI'} text={decode(this.props.data.dni)} />
-                        <TextView title={'Usuario'} text={`@${decode(this.props.data.username)}`} />
-                        <TextView title={'Posición'} text={decode(this.props.data.position)} />
-                        <TextView title={'Nivel de permisos'} text={this.getLevelPermission(this.props.data.permission)} />
+                        <TextView title={'DNI'} text={decode(this.state.data.dni)} />
+                        <TextView title={'Usuario'} text={`@${decode(this.state.data.username)}`} />
+                        <TextView title={'Posición'} text={decode(this.state.data.position)} />
+                        <TextView title={'Nivel de permisos'} text={this.getLevelPermission(this.state.data.permission)} />
                     </View>
                 </View>
-            </View>: <></>}
+            </View>
         </CustomModal>);
     }
 }
@@ -145,5 +164,11 @@ const styles = StyleSheet.create({
         height: 54.38,
         top: -28,
         left: -10
+    },
+    buttonClose: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        margin: 10
     }
 });

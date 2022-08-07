@@ -6,14 +6,11 @@ import CustomModal from "../Components/CustomModal";
 import { Annotation } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
 
-type IProps = {
+type IProps = {};
+type IState = {
     visible: boolean;
     idGroup: string;
-    close: ()=>any;
-};
-type IState = {
     isLoading: boolean;
-
     // Form
     formAnnotation: string;
 };
@@ -22,6 +19,8 @@ export default class AddAnnotationAssist extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            idGroup: '-1',
             isLoading: false,
             formAnnotation: ''
         };
@@ -38,24 +37,38 @@ export default class AddAnnotationAssist extends Component<IProps, IState> {
     sendData() {
         Keyboard.dismiss();
         this.setState({ isLoading: true }, ()=>
-            Annotation.set(this.props.idGroup, encode(this.state.formAnnotation))
+            Annotation.set(this.state.idGroup, encode(this.state.formAnnotation))
                 .then(()=>{
-                    this.props.close();
+                    this.close();
                     ToastAndroid.show('Anotación añadida con éxito.', ToastAndroid.SHORT);
                     DeviceEventEmitter.emit('p1-reload', 1);
                 })
                 .catch((error)=>{
                     DeviceEventEmitter.emit('show-dialog-add-annotation', error.cause);
-                    this.props.close();
+                    this.close();
                 })
         );
     }
     goClose() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.props.close();
+        this.close();
     }
+
+    // Controller
+    open(idGroup: string) {
+        this.setState({
+            visible: true,
+            idGroup
+        });
+    }
+    close() {
+        this.setState({
+            visible: false
+        });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} style={{ marginLeft: 12, marginRight: 12 }} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+        return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <View style={{ backgroundColor: Theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>

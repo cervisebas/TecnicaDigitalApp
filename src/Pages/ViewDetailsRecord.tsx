@@ -1,5 +1,5 @@
 import { decode } from "base-64";
-import React, { Component, PureComponent } from "react";
+import React, { PureComponent } from "react";
 import { StyleSheet, View } from "react-native";
 import { Appbar, List, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
@@ -17,20 +17,53 @@ const useUtf8 = (string: string)=>{
     }
 };
 
-type IProps = {
+type IProps = {};
+type IState = {
     visible: boolean;
-    close: ()=>any;
-    datas: RecordData | undefined;
+    datas: RecordData;
 };
-type IState = {};
 
-export default class ViewDetailsRecord extends Component<IProps, IState> {
+export default class ViewDetailsRecord extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
+        this.state = {
+            visible: false,
+            datas: this.defaultDatas
+        };
+        this.close = this.close.bind(this);
+    }
+    private defaultDatas: RecordData = {
+        id: '',
+        movent: '',
+        date: '',
+        hour: '',
+        importance: '',
+        admin: {
+            ok: true,
+            cause: '',
+            datas: {
+                id: '',
+                name: '',
+                position: '',
+                username: '',
+                picture: '',
+            }
+        },
+        type: '',
+        section: ''
+    };
+    open(datas: RecordData) {
+        this.setState({
+            visible: true,
+            datas
+        });
+    }
+    close() {
+        this.setState({ visible: false });
     }
     getImpotance() {
-        if (!this.props.datas) return 'Ninguna';
-        switch (parseInt(this.props.datas!.importance)) {
+        if (!this.state.datas) return 'Ninguna';
+        switch (parseInt(this.state.datas!.importance)) {
             case 1:
                 return "Alta";
             case 2:
@@ -43,39 +76,39 @@ export default class ViewDetailsRecord extends Component<IProps, IState> {
         return "Ninguna";
     }
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            {(this.props.datas)? <View style={styles.content}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={this.close} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+            <View style={styles.content}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={this.props.close} />
-                    <Appbar.Content title={`Ver detalles: #${this.props.datas.id}`} />
+                    <Appbar.BackAction onPress={this.close} />
+                    <Appbar.Content title={`Ver detalles: #${this.state.datas.id}`} />
                 </Appbar.Header>
                 <View style={styles.content2}>
-                    <TextView title={'ID'} text={`#${this.props.datas.id}`} />
-                    <TextView title={'Tipo'} text={useUtf8(decode(this.props.datas.type))} />
-                    <TextViewDetails title={'Detalles'} text={useUtf8(decode(this.props.datas.movent))} />
-                    <TextView title={'Fecha'} text={decode(this.props.datas.date)} />
-                    <TextView title={'Hora'} text={decode(this.props.datas.hour)} />
-                    <TextView title={'Sector'} text={useUtf8(decode(this.props.datas.section))} />
+                    <TextView title={'ID'} text={`#${this.state.datas.id}`} />
+                    <TextView title={'Tipo'} text={useUtf8(decode(this.state.datas.type))} />
+                    <TextViewDetails title={'Detalles'} text={useUtf8(decode(this.state.datas.movent))} />
+                    <TextView title={'Fecha'} text={decode(this.state.datas.date)} />
+                    <TextView title={'Hora'} text={decode(this.state.datas.hour)} />
+                    <TextView title={'Sector'} text={useUtf8(decode(this.state.datas.section))} />
                     <TextView title={'Importancia'} text={this.getImpotance()} />
                     <TextView title={'Responsable'} text={''} />
                     <View style={{ marginLeft: 20, marginTop: 4 }}>
                         <List.Item
-                            title={useUtf8(decode(this.props.datas.admin.datas.name))}
-                            description={`@${useUtf8(decode(this.props.datas.admin.datas.username))}`}
+                            title={useUtf8(decode(this.state.datas.admin.datas.name))}
+                            description={`@${useUtf8(decode(this.state.datas.admin.datas.username))}`}
                             style={{ height: 64 }}
                             left={(props)=><ImageLazyLoad
                                 {...props}
                                 circle={true}
                                 size={48}
-                                source={{ uri: `${urlBase}/image/${decode(this.props.datas!.admin.datas.picture)}` }}
+                                source={{ uri: `${urlBase}/image/${decode(this.state.datas!.admin.datas.picture)}` }}
                             />}
                             right={(props)=><View style={{ height: '100%', marginRight: 10, justifyContent: 'center' }}>
-                                <Text style={{ color: props.color }}>#{this.props.datas!.admin.datas.id}</Text>
+                                <Text style={{ color: props.color }}>#{this.state.datas!.admin.datas.id}</Text>
                             </View>}
                         />
                     </View>
                 </View>
-            </View>: <></>}
+            </View>
         </CustomModal>);
     }
 }

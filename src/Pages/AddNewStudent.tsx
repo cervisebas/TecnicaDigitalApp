@@ -11,11 +11,9 @@ import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import { Directive, Student } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
 
-type IProps = {
-    visible: boolean;
-    close: ()=>any;
-};
+type IProps = {};
 type IState = {
+    visible: boolean;
     isLoadImage: boolean;
     imageShow: ImageSourcePropType;
     viewModalDate: boolean;
@@ -55,6 +53,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
             isLoadImage: false,
             imageShow: require('../Assets/profile.png'),
             viewModalDate: false,
@@ -81,6 +80,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
             errorFormDNI: false
         };
         this.closeAndClean = this.closeAndClean.bind(this);
+        this.close = this.close.bind(this);
     }
     private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     closeAndClean() {
@@ -109,7 +109,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
             errorFormCourse: false,
             errorFormDate: false,
             errorFormDNI: false
-        }, ()=>this.props.close());
+        }, this.close);
     }
     async changeImage() {
         const result = await launchImageLibrary({ mediaType: 'photo', includeExtra: false, selectionLimit: 1 });
@@ -222,8 +222,17 @@ export default class AddNewStudent extends Component<IProps, IState> {
             })    
         );
     }
+
+    // Controller
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={this.closeAndClean}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={this.closeAndClean}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>

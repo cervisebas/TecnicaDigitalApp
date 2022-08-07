@@ -15,12 +15,10 @@ type DataAssist = {
     data: AssistIndividualData[];
 };
 
-type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    datas: AssistIndividualData[];
-};
+type IProps = {};
 type IState = {
+    visible: boolean;
+    initDatas: AssistIndividualData[];
     isLoading: boolean;
     datas: DataAssist[];
 };
@@ -31,16 +29,19 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            initDatas: [],
             isLoading: true,
             datas: []
         };
         moment.locale('es');
         this.loadData = this.loadData.bind(this);
+        this.close = this.close.bind(this);
     }
     loadData() {
         this.setState({ isLoading: true }, ()=>{
             var newData: DataAssist[] = [];
-            this.props.datas.forEach((value)=>{
+            this.state.initDatas.forEach((value)=>{
                 var tDate = moment(decode(value.date), 'DD/MM/YYYY').format('MMMM (YYYY)');
                 var findIndex = newData.findIndex((v)=>v.label == tDate);
                 if (findIndex !== -1) {
@@ -65,11 +66,26 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
         tabBarStyle: { backgroundColor: Theme.colors.primary },
         tabBarIndicatorStyle: { backgroundColor: Theme.colors.accent, height: 4 }
     };
+
+    // Controller
+    open(initDatas: AssistIndividualData[]) {
+        this.setState({
+            visible: true,
+            initDatas
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            initDatas: []
+        });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.props.close}>
+        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
             <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={this.props.close} />
+                    <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={'Ver más detalles'}  />
                 </Appbar.Header>
                 <View style={{ flex: 2 }}>

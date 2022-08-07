@@ -9,12 +9,11 @@ import { DirectivesList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    data: DirectivesList | undefined;
     showSnackbar: (visible: boolean, text: string)=>any;
 };
 type IState = {
+    visible: boolean;
+    data: DirectivesList;
     isLoading: boolean;
     formPermission: string;
 };
@@ -23,6 +22,8 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            data: this.dataDefault,
             isLoading: false,
             formPermission: '1'
         };
@@ -30,6 +31,15 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
         this.onClose = this.onClose.bind(this);
         this.goClose = this.goClose.bind(this);
     }
+    private dataDefault: DirectivesList = {
+        id: '-1',
+        name: '',
+        position: '',
+        dni: '',
+        picture: '',
+        username: '',
+        permission: ''
+    };
     private permissions: { name: string; value: string; }[] = [
         { name: '0 (muy bajo) inhabilitar', value: '0' },
         { name: '1 (bajo)', value: '1' },
@@ -40,11 +50,11 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
     ];
     sendData() {
         this.setState({ isLoading: true }, ()=>
-            Directive.edit(this.props.data!.id, undefined, undefined, undefined, undefined, undefined, this.state.formPermission)
+            Directive.edit(this.state.data.id, undefined, undefined, undefined, undefined, undefined, this.state.formPermission)
                 .then(()=>this.setState({ isLoading: false }, ()=>{
                     this.props.showSnackbar(true, 'Permisos editados correctamente.');
-                    DeviceEventEmitter.emit('reload-page4');
-                    this.props.close();
+                    DeviceEventEmitter.emit('reload-page4', true);
+                    this.close();
                 }))
                 .catch((error)=>this.setState({ isLoading: false }, ()=>ToastAndroid.show(error.cause, ToastAndroid.SHORT)))
         );
@@ -57,10 +67,23 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
     }
     goClose() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.props.close();
+        this.close();
     }
+
+    // Controller
+    open(data: DirectivesList) {
+        this.setState({
+            visible: true,
+            data
+        });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={()=>this.setState({ formPermission: this.props.data!.permission })} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+        return(<CustomModal visible={this.state.visible} onShow={()=>this.setState({ formPermission: this.state.data.permission })} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <View style={styles.content}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>

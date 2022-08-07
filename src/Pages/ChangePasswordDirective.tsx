@@ -7,12 +7,11 @@ import { DirectivesList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    data: DirectivesList | undefined;
     showSnackbar: (visible: boolean, text: string)=>any;
 };
 type IState = {
+    visible: boolean;
+    data: DirectivesList;
     isLoading: boolean;
 
     showPassword: boolean;
@@ -33,6 +32,8 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            data: this.dataDefault,
             isLoading: false,
             showPassword: true,
             showPassword2: true,
@@ -49,6 +50,15 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
         this.sendData = this.sendData.bind(this);
         this.goClose = this.goClose.bind(this);
     }
+    private dataDefault: DirectivesList = {
+        id: '-1',
+        name: '',
+        position: '',
+        dni: '',
+        picture: '',
+        username: '',
+        permission: ''
+    };
     verifyInputs() {
         if (this.state.formPassword.length < 8) {
             this.setState({ formErrorPassword: true });
@@ -63,11 +73,11 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
     sendData() {
         if (!this.verifyInputs()) return;
         this.setState({ isLoading: true }, ()=>
-            Directive.edit(this.props.data!.id, undefined, undefined, undefined, undefined, this.state.formPassword)
+            Directive.edit(this.state.data.id, undefined, undefined, undefined, undefined, this.state.formPassword)
                 .then(()=>{
                     this.props.showSnackbar(true, 'La contraseña se editó correctamente.');
-                    DeviceEventEmitter.emit('reload-page4');
-                    this.props.close();
+                    DeviceEventEmitter.emit('reload-page4', true);
+                    this.close();
                 })
                 .catch((error)=>ToastAndroid.show(error.cause, ToastAndroid.SHORT))
         );
@@ -89,10 +99,25 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
     }
     goClose() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.props.close();
+        this.close();
     }
+
+    // Controller
+    open(data: DirectivesList) {
+        this.setState({
+            visible: true,
+            data
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            data: this.dataDefault
+        });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+        return(<CustomModal visible={this.state.visible} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <View style={styles.content}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
@@ -151,7 +176,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
                                 />}
                                 onChangeText={(text)=>this.setState({ formPassword2: text, formErrorPassword2: false })}
                             />
-                            <View style={{ width: '100%', paddingTop: 12, paddingBottom: 4, alignItems: 'center' }}>
+                            <View style={styles.viewButtonSend}>
                                 <Button
                                     mode={'contained'}
                                     loading={this.state.isLoading}
@@ -179,5 +204,11 @@ const styles = StyleSheet.create({
         marginRight: 16,
         marginTop: 8,
         marginBottom: 0
+    },
+    viewButtonSend: {
+        width: '100%',
+        paddingTop: 12,
+        paddingBottom: 4,
+        alignItems: 'center'
     }
 });

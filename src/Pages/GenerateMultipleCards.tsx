@@ -11,16 +11,15 @@ import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Theme from "../Themes";
 
-type IProps = {
+type IProps = {};
+type IState = {
     visible: boolean;
-    close: ()=>any;
     datas: StudentsData[] | undefined;
     type: number | undefined;
-};
-type IState = {
     scaleImage: number;
     snackBarView: boolean;
     snackBarText: string;
+    title: string;
 };
 
 const { width } = Dimensions.get('window');
@@ -29,12 +28,17 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            datas: [],
+            type: undefined,
             scaleImage: 0,
             snackBarView: false,
-            snackBarText: ''
+            snackBarText: '',
+            title: '0°0'
         };
         this._renderItem = this._renderItem.bind(this);
-        this._keyExtractor = this._keyExtractor.bind(this);
+        this._keyExtractor = this._keyExtractor.bind(this);4
+        this.close = this.close.bind(this);
     }
     componentDidMount() {
         var scales: number[] = [];
@@ -60,27 +64,44 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
     _renderItem({ item }: ListRenderItemInfo<StudentsData>) {
         return(<CustomCredentialDownload
             key={`credential-${decode(item.dni)}`}
-            type={this.props.type}
+            type={this.state.type}
             scaleImage={this.state.scaleImage}
             data={item}
         />);
     }
+    loadData() {
+        this.setState({
+            title: (this.state.datas)? decode(this.state.datas[0].curse): '0°0'
+        });
+    }
+
+    // Controller
+    open(datas: StudentsData[], type: number | undefined) {
+        this.setState({
+            visible: true,
+            datas,
+            type
+        });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
 
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
-            {(this.props.datas)?<View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
+            <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                 <Appbar.Header>
-                    <Appbar.BackAction onPress={this.props.close} />
-                    <Appbar.Content title={`Generar credenciales (${decode(this.props.datas[0].curse)})`}  />
+                    <Appbar.BackAction onPress={this.close} />
+                    <Appbar.Content title={`Generar credenciales (${this.state.title})`}  />
                 </Appbar.Header>
                 <View style={{ flex: 2 }}>
-                    {(this.props.visible)&&<FlatList
-                        data={this.props.datas}
+                    <FlatList
+                        data={this.state.datas}
                         contentContainerStyle={{ paddingTop: 4, paddingBottom: 4 }}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
                         keyExtractor={this._keyExtractor}
                         renderItem={this._renderItem}
-                    />}
+                    />
                     <Snackbar
                         visible={this.state.snackBarView}
                         onDismiss={()=>this.setState({ snackBarView: false })}
@@ -88,7 +109,7 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
                         <Text>{this.state.snackBarText}</Text>
                     </Snackbar>
                 </View>
-            </View>: <></>}
+            </View>
         </CustomModal>);
     }
 };

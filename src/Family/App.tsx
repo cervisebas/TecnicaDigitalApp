@@ -10,22 +10,25 @@ import { decode } from "base-64";
 import ViewDetailsAssist from "../Pages/ViewDetailsAssist";
 import CustomCredential from "../Components/CustomCredential";
 import ViewShot, { captureRef } from "react-native-view-shot";
-import ImageView from "react-native-image-viewing";
 import RNFS from "react-native-fs";
 import Share from "react-native-share";
 import ChangeCardDesign from "../Pages/ChangeCardDesign";
-import LoadingController from "../Components/loading/loading-controller";
 import FamilyOptions from "../Pages/FamilyOptions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MainWidget from "../Scripts/MainWidget";
+import ImageViewer from "../Pages/ImageViewer";
+import LoadingComponent from "../Components/LoadingComponent";
 
 type IProps = {};
 type IState = {
+    // Controller
     isLoading: boolean;
     isRefresh: boolean;
     isError: boolean;
     messageError: string;
+    // Data Student
     studentData: StudentsData | undefined;
+    // Assist
     isLoadingAssist: boolean;
     isErrorAssist: boolean;
     messageErrorAssist: string;
@@ -33,22 +36,17 @@ type IState = {
     numAssist: string;
     numNotAssist: string;
     numTotalAssist: string;
-    visibleViewDetailsAssist: boolean;
+    disableButtonDetailAssist: boolean;
+    // Card
     scaleImage: number;
+    designCardElection: number | undefined;
+    // Interfaz
     snackBarView: boolean;
     snackBarText: string;
-    viewImage: boolean;
-    viewImageSource: string;
-    showChangeCardDesign: boolean;
-    designCardElection: number | undefined;
-    showLoading: boolean;
-    textLoading: string;
-    viewOptions: boolean;
-    viewLogOut: boolean;
-    disableButtonDetailAssist: boolean;
     dialogVisible: boolean;
     dialogTitle: string;
     dialogText: string;
+    viewLogOut: boolean;
 };
 
 const { width } = Dimensions.get('window');
@@ -69,17 +67,10 @@ export default class AppFamily extends Component<IProps, IState> {
             numAssist: 'Cargando...',
             numNotAssist: 'Cargando...',
             numTotalAssist: 'Cargando...',
-            visibleViewDetailsAssist: false,
             scaleImage: 0.3,
             snackBarView: false,
             snackBarText: '',
-            viewImage: false,
-            viewImageSource: '',
-            showChangeCardDesign: false,
             designCardElection: undefined,
-            showLoading: false,
-            textLoading: '',
-            viewOptions: false,
             viewLogOut: false,
             disableButtonDetailAssist: false,
             dialogVisible: false,
@@ -93,9 +84,19 @@ export default class AppFamily extends Component<IProps, IState> {
         this.shareImageTarget = this.shareImageTarget.bind(this);
         this.closeSession = this.closeSession.bind(this);
         this._openDetailsAssit = this._openDetailsAssit.bind(this);
+        this._openChangeDesign = this._openChangeDesign.bind(this);
+        this._openImageViewer = this._openImageViewer.bind(this);
+        this._openOptions = this._openOptions.bind(this);
     }
     private event: EmitterSubscription | null = null;
+    // Refs Components
     private refTarget: ViewShot | null | any = null;
+    private refChangeCardDesign: ChangeCardDesign | null = null;
+    private refImageViewer: ImageViewer | null = null;
+    private refViewDetailsAssist: ViewDetailsAssist | null = null;
+    private refLoadingComponent: LoadingComponent | null = null;
+    private refFamilyOptions: FamilyOptions | null = null;
+
     componentDidMount() {
         var scales: number[] = [];
         for (let i = 1; i > 0; i -= 0.001) { scales.push(i); }
@@ -156,7 +157,7 @@ export default class AppFamily extends Component<IProps, IState> {
     }
     viewImageTarget() {
         this.generateImage()
-            .then((uri)=>this.setState({ viewImage: true, viewImageSource: uri }))
+            .then(this._openImageViewer)
             .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
     }
     async downloadImageTarget() {
@@ -179,36 +180,49 @@ export default class AppFamily extends Component<IProps, IState> {
             .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
     }
     shareImageTarget() {
-        this.setState({ showLoading: true, textLoading: 'Espere por favor...' }, ()=>
-            this.generateImage('base64')
-                .then((base64)=>{
-                    var nameFile: string = `student-${this.state.studentData!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
-                    this.setState({ showLoading: false }, ()=>
-                        Share.open({
-                            url: `data:image/png;base64,${base64}`,
-                            filename: nameFile,
-                            type: 'png',
-                            showAppsToView: false,
-                            isNewTask: true
-                        }).catch(()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' }))
-                    );
-                })
-                .catch(()=>this.setState({ showLoading: false, snackBarView: true, snackBarText: 'Error al generar la imagen.' }))
-        );
+        this.refLoadingComponent?.open('Espere por favor...');
+        this.generateImage('base64')
+            .then((base64)=>{
+                var nameFile: string = `student-${this.state.studentData!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
+                this.refLoadingComponent?.close();
+                Share.open({
+                    url: `data:image/png;base64,${base64}`,
+                    filename: nameFile,
+                    type: 'png',
+                    showAppsToView: false,
+                    isNewTask: true
+                }).catch(()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' }));
+            })
+            .catch(()=>{
+                this.refLoadingComponent?.close();
+                this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' });
+            });
     }
     /* ###### ########## ###### */
     _openDetailsAssit() {
         if (this.state.assistData!.length == 0) return ToastAndroid.show("No se encontraron registros...", ToastAndroid.SHORT);
-        this.setState({ visibleViewDetailsAssist: true });
+        this.refViewDetailsAssist?.open(this.state.assistData as any);
     }
     closeSession() {
-        this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: false }, async()=>{
+        this.refLoadingComponent?.open('Cerrando sesión...');
+        this.setState({ viewLogOut: false }, async()=>{
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
             await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
             await MainWidget.init();
             DeviceEventEmitter.emit('reVerifySession');
-            this.setState({ showLoading: false });
+            this.refLoadingComponent?.close();
         });
+    }
+
+    // New's
+    _openChangeDesign() {
+        this.refChangeCardDesign?.open();
+    }
+    _openImageViewer(src: string) {
+        this.refImageViewer?.open(src);
+    }
+    _openOptions() {
+        this.refFamilyOptions?.open();
     }
 
     render(): React.ReactNode {
@@ -216,7 +230,7 @@ export default class AppFamily extends Component<IProps, IState> {
             <PaperProvider theme={Theme}>
                 <Appbar.Header>
                     <Appbar.Content title={'TecnicaDigital'} />
-                    <Appbar.Action icon={'account-circle-outline'} disabled={this.state.isLoading} onPress={()=>this.setState({ viewOptions: true })} />
+                    <Appbar.Action icon={'account-circle-outline'} disabled={this.state.isLoading} onPress={this._openOptions} />
                 </Appbar.Header>
                 {(!this.state.isLoading)? (this.state.studentData)&&<View style={{ flex: 2, overflow: 'hidden' }}>
                     <ScrollView style={{ flex: 3 }} refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={this.loadData} colors={[Theme.colors.accent]} />}>
@@ -264,7 +278,7 @@ export default class AppFamily extends Component<IProps, IState> {
                                     {...props}
                                     icon={'pencil-ruler'}
                                     color={Theme.colors.accent}
-                                    onPress={()=>this.setState({ showChangeCardDesign: true })}
+                                    onPress={this._openChangeDesign}
                                 />}
                             />
                             <Card.Content>
@@ -321,38 +335,26 @@ export default class AppFamily extends Component<IProps, IState> {
                             <Paragraph>{this.state.dialogText}</Paragraph>
                         </Dialog.Content>
                         <Dialog.Actions>
-                            <Button onPress={()=>this.setState({ dialogVisible: false, viewOptions: true })}>Aceptar</Button>
+                            <Button onPress={()=>this.setState({ dialogVisible: false }, this._openOptions)}>Aceptar</Button>
                         </Dialog.Actions>
                     </Dialog>
                 </Portal>
 
+                {/* Modal's */}
                 <ChangeCardDesign
-                    visible={this.state.showChangeCardDesign}
-                    close={()=>this.setState({ showChangeCardDesign: false })}
-                    onPress={(option)=>this.setState({ designCardElection: option, showChangeCardDesign: false })}
+                    ref={(ref)=>this.refChangeCardDesign = ref}
+                    onChange={(option)=>this.setState({ designCardElection: option })}
                 />
-                <ImageView
-                    images={(this.state.viewImage)? [{ uri: this.state.viewImageSource }]: []}
-                    imageIndex={0}
-                    visible={this.state.viewImage}
-                    swipeToCloseEnabled={true}
-                    doubleTapToZoomEnabled={true}
-                    onRequestClose={()=>this.setState({ viewImage: false, viewImageSource: '' })}
-                />
-                <ViewDetailsAssist
-                    visible={this.state.visibleViewDetailsAssist}
-                    close={()=>this.setState({ visibleViewDetailsAssist: false })}
-                    datas={this.state.assistData as any}
-                />
+                <ImageViewer ref={(ref)=>this.refImageViewer = ref} />
+                <ViewDetailsAssist ref={(ref)=>this.refViewDetailsAssist = ref} />
                 <FamilyOptions
-                    visible={this.state.viewOptions}
+                    ref={(ref)=>this.refFamilyOptions = ref}
                     data={this.state.studentData}
-                    close={()=>this.setState({ viewOptions: false })}
-                    closeSession={()=>this.setState({ viewLogOut: true, viewOptions: false })}
-                    openImage={()=>this.setState({ viewImage: true, viewImageSource: `${urlBase}/image/${decode(this.state.studentData!.picture)}` })}
-                    openDialog={(title, text)=>this.setState({ viewOptions: false, dialogVisible: true, dialogTitle: title, dialogText: text })}
+                    closeSession={()=>this.setState({ viewLogOut: true })}
+                    openImage={this._openImageViewer}
+                    openDialog={(title, text)=>this.setState({ dialogVisible: true, dialogTitle: title, dialogText: text })}
                 />
-                <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
+                <LoadingComponent ref={(ref)=>this.refLoadingComponent = ref} />
             </PaperProvider>
         </View>);
     }

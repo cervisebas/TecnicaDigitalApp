@@ -15,6 +15,7 @@ import AddDirective from "../Pages/AddDirective";
 import EditDirective from "../Pages/EditDirective";
 import ChangePasswordDirective from "../Pages/ChangePasswordDirective";
 import ChangePermissionDirective from "../Pages/ChangePermissionDirective";
+import ImageViewer from "../Pages/ImageViewer";
 
 type IProps = {
     navigation: any;
@@ -23,34 +24,12 @@ type IState = {
     isLoading: boolean;
     isError: boolean;
     isRefresh: boolean;
-
     messageError: string;
     datas: DirectivesList[];
-
-    visibleViewDirective: boolean;
-    dataViewDirective: DirectivesList | undefined;
-
-    visibleAddDirective: boolean;
-
     showLoading: boolean;
     textLoading: string;
-
     snackBarView: boolean;
     snackBarText: string;
-
-    showViewer: boolean;
-
-    idOptionSelect: string;
-
-    visibleEditDirective: boolean;
-    dataEditDirective: DirectivesList | undefined;
-    
-    visibleChangePassword: boolean;
-    dataChangePassword: DirectivesList | undefined;
-    
-    visibleChangePermissions: boolean;
-    dataChangePermissions: DirectivesList | undefined;
-
     showConfirmDelete: boolean;
 };
 
@@ -63,42 +42,41 @@ export default class Page4 extends Component<IProps, IState> {
             isRefresh: false,
             messageError: '',
             datas: [],
-            visibleViewDirective: false,
-            dataViewDirective: undefined,
-            visibleAddDirective: false,
             showLoading: false,
             textLoading: '',
             snackBarView: false,
             snackBarText: '',
-            showViewer: false,
-            visibleEditDirective: false,
-            dataEditDirective: undefined,
-            idOptionSelect: '-1',
-            visibleChangePassword: false,
-            dataChangePassword: undefined,
-            visibleChangePermissions: false,
-            dataChangePermissions: undefined,
             showConfirmDelete: false
         };
         this._renderItem = this._renderItem.bind(this);
         this.loadData = this.loadData.bind(this);
         this.selectEditOptions = this.selectEditOptions.bind(this);
         this.deleteNow = this.deleteNow.bind(this);
+        this.openImageViewer = this.openImageViewer.bind(this);
+        this.showSnackbar = this.showSnackbar.bind(this);
+        this._openAddDirective = this._openAddDirective.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
-    // Action Sheet
-    private actionSheet: ActionSheet | null = null;
     private optionsMenuEdit: any[] = [
         <Text style={styles.optionAction}>Editar información</Text>,
         <Text style={styles.optionAction}>Cambiar contraseña</Text>,
         <Text style={styles.optionAction}>Cambiar permisos</Text>,
         'Cancelar'
     ];
+    private idOptionSelect: string = '-1';
+    // Refs
+    private actionSheet: ActionSheet | null = null;
+    private refViewDirective: ViewDirective | null = null;
+    private refImageViewer: ImageViewer | null = null;
+    private refAddDirective: AddDirective | null = null;
+    private refEditDirective: EditDirective | null = null;
+    private refChangePasswordDirective: ChangePasswordDirective | null = null;
+    private refChangePermissionDirective: ChangePermissionDirective | null = null;
     
     componentDidMount() {
         this.loadData();
-        this.event = DeviceEventEmitter.addListener('reload-page4', this.loadData);
+        this.event = DeviceEventEmitter.addListener('reload-page4', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
         this.event2 = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
     }
     componentWillUnmount() {
@@ -134,12 +112,15 @@ export default class Page4 extends Component<IProps, IState> {
             position={decode(item.position)}
             permission={parseInt(item.permission)}
             source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
-            onPress={()=>this.setState({
-                visibleViewDirective: true,
-                dataViewDirective: item
-            })}
-            onEdit={()=>this.setState({ idOptionSelect: item.id }, ()=>this.actionSheet?.show())}
-            onDelete={()=>this.setState({ idOptionSelect: item.id, showConfirmDelete: true })}
+            onPress={()=>this.refViewDirective?.open(item)}
+            onEdit={()=>{
+                this.idOptionSelect = item.id;
+                this.actionSheet?.show();
+            }}
+            onDelete={()=>{
+                this.idOptionSelect = item.id;
+                this.setState({ showConfirmDelete: true });
+            }}
         />);
     }
     _ItemSeparatorComponent() {
@@ -149,30 +130,43 @@ export default class Page4 extends Component<IProps, IState> {
 
     deleteNow() {
         this.setState({ showLoading: true, textLoading: 'Eliminado directivo...' }, ()=>
-            Directive.delete(this.state.idOptionSelect)
-                .then(()=>{
-                    this.loadData();
-                    this.setState({ showLoading: false, snackBarView: true, snackBarText: 'El directivo se eliminó correctamente.' });
-                })
+            Directive.delete(this.idOptionSelect)
+                .then(()=>this.setState({
+                    showLoading: false,
+                    snackBarView: true,
+                    snackBarText: 'El directivo se eliminó correctamente.',
+                    isRefresh: true
+                }, this.loadData))
                 .catch((error)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: error.cause }))
         );
     }
-
     selectEditOptions(opt: number) {
         switch (opt) {
             case 0:
-                var data = this.state.datas.find((v)=>this.state.idOptionSelect == v.id);
-                this.setState({ visibleEditDirective: true, dataEditDirective: data });
+                var data = this.state.datas.find((v)=>this.idOptionSelect == v.id);
+                this.refEditDirective?.open(data!);
                 break;
             case 1:
-                var data = this.state.datas.find((v)=>this.state.idOptionSelect == v.id);
-                this.setState({ visibleChangePassword: true, dataChangePassword: data });
+                var data = this.state.datas.find((v)=>this.idOptionSelect == v.id);
+                this.refChangePasswordDirective?.open(data!);
                 break;
             case 2:
-                var data = this.state.datas.find((v)=>this.state.idOptionSelect == v.id);
-                this.setState({ visibleChangePermissions: true, dataChangePermissions: data });
+                var data = this.state.datas.find((v)=>this.idOptionSelect == v.id);
+                this.refChangePermissionDirective?.open(data!);
                 break;
         }
+    }
+    openImageViewer(source: string) {
+        this.refImageViewer?.open(source);
+    }
+    showSnackbar(visible: boolean, text: string) {
+        this.setState({
+            snackBarView: visible,
+            snackBarText: text
+        });
+    }
+    _openAddDirective() {
+        this.refAddDirective?.open();
     }
 
     render(): React.ReactNode {
@@ -181,7 +175,7 @@ export default class Page4 extends Component<IProps, IState> {
                 <Appbar>
                     <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Directivos'}  />
-                    <Appbar.Action icon={'account-plus-outline'} onPress={()=>this.setState({ visibleAddDirective: true })} />
+                    <Appbar.Action icon={'account-plus-outline'} onPress={this._openAddDirective} />
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
                     {(!this.state.isLoading && !this.state.isError)? <FlatList
@@ -234,43 +228,12 @@ export default class Page4 extends Component<IProps, IState> {
                     destructiveButtonIndex={3}
                     onPress={this.selectEditOptions}
                 />
-                <ViewDirective
-                    visible={this.state.visibleViewDirective}
-                    close={()=>this.setState({ visibleViewDirective: false })}
-                    data={this.state.dataViewDirective}
-                    openImage={()=>this.setState({ showViewer: true })}
-                />
-                {(this.state.visibleViewDirective)&&<ImageView
-                    images={[{ uri: `${urlBase}/image/${decode(this.state.dataViewDirective!.picture)}` }]}
-                    imageIndex={0}
-                    visible={this.state.showViewer}
-                    swipeToCloseEnabled={true}
-                    doubleTapToZoomEnabled={true}
-                    onRequestClose={()=>this.setState({ showViewer: false })}
-                />}
-                <AddDirective
-                    visible={this.state.visibleAddDirective}
-                    close={()=>this.setState({ visibleAddDirective: false })}
-                    showSnackbar={(v, t)=>this.setState({ snackBarView: v, snackBarText: t })}
-                />
-                <EditDirective
-                    visible={this.state.visibleEditDirective}
-                    close={()=>this.setState({ visibleEditDirective: false, dataEditDirective: undefined })}
-                    data={this.state.dataEditDirective}
-                    showSnackbar={(v, t)=>this.setState({ snackBarView: v, snackBarText: t })}
-                />
-                <ChangePasswordDirective
-                    visible={this.state.visibleChangePassword}
-                    close={()=>this.setState({ visibleChangePassword: false, dataChangePassword: undefined })}
-                    data={this.state.dataChangePassword}
-                    showSnackbar={(v, t)=>this.setState({ snackBarView: v, snackBarText: t })}
-                />
-                <ChangePermissionDirective
-                    visible={this.state.visibleChangePermissions}
-                    close={()=>this.setState({ visibleChangePermissions: false, dataChangePermissions: undefined })}
-                    data={this.state.dataChangePermissions}
-                    showSnackbar={(v, t)=>this.setState({ snackBarView: v, snackBarText: t })}
-                />
+                <ViewDirective ref={(ref)=>this.refViewDirective = ref} openImage={this.openImageViewer} />
+                <ImageViewer ref={(ref)=>this.refImageViewer = ref} />
+                <AddDirective ref={(ref)=>this.refAddDirective = ref} showSnackbar={this.showSnackbar} />
+                <EditDirective ref={(ref)=>this.refEditDirective = ref} showSnackbar={this.showSnackbar} />
+                <ChangePasswordDirective ref={(ref)=>this.refChangePasswordDirective = ref} showSnackbar={this.showSnackbar} />
+                <ChangePermissionDirective ref={(ref)=>this.refChangePermissionDirective = ref} showSnackbar={this.showSnackbar} />
                 <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
             </PaperProvider>
         </View>);

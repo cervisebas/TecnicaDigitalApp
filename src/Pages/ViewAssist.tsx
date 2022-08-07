@@ -10,11 +10,14 @@ import RNFS from "react-native-fs";
 import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 
+type Select = {
+    id: string;
+    curse: string;
+    date: string;
+    hour: string;
+    annotations: number;
+};
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    select: { id: string; curse: string; date: string; hour: string; annotations: number; };
-    data: AssistUserData[];
     editAssist: (id: string, datas: { id: string; curse: string; })=>any;
     showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
     showSnackbar: (v: boolean, t: string, a?: ()=>any)=>any;
@@ -23,6 +26,10 @@ type IProps = {
     openAddAnnotation: ()=>any;
 };
 type IState = {
+    visible: boolean;
+    select: Select;
+    data: AssistUserData[];
+
     fabShow: boolean;
     alertVisible: boolean;
     alertMessage: string;
@@ -34,6 +41,9 @@ export default class ViewAssist extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            select: this.selectDefault,
+            data: [],
             fabShow: false,
             alertVisible: false,
             alertMessage: '',
@@ -44,9 +54,17 @@ export default class ViewAssist extends Component<IProps, IState> {
         this.generatePdf = this.generatePdf.bind(this);
         this.openViewAnnotation = this.openViewAnnotation.bind(this);
         this._renderItem = this._renderItem.bind(this);
+        this.close = this.close.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
+    private selectDefault: Select = {
+        id: '',
+        curse: '',
+        date: '',
+        hour: '',
+        annotations: 0
+    };
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('show-dialog-add-annotation', (message: string)=>this.setState({ alertVisible: true, alertMessage: message }));
         this.event2 = DeviceEventEmitter.addListener('restore-view-annotations', ()=>this.openViewAnnotation('auto'));
@@ -58,12 +76,13 @@ export default class ViewAssist extends Component<IProps, IState> {
         this.event2 = null;
     }
     openEditAssist() {
-        this.props.editAssist(this.props.select.id, this.props.select);
+        this.props.editAssist(this.state.select.id, this.state.select);
+        this.close();
     }
     openViewAnnotation(auto?: 'auto') {
-        if (this.props.select.annotations == 0) return (auto !== 'auto')&&ToastAndroid.show('No se encontraron anotaciones.', ToastAndroid.SHORT);
+        if (this.state.select.annotations == 0) return (auto !== 'auto')&&ToastAndroid.show('No se encontraron anotaciones.', ToastAndroid.SHORT);
         this.setState({ isLoadingAnnotations: true }, ()=>
-            Annotation.getAll(this.props.select.id)
+            Annotation.getAll(this.state.select.id)
                 .then((value)=>this.setState({ isLoadingAnnotations: false }, ()=>{
                     if (value.length == 0) return;
                     this.props.openAnnotations(value);
@@ -73,10 +92,10 @@ export default class ViewAssist extends Component<IProps, IState> {
     }
     delete() {
         this.props.showLoading(true, 'Eliminando registro...', ()=>
-            Assist.deleteAssist(this.props.select.id)
+            Assist.deleteAssist(this.state.select.id)
                 .then(()=>this.props.showLoading(false, 'Eliminando registro...', ()=>{
                     DeviceEventEmitter.emit('p1-reload');
-                    this.props.showSnackbar(true, `Se elimino el registro de "${this.props.select.curse}".`, this.props.close);
+                    this.props.showSnackbar(true, `Se elimino el registro de "${this.state.select.curse}".`, this.close);
                 }))
                 .catch((error)=>this.props.showLoading(false, 'Eliminando registro...', ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
         );
@@ -91,8 +110,8 @@ export default class ViewAssist extends Component<IProps, IState> {
         if (permission == PermissionsAndroid.RESULTS.DENIED) return this.setState({ alertVisible: true, alertMessage: 'Se denegó el acceso al almacenamiento.' });
         await this.verifyFolder();
         this.props.showLoading(true, 'Generando archivo PDF...', ()=>{
-            var students = this.props.data.map((item)=>({ name: item.name, status: item.status }));
-            GeneratePDF.generatePdf({ curse: this.props.select.curse, date: this.props.select.date, hour: this.props.select.hour, students }, true)
+            var students = this.state.data.map((item)=>({ name: item.name, status: item.status }));
+            GeneratePDF.generatePdf({ curse: this.state.select.curse, date: this.state.select.date, hour: this.state.select.hour, students }, true)
                 .then((value)=>this.props.showLoading(false, 'Generando archivo PDF...', ()=>
                     FileViewer.open(value, { showOpenWithDialog: true, showAppsSuggestions: true })
                         .catch(()=>this.setState({ alertVisible: true, alertMessage: 'Ocurrió un problema al abrir el archivo generado.' }))
@@ -138,18 +157,37 @@ export default class ViewAssist extends Component<IProps, IState> {
         };
     }
 
+    // Controller
+    open(select: Select, data: AssistUserData[]) {
+        this.setState({
+            visible: true,
+            select,
+            data
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            select: this.selectDefault,
+            data: []
+        });
+    }
+    updateSelect(select: Select) {
+        this.setState({ select });
+    }
+
     render(): ReactNode {
-        return(<CustomModal visible={this.props.visible} onRequestClose={this.props.close}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
             <PaperProvider theme={Theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={this.props.close} />
-                        <Appbar.Content title={`Ver registro: ${this.props.select.curse}`}  />
+                        <Appbar.BackAction onPress={this.close} />
+                        <Appbar.Content title={`Ver registro: ${this.state.select.curse}`}  />
                         <Appbar.Action icon={'pencil'} onPress={this.openEditAssist} />
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
                         <FlatList
-                            data={this.props.data}
+                            data={this.state.data}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
                             keyExtractor={this._keyExtractor}
                             getItemLayout={this._getItemLayout}
@@ -180,7 +218,7 @@ export default class ViewAssist extends Component<IProps, IState> {
                     </Dialog>
                     <FAB
                         icon={'note-edit-outline'}
-                        label={this.props.select.annotations.toString()}
+                        label={this.state.select.annotations.toString()}
                         loading={this.state.isLoadingAnnotations}
                         onPress={this.openViewAnnotation}
                         style={{

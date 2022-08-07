@@ -1,16 +1,15 @@
 import React, { Component, PureComponent } from "react";
-import { FlatList, ImageSourcePropType, ListRenderItemInfo, StyleProp, TouchableHighlight, View, ViewStyle } from "react-native";
+import { FlatList, ImageSourcePropType, ListRenderItemInfo, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Appbar, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    onPress: (option: number | undefined)=>any;
+    onChange: (option: number | undefined)=>any;
 };
 type IState = {
+    visible: boolean;
     width: number;
 };
 
@@ -24,11 +23,13 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
             width: 0
         };
         this._renderItem = this._renderItem.bind(this);
+        this.close = this.close.bind(this);
     }
-    private list: Item[] | undefined = [
+    private list: Item[] = [
         { id: 1, source: require('../Assets/Examples/desing1.webp'), option: undefined },
         { id: 2, source: require('../Assets/Examples/desing2.webp'), option: 1 },
         { id: 3, source: require('../Assets/Examples/desing4.webp'), option: 2 },
@@ -51,25 +52,37 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
                 marginRight: 12
             }}
             source={item.source}
-            onPress={()=>this.props.onPress(item.option)}
+            onPress={()=>{
+                this.props.onChange(item.option);
+                this.close();
+            }}
         />);
     }
+
+    // Controller
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} style={{ padding: 16 }} animationIn={'fadeInUp'} animationOut={'fadeOutDown'} onRequestClose={()=>this.props.close()}>
+        return(<CustomModal visible={this.state.visible} style={{ padding: 16 }} animationIn={'fadeInUp'} animationOut={'fadeOutDown'} onRequestClose={this.close}>
             <PaperProvider theme={Theme}>
-                <View onLayout={({ nativeEvent })=>this.setState({ width: nativeEvent.layout.width })} style={{ flex: 1, backgroundColor: Theme.colors.background, overflow: 'hidden', borderRadius: 8 }}>
+                <View onLayout={({ nativeEvent })=>this.setState({ width: nativeEvent.layout.width })} style={styles.contain}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={()=>this.props.close()} />
+                        <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={'Ver más detalles'}  />
                     </Appbar.Header>
-                    {(this.props.visible)?<View style={{ flex: 2 }}>
-                        {(this.list && this.state.width !== 0)&&<FlatList
+                    <View style={{ flex: 2 }}>
+                        {(this.state.width !== 0)&&<FlatList
                             data={this.list}
                             contentContainerStyle={{ paddingTop: 12 }}
                             keyExtractor={this._keyExtractor}
                             renderItem={this._renderItem}
                         />}
-                    </View>: <></>}
+                    </View>
                 </View>
             </PaperProvider>
         </CustomModal>);
@@ -94,22 +107,6 @@ class CardImages extends PureComponent<IProps2, IState2> {
             height: 0
         };
     }
-    private styles: StyleProp<ViewStyle> | undefined = {
-        shadowColor: "#000000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        borderRadius: 8,
-        overflow: 'hidden',
-        backgroundColor: '#FFFFFF',
-        maxHeight: 300,
-        alignItems: 'center',
-        justifyContent: 'center'
-    };
     componentDidMount() {
         var scales: number[] = [];
         for (let i = 1; i > 0; i -= 0.001) { scales.push(i); }
@@ -117,8 +114,8 @@ class CardImages extends PureComponent<IProps2, IState2> {
     }
     render(): React.ReactNode {
         return(<TouchableHighlight
-            style={[this.styles, this.props.styles, { height: this.state.height, width: this.state.width }]}
-            onPress={()=>(this.props.onPress)&&this.props.onPress()}>
+            style={[styles.imageContain, this.props.styles, { height: this.state.height, width: this.state.width }]}
+            onPress={(this.props.onPress)&&this.props.onPress}>
             <FastImage
                 source={this.props.source as any}
                 resizeMode={'cover'}
@@ -134,3 +131,28 @@ class CardImages extends PureComponent<IProps2, IState2> {
         </TouchableHighlight>);
     }
 }
+
+const styles = StyleSheet.create({
+    contain: {
+        flex: 1,
+        backgroundColor: Theme.colors.background,
+        overflow: 'hidden',
+        borderRadius: 8
+    },
+    imageContain: {
+        shadowColor: "#000000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        borderRadius: 8,
+        overflow: 'hidden',
+        backgroundColor: '#FFFFFF',
+        maxHeight: 300,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+});

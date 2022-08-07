@@ -10,12 +10,12 @@ import { DirectivesList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
-    data: DirectivesList | undefined;
     showSnackbar: (visible: boolean, text: string)=>any;
 };
 type IState = {
+    visible: boolean;
+    data: DirectivesList;
+
     isLoading: boolean;
 
     formName: string;
@@ -31,6 +31,8 @@ export default class EditDirective extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
+            data: this.dataDefault,
             isLoading: false,
             formName: '',
             formPosition: '',
@@ -46,7 +48,16 @@ export default class EditDirective extends Component<IProps, IState> {
         this.goClose = this.goClose.bind(this);
     }
     private positions: string[] = ['Docente', 'Preceptor/a', 'Secretario/a', 'Director/a', 'Vicedirector/a', 'Otro'];
-    
+    private dataDefault: DirectivesList = {
+        id: '-1',
+        name: '',
+        position: '',
+        dni: '',
+        picture: '',
+        username: '',
+        permission: ''
+    };
+
     verifyInputs() {
         if (this.state.formName.length < 4) {
             this.setState({ formErrorName: true });
@@ -61,23 +72,23 @@ export default class EditDirective extends Component<IProps, IState> {
     sendData() {
         if (!this.verifyInputs()) return;
         this.setState({ isLoading: true }, ()=>{
-            var name = (this.state.formName !== decode(this.props.data!.name))? this.state.formName.trimStart().trimEnd(): undefined;
-            var position = (this.state.formPosition !== decode(this.props.data!.position))? this.state.formPosition.trimStart().trimEnd(): undefined;
-            var dni = (this.state.formDNI !== decode(this.props.data!.dni))? this.state.formDNI: undefined;
-            Directive.edit(this.props.data!.id, name, position, dni)
+            var name = (this.state.formName !== decode(this.state.data.name))? this.state.formName.trimStart().trimEnd(): undefined;
+            var position = (this.state.formPosition !== decode(this.state.data.position))? this.state.formPosition.trimStart().trimEnd(): undefined;
+            var dni = (this.state.formDNI !== decode(this.state.data.dni))? this.state.formDNI: undefined;
+            Directive.edit(this.state.data.id, name, position, dni)
                 .then(()=>this.setState({ isLoading: false }, ()=>{
                     this.props.showSnackbar(true, 'Directivo editado correctamente.');
-                    DeviceEventEmitter.emit('reload-page4');
-                    this.props.close();
+                    DeviceEventEmitter.emit('reload-page4', true);
+                    this.close();
                 }))
                 .catch((error)=>this.setState({ isLoading: false }, ()=>ToastAndroid.show(error.cause, ToastAndroid.SHORT)));
         });
     }
     loadData() {
         this.setState({
-            formName: decode(this.props.data!.name),
-            formPosition: decode(this.props.data!.position),
-            formDNI: decode(this.props.data!.dni)
+            formName: decode(this.state.data.name),
+            formPosition: decode(this.state.data.position),
+            formDNI: decode(this.state.data.dni)
         });
     }
     onClose() {
@@ -92,15 +103,32 @@ export default class EditDirective extends Component<IProps, IState> {
         });
     }
     onChangeTextDNI(text: string) {
-        if(/^([0-9]{1,100})+$/.test(text)) this.setState({ formDNI: text, formErrorDNI: false });
+        if(/^([0-9]{1,100})+$/.test(text)) this.setState({
+            formDNI: text,
+            formErrorDNI: false
+        });
     }
     goClose() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.props.close();
+        this.close();
+    }
+
+    // Controller
+    open(data: DirectivesList) {
+        this.setState({
+            visible: true,
+            data
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            data: this.dataDefault
+        });
     }
 
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <View style={styles.content}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>

@@ -12,14 +12,13 @@ import FastImage from "react-native-fast-image";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 
 type IProps = {
-    visible: boolean;
-    close: ()=>any;
     data: StudentsData | undefined;
-    openImage: ()=>any;
+    openImage: (src: string)=>any;
     closeSession: ()=>any;
     openDialog: (title: string, text: string)=>any;
 };
 type IState = {
+    visible: boolean;
     idStudent: string;
     switchNotifications: boolean;
     showEasterEgg: boolean;
@@ -29,12 +28,16 @@ export default class FamilyOptions extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
             idStudent: '#00000',
             switchNotifications: false,
             showEasterEgg: false
         };
         this.loadData = this.loadData.bind(this);
         this.setSwitchSubscription = this.setSwitchSubscription.bind(this);
+        this.close = this.close.bind(this);
+        this._openImage = this._openImage.bind(this);
+        this._closeSession = this._closeSession.bind(this);
     }
     componentDidMount() {
         this.loadData(true);
@@ -62,12 +65,33 @@ export default class FamilyOptions extends Component<IProps, IState> {
                 messaging().unsubscribeFromTopic(`student-${data.id}`));
         this.setState({ switchNotifications: opt });
     }
+    _openImage() {
+        this.props.openImage(`${urlBase}/image/${decode(this.props.data!.picture)}`);
+    }
     
+    // Controller
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+
+    // New
+    _closeSession() {
+        this.close();
+        this.props.closeSession();
+    }
+    _openDialog(title: string, text: string) {
+        this.close();
+        this.props.openDialog(title, text);
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} onShow={this.loadData} onRequestClose={this.props.close}>
+        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
             {(this.props.data)? <View style={styles.content}>
                 <View style={styles.contentImage}>
-                    <TouchableHighlight onPress={this.props.openImage} style={styles.touchImage}>
+                    <TouchableHighlight onPress={this._openImage} style={styles.touchImage}>
                         <ImageLazyLoad
                             source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }}
                             circle
@@ -78,7 +102,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                 </View>
                 <IconButton
                     icon={'arrow-left'}
-                    onPress={()=>this.props.close()}
+                    onPress={this.close}
                     style={{
                         position: 'absolute',
                         top: 0,
@@ -109,7 +133,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                         <Button
                             mode={'contained'}
                             style={{ marginTop: 12 }}
-                            onPress={this.props.closeSession}
+                            onPress={this._closeSession}
                         >Cerrar sesión</Button>
                     </View>
                 </View>

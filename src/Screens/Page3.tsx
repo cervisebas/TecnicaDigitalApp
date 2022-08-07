@@ -19,6 +19,9 @@ import SearchStudents from "../Pages/SearchStudents";
 import OpenGenerateMultipleCards from "../Pages/OpenGenerateMultipleCards";
 import GenerateMultipleCards from "../Pages/GenerateMultipleCards";
 import ViewDetailsAssist from "../Pages/ViewDetailsAssist";
+import ImageViewer from "../Pages/ImageViewer";
+import FABPage3 from "../Components/FAB_Page3";
+import LoadingComponent from "../Components/LoadingComponent";
 
 type IProps = {
     navigation: any;
@@ -26,43 +29,16 @@ type IProps = {
 type IState = {
     datas: OrderCurses[];
     studentList: StudentsData[];
-    showAddNewStudent: boolean;
     isLoading: boolean;
     isRefresh: boolean;
     isError: boolean;
     messageError: string;
-    // View Details Student
-    showDetails: boolean;
-    dataDetails: StudentsData | undefined;
-    // Viewer Image
-    showViewer: boolean;
-    imageViewer: ImageSource | undefined;
-    // Edit Student
-    showEditStudent: boolean;
-    dataEditStudent: StudentsData | undefined;
-    // Loading component
-    showLoading: boolean;
-    textLoading: string;
     // Snackbar
     snackBarView: boolean;
     snackBarText: string;
     // Dialogs
     showConfirmDelete: boolean;
     dataConfirmDelete: string;
-    // Change Card Design
-    showChangeCardDesign: boolean;
-    designCardElection: number | undefined;
-    // Search Students
-    showSearchStudents: boolean;
-    // Fab Group
-    fabShow: boolean;
-    // Generate Multiple Credentials
-    visibleOpenGenerator: boolean;
-    visibleGeneratorCards: boolean;
-    curseIndexGenerator: number | undefined;
-    // View Details Assist
-    visibleViewDetailsAssist: boolean;
-    dataViewDetailsAssist: AssistIndividualData[];
 };
 
 export default class Page3 extends PureComponent<IProps, IState> {
@@ -71,40 +47,44 @@ export default class Page3 extends PureComponent<IProps, IState> {
         this.state = {
             datas: [],
             studentList: [],
-            showAddNewStudent: false,
             isLoading: true,
             isRefresh: false,
             isError: false,
             messageError: '',
-            showDetails: false,
-            dataDetails: undefined,
-            showViewer: false,
-            imageViewer: undefined,
-            showEditStudent: false,
-            dataEditStudent: undefined,
-            showLoading: false,
-            textLoading: '',
             snackBarView: false,
             snackBarText: '',
             showConfirmDelete: false,
-            dataConfirmDelete: '',
-            showChangeCardDesign: false,
-            designCardElection: undefined,
-            showSearchStudents: false,
-            fabShow: false,
-            visibleOpenGenerator: false,
-            visibleGeneratorCards: false,
-            curseIndexGenerator: undefined,
-            visibleViewDetailsAssist: false,
-            dataViewDetailsAssist: []
+            dataConfirmDelete: ''
         };
         this.openListGeneratorCredential = this.openListGeneratorCredential.bind(this);
-        this._onChangeStateFab = this._onChangeStateFab.bind(this);
         this._renderItem1 = this._renderItem1.bind(this);
         this._renderItem2 = this._renderItem2.bind(this);
+        this._openSearch = this._openSearch.bind(this);
+        this._openEditStudent = this._openEditStudent.bind(this);
+        this._goLoading = this._goLoading.bind(this);
+        this._openViewDetails = this._openViewDetails.bind(this);
+        this._openChangeCardDesign = this._openChangeCardDesign.bind(this);
+        this._onChangeCardDesign = this._onChangeCardDesign.bind(this);
+        this._openGenerateMultipleCards = this._openGenerateMultipleCards.bind(this);
+        this._openViewerImage = this._openViewerImage.bind(this);
+        this._openDetailsAssist = this._openDetailsAssist.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
+    private designCardElection: number | undefined = undefined;
+    private designCardElection2: number | undefined = undefined;
+    // Refs Components
+    private refSearchStudents: SearchStudents | null = null;
+    private refOpenGenerateMultipleCards: OpenGenerateMultipleCards | null = null;
+    private refGenerateMultipleCards: GenerateMultipleCards | null = null;
+    private refAddNewStudent: AddNewStudent | null = null;
+    private refEditStudent: EditStudent | null = null;
+    private refViewDetails: ViewDetails | null = null;
+    private refChangeCardDesign: ChangeCardDesign | null = null;
+    private refImageViewer: ImageViewer | null = null;
+    private refViewDetailsAssist: ViewDetailsAssist | null = null;
+    private refLoadingComponent: LoadingComponent | null = null;
+
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('reloadPage3', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
         this.event2 = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
@@ -117,11 +97,16 @@ export default class Page3 extends PureComponent<IProps, IState> {
         this.event2 = null;
     }
     deleteStudent() {
-        this.setState({ showLoading: true, textLoading: 'Espere por favor...' }, ()=>
-            Student.delete(this.state.dataConfirmDelete)
-                .then(()=>this.setState({ showLoading: false, snackBarView: true, snackBarText: 'Estudiante eliminado con exito', isRefresh: true }, this.loadData))
-                .catch((error)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: error.cause }))
-        );
+        this.refLoadingComponent?.open('Espere por favor...');
+        Student.delete(this.state.dataConfirmDelete)
+            .then(()=>{
+                this.refLoadingComponent?.close();
+                this.setState({ snackBarView: true, snackBarText: 'Estudiante eliminado con exito', isRefresh: true }, this.loadData);
+            })
+            .catch((error)=>{
+                this.refLoadingComponent?.close();
+                this.setState({ snackBarView: true, snackBarText: error.cause });
+            });
     }
     loadData() {
         var isLoading = !this.state.isRefresh;
@@ -133,19 +118,10 @@ export default class Page3 extends PureComponent<IProps, IState> {
         );
     }
     openListGeneratorCredential(curse: string) {
-        this.setState({ showLoading: true, textLoading: '' }, ()=>{
-            var index = this.state.datas.findIndex((v)=>v.label == curse);
-            if (index !== -1) {
-                this.setState({ showLoading: false, visibleGeneratorCards: true, curseIndexGenerator: index });
-                return;
-            }
-            this.setState({ showLoading: false, snackBarView: true, snackBarText: 'No se encontraron alumnos.' });
-        });
-    }
-    _onChangeStateFab({ open }: { open: boolean }) {
-        if (this.state.isError) return ToastAndroid.show('No se puede abrir en este momento.', ToastAndroid.SHORT);
-        if (this.state.isLoading) return ToastAndroid.show('Espere...', ToastAndroid.SHORT);
-        this.setState({ fabShow: open });
+        var index = this.state.datas.findIndex((v)=>v.label == curse);
+        if (index !== -1) return this.refGenerateMultipleCards?.open(this.state.datas[index].students, this.designCardElection2);
+        this.refLoadingComponent?.close();
+        this.setState({ snackBarView: true, snackBarText: 'No se encontraron alumnos.' });
     }
 
     // Flatlist
@@ -165,8 +141,8 @@ export default class Page3 extends PureComponent<IProps, IState> {
             title={decode(item.name)}
             noLine={true}
             style={styles.marginList2}
-            onPress={()=>this.setState({ showDetails: true, dataDetails: item })}
-            onEdit={()=>this.setState({ showEditStudent: true, dataEditStudent: item })}
+            onPress={()=>this._openViewDetails(item)}
+            onEdit={()=>this._openEditStudent(item)}
             onDelete={()=>this.setState({ showConfirmDelete: true, dataConfirmDelete: item.id })}
         />);
     }
@@ -190,13 +166,50 @@ export default class Page3 extends PureComponent<IProps, IState> {
         </CustomList>);
     }
 
+    // New
+    _openSearch() {
+        this.refSearchStudents?.open(this.state.studentList);
+    }
+    _openEditStudent(data: StudentsData) {
+        this.refEditStudent?.open(data);
+    }
+    _goLoading(visible: boolean, text: string, after?: ()=>any) {
+        if (!visible) {
+            this.refLoadingComponent?.close();
+            return (after)&&after();
+        }
+        this.refLoadingComponent?.open(text);
+        (after)&&after();
+    }
+    _openViewDetails(data: StudentsData) {
+        this.refViewDetails?.open(data, this.designCardElection);
+    }
+    _openChangeCardDesign() {
+        this.refChangeCardDesign?.open();
+    }
+    _onChangeCardDesign(election: number | undefined) {
+        if (this.refOpenGenerateMultipleCards?.state.visible) return this.designCardElection2 = election;
+        this.designCardElection = election;
+        (this.refViewDetails?.state.visible)&&this.refViewDetails.updateCardDesign(election);
+    }
+    _openGenerateMultipleCards() {
+        this.designCardElection2 = undefined;
+        this.refOpenGenerateMultipleCards?.open();
+    }
+    _openViewerImage(source: { uri: string }) {
+        this.refImageViewer?.open(source.uri);
+    }
+    _openDetailsAssist(data: AssistIndividualData[]) {
+        this.refViewDetailsAssist?.open(data);
+    }
+
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
             <PaperProvider theme={Theme}>
                 <Appbar>
                     <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Lista de alumnos'}  />
-                    <Appbar.Action disabled={this.state.isLoading || this.state.isError} icon={'magnify'} onPress={()=>this.setState({ showSearchStudents: true })} />
+                    <Appbar.Action disabled={this.state.isLoading || this.state.isError} icon={'magnify'} onPress={this._openSearch} />
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
                     {(!this.state.isLoading)? (this.state.datas.length != 0)? <View style={{ flex: 3 }}>
@@ -204,7 +217,6 @@ export default class Page3 extends PureComponent<IProps, IState> {
                             <FlatList
                                 data={this.state.datas}
                                 extraData={this.state}
-                                //style={styles.listStyle}
                                 contentContainerStyle={styles.listStyle}
                                 refreshControl={<RefreshControl
                                     refreshing={this.state.isRefresh}
@@ -236,20 +248,10 @@ export default class Page3 extends PureComponent<IProps, IState> {
                         </View>}
                     </View>}
                 </View>
-                <FAB.Group
-                    visible
-                    open={this.state.fabShow}
-                    icon={(!this.state.fabShow)? 'plus': 'close'}
-                    actions={[{
-                        icon: 'account-plus',
-                        label: 'Añadir estudiante',
-                        onPress: ()=>this.setState({ showAddNewStudent: true }),
-                    }, {
-                        icon: 'card-account-details-outline',
-                        label: 'Generar credenciales',
-                        onPress: ()=>this.setState({ visibleOpenGenerator: true })
-                    }]}
-                    onStateChange={this._onChangeStateFab}
+                <FABPage3
+                    disable={this.state.isLoading || this.state.isError}
+                    onAddNewStudent={()=>this.refAddNewStudent?.open()}
+                    onGenerateMultipleCards={this._openGenerateMultipleCards}
                 />
                 <Snackbar
                     visible={this.state.snackBarView}
@@ -272,67 +274,30 @@ export default class Page3 extends PureComponent<IProps, IState> {
 
                 {/*##### Modal's #####*/}
                 <SearchStudents
-                    visible={this.state.showSearchStudents}
-                    close={()=>this.setState({ showSearchStudents: false })}
-                    list={this.state.studentList}
-                    openDetails={(data)=>this.setState({ showDetails: true, dataDetails: data })}
-                    onEdit={(data)=>this.setState({ showEditStudent: true, dataEditStudent: data })}
+                    ref={(ref)=>this.refSearchStudents = ref}
+                    openDetails={this._openViewDetails}
+                    onEdit={this._openEditStudent}
                     onDelete={(studentId)=>this.setState({ showConfirmDelete: true, dataConfirmDelete: studentId })}
                 />
                 <OpenGenerateMultipleCards
-                    visible={this.state.visibleOpenGenerator}
-                    close={(i)=>this.setState({ visibleOpenGenerator: false }, ()=>(i)&&this.setState({ designCardElection: undefined }))}
-                    openChangeDesing={()=>this.setState({ showChangeCardDesign: true })}
+                    ref={(ref)=>this.refOpenGenerateMultipleCards = ref}
+                    openChangeDesing={this._openChangeCardDesign}
                     openListCrendentials={this.openListGeneratorCredential}
                 />
-                <GenerateMultipleCards
-                    visible={this.state.visibleGeneratorCards}
-                    close={()=>this.setState({ visibleGeneratorCards: false, designCardElection: undefined })}
-                    datas={(this.state.curseIndexGenerator !== undefined)? this.state.datas[this.state.curseIndexGenerator].students: undefined}
-                    type={this.state.designCardElection}
-                />
-                <AddNewStudent
-                    visible={this.state.showAddNewStudent}
-                    close={()=>this.setState({ showAddNewStudent: false })}
-                />
-                <EditStudent
-                    visible={this.state.showEditStudent}
-                    data={this.state.dataEditStudent}
-                    close={()=>this.setState({ showEditStudent: false, dataEditStudent: undefined })}
-                />
+                <GenerateMultipleCards ref={(ref)=>this.refGenerateMultipleCards = ref} />
+                <AddNewStudent ref={(ref)=>this.refAddNewStudent = ref} />
+                <EditStudent ref={(ref)=>this.refEditStudent = ref} />
                 <ViewDetails
-                    visible={this.state.showDetails}
-                    data={this.state.dataDetails}
-                    designCard={this.state.designCardElection}
-                    close={()=>this.setState({ showDetails: false, dataDetails: undefined, designCardElection: undefined })}
-                    openImage={(data)=>this.setState({ showViewer: true, imageViewer: data })}
-                    openDetailsAssist={(data)=>this.setState({ visibleViewDetailsAssist: true, dataViewDetailsAssist: data })}
-                    changeDesign={()=>this.setState({ showChangeCardDesign: true })}
-                    goLoading={(v, t, a)=>this.setState({ showLoading: v, textLoading: t }, ()=>(a)&&a())}
+                    ref={(ref)=>this.refViewDetails = ref}
+                    openImage={this._openViewerImage}
+                    openDetailsAssist={this._openDetailsAssist}
+                    changeDesign={this._openChangeCardDesign}
+                    goLoading={this._goLoading}
                 />
-                {(this.state.showDetails || this.state.visibleOpenGenerator)&&<>
-                    <ChangeCardDesign
-                        visible={this.state.showChangeCardDesign}
-                        close={()=>this.setState({ showChangeCardDesign: false })}
-                        onPress={(option)=>this.setState({ designCardElection: option, showChangeCardDesign: false })}
-                    />
-                </>}
-                {(this.state.showDetails)&&<>
-                    <ImageView
-                        images={(this.state.imageViewer)? [this.state.imageViewer]: []}
-                        imageIndex={0}
-                        visible={this.state.showViewer}
-                        swipeToCloseEnabled={true}
-                        doubleTapToZoomEnabled={true}
-                        onRequestClose={()=>this.setState({ showViewer: false, imageViewer: undefined })}
-                    />
-                    <ViewDetailsAssist
-                        visible={this.state.visibleViewDetailsAssist}
-                        close={()=>this.setState({ visibleViewDetailsAssist: false, dataViewDetailsAssist: [] })}
-                        datas={this.state.dataViewDetailsAssist}
-                    />
-                </>}
-                <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
+                <ChangeCardDesign ref={(ref)=>this.refChangeCardDesign = ref} onChange={this._onChangeCardDesign} />                
+                <ImageViewer ref={(ref)=>this.refImageViewer = ref} />
+                <ViewDetailsAssist ref={(ref)=>this.refViewDetailsAssist = ref} />
+                <LoadingComponent ref={(ref)=>this.refLoadingComponent = ref} />
             </PaperProvider>
         </View>);
     }

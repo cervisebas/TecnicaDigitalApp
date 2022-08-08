@@ -77,6 +77,7 @@ export default class SelectStudentGroupEdit extends Component<IProps, IState> {
             Groups.modify(this.state.id, undefined, undefined, encode(JSON.stringify(students)))
                 .then(()=>this.setState({ isLoading: false }, ()=>{
                     DeviceEventEmitter.emit('p6-reload', undefined, true);
+                    DeviceEventEmitter.emit('p1-reload', undefined, true);
                     this.props.showSnackbar('Se edito correctamente el grupo.', this.closeAndClean);
                 }))
                 .catch((error)=>this.setState({ isLoading: false }, ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))

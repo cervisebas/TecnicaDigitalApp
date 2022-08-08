@@ -77,6 +77,7 @@ export default class SelectStudentGroup extends Component<IProps, IState> {
             Groups.create(encode(this.state.curse), encode(this.state.group), encode(JSON.stringify(students)))
                 .then(()=>this.setState({ isLoading: false }, ()=>{
                     DeviceEventEmitter.emit('p6-reload', undefined, true);
+                    DeviceEventEmitter.emit('p1-reload', undefined, true);
                     this.props.showSnackbar(`Se creo el grupo ${this.state.group} para ${this.state.curse}.`, this.closeAndClean);
                 }))
                 .catch((error)=>this.setState({ isLoading: false }, ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))

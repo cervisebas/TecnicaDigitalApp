@@ -10,8 +10,8 @@ import LoadingController from "../Components/loading/loading-controller";
 import AddNewGroupAssist from "../Pages/AddNewGroupAssist";
 import ConfirmAssist from "../Pages/ConfirmAssist";
 import ViewAssist from "../Pages/ViewAssist";
-import { Assist, Prefences } from "../Scripts/ApiTecnica";
-import { AnnotationList, AssistUserData, DataGroup } from "../Scripts/ApiTecnica/types";
+import { Assist, Groups, Prefences } from "../Scripts/ApiTecnica";
+import { AnnotationList, AssistUserData, DataGroup, Groups as GroupsTypes } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 import AddAnnotationAssist from "../Pages/AddAnnotationAssist";
 import ViewAnnotations from "../Pages/ViewAnnotations";
@@ -21,6 +21,7 @@ import SearchGroups from "../Pages/SearchGroups";
 import SearchGroupsResult from "../Pages/SearchGroupsResult";
 import ImageViewerText from "../Pages/ImageViewerText";
 import LoadingComponent from "../Components/LoadingComponent";
+import SetGroup from "../Pages/SetGroup";
 
 type IProps = {
     navigation: any;
@@ -28,6 +29,7 @@ type IProps = {
 type IState = {
     //List
     dataGroups: DataGroup[];
+    listGroups: GroupsTypes[];
     isLoading: boolean;
     isError: boolean;
     isRefresh: boolean;
@@ -44,6 +46,7 @@ export default class Page1 extends Component<IProps, IState> {
         super(props);
         this.state = {
             dataGroups: [],
+            listGroups: [],
             isLoading: false,
             isError: false,
             isRefresh: false,
@@ -67,6 +70,8 @@ export default class Page1 extends Component<IProps, IState> {
         this._openConfirm = this._openConfirm.bind(this);
         this._openView = this._openView.bind(this);
         this._openAnnotations = this._openAnnotations.bind(this);
+        this._openSetGroup = this._openSetGroup.bind(this);
+        this._setFilterConfirm = this._setFilterConfirm.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -82,6 +87,7 @@ export default class Page1 extends Component<IProps, IState> {
     private refSearchGroupsResult: SearchGroupsResult | null = null;
     private refConfigurePreferences: ConfigurePreferences | null = null;
     private refLoadingComponent: LoadingComponent | null = null;
+    private refSetGroup: SetGroup | null = null;
 
 
     componentDidMount() {
@@ -101,15 +107,17 @@ export default class Page1 extends Component<IProps, IState> {
         if (!this._isMount) return;
         (!isRefresh)&&this.setState({ dataGroups: [] });
         this.setState({ isLoading: !isRefresh, isError: false }, ()=>
-            Assist.getGroups()
-                .then(async(v)=>{
-                    messaging().subscribeToTopic("directives");
-                    if (this._isMount) {
-                        this.setState({ dataGroups: await this.filterData(v), isLoading: false, isRefresh: false });
-                        if (code) this.reloadData(code, v);
-                    }
-                })
-                .catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
+            Groups.getAll().then((groups)=>
+                Assist.getGroups()
+                    .then(async(v)=>{
+                        messaging().subscribeToTopic("directives");
+                        if (this._isMount) {
+                            this.setState({ dataGroups: await this.filterData(v), listGroups: groups, isLoading: false, isRefresh: false });
+                            if (code) this.reloadData(code, v);
+                        }
+                    })
+                    .catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
+            ).catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
         );
     }
     async filterData(data: DataGroup[]) {
@@ -253,6 +261,12 @@ export default class Page1 extends Component<IProps, IState> {
         var select = this.refViewAssist!.state.select;
         this.refViewAnnotations?.open(select, data);
     }
+    _openSetGroup() {
+        this.refSetGroup?.open(this.state.listGroups);
+    }
+    _setFilterConfirm(filter: string[]) {
+        this.refConfirmAssist?.setFilter(filter);
+    }
 
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
@@ -318,6 +332,7 @@ export default class Page1 extends Component<IProps, IState> {
                     showSnackbar={this._showSnackbar}
                     openImage={this._openImage}
                     openAddAnnotation={this._openAddAnnotation}
+                    openSetGroup={this._openSetGroup}
                 />
                 <ViewAssist
                     ref={(ref)=>this.refViewAssist = ref}
@@ -344,6 +359,7 @@ export default class Page1 extends Component<IProps, IState> {
                     openView={this._openView}
                 />
                 <ConfigurePreferences ref={(ref)=>this.refConfigurePreferences = ref} />
+                <SetGroup ref={(ref)=>this.refSetGroup = ref} setFilter={this._setFilterConfirm} />
                 <LoadingComponent ref={(ref)=>this.refLoadingComponent = ref} />
             </PaperProvider>
         </View>);

@@ -15,6 +15,7 @@ import LoadingController from "./Components/loading/loading-controller";
 import RNFS from "react-native-fs";
 import FastImage from "react-native-fast-image";
 import Page5 from "./Screens/Page5";
+import Page6 from "./Screens/Page6";
 
 type IProps = {};
 type IState = {
@@ -78,27 +79,32 @@ export default class AppAdmin extends Component<IProps, IState> {
         return(<Provider theme={Theme}>
             <Drawer.Navigator initialRouteName="Registros" screenOptions={{ headerShown: false }} drawerContent={(props)=><CustomDrawerNavegation {...props} />}>
                 <Drawer.Screen
-                    name="Registros"
+                    name={"Registros"}
                     component={Page1}
                     options={{ drawerLabel: 'Registros', drawerIcon: 'account-box-multiple' as any }}
                 />
                 <Drawer.Screen
-                    name="Horarios"
+                    name={"Grupos"}
+                    component={Page6}
+                    options={{ drawerLabel: 'Grupos', drawerIcon: 'account-group-outline' as any }}
+                />
+                <Drawer.Screen
+                    name={"Horarios"}
                     component={Page2}
                     options={{ drawerLabel: 'Horarios', drawerIcon: 'clock-time-eight-outline' as any }}
                 />
                 <Drawer.Screen
-                    name="Lista de alumnos"
+                    name={"Lista de alumnos"}
                     component={Page3}
                     options={{ drawerLabel: 'Lista de alumnos', drawerIcon: 'format-list-bulleted' as any }}
                 />
                 <Drawer.Screen
-                    name="Directivos"
+                    name={"Directivos"}
                     component={Page4}
                     options={{ drawerLabel: 'Directivos', drawerIcon: 'shield-crown-outline' as any }}
                 />
                 <Drawer.Screen
-                    name="Registros de actividad"
+                    name={"Registros de actividad"}
                     component={Page5}
                     options={{ drawerLabel: 'Registros de actividad', drawerIcon: 'folder-text-outline' as any }}
                 />

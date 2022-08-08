@@ -14,6 +14,7 @@ type IProps = {
     showSnackbar: (v: boolean, t: string, a?: ()=>any)=>any;
     openImage: (source: string, text: string)=>any;
     openAddAnnotation: ()=>any;
+    openSetGroup: ()=>any;
 };
 type IState = {
     visible: boolean;
@@ -28,8 +29,11 @@ type IState = {
     isLoading: boolean;
 
     data: AssistUserData[];
+    dataBackup: AssistUserData[];
     dataLog: DataList[];
     notify: boolean;
+
+    isFilter: boolean;
 };
 
 export default class ConfirmAssist extends Component<IProps, IState> {
@@ -45,8 +49,10 @@ export default class ConfirmAssist extends Component<IProps, IState> {
             isMenuOpen: false,
             isLoading: false,
             data: [],
+            dataBackup: [],
             dataLog: [],
-            notify: true
+            notify: true,
+            isFilter: false
         };
         this.closeAndClean = this.closeAndClean.bind(this);
         this.loadData = this.loadData.bind(this);
@@ -66,6 +72,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     loadData() {
         this.setState({
             data: this.state.setData,
+            dataBackup: this.state.setData,
             dataLog: this.state.setData.map((s)=>({ check: s.status, idStudent: s.id, idAssist: s.idAssist, exist: s.exist }))
         });
     }
@@ -77,7 +84,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     send() {
         if (this.state.setData.length == 0) return ToastAndroid.show('Opción no disponible, no se encontró ningún estudiante en la lista...', ToastAndroid.SHORT);
         this.setState({ isLoading: true }, ()=>
-            Assist.confirmAssist(this.state.select.id, this.state.notify, this.state.dataLog)
+            Assist.confirmAssist(this.state.select.id, this.state.notify, this.state.dataLog, this.state.isFilter)
                 .then(()=>this.setState({ isLoading: false }, ()=>{
                     DeviceEventEmitter.emit('p1-reload', undefined, true);
                     this.props.showSnackbar(true, `Se confirmo el registro de "${this.state.select.curse}".`, ()=>this.closeAndClean());
@@ -151,7 +158,16 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         this.setState({
             visible: false,
             select: { id: '', curse: '' },
-            setData: []
+            setData: [],
+            dataLog: [],
+            isFilter: false
+        });
+    }
+    setFilter(filter: string[]) {
+        this.setState({
+            data: this.state.dataBackup.filter((v)=>!!filter.find((v2)=>v2 == v.id)),
+            dataLog: this.state.dataLog.filter((v)=>!!filter.find((v2)=>v2 == v.idStudent)),
+            isFilter: true
         });
     }
 
@@ -168,6 +184,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                             anchor={<Appbar.Action color={'#FFFFFF'} disabled={this.state.isLoading} icon={'dots-vertical'} onPress={()=>this.setState({ isMenuOpen: true })} />}>
                             <Menu.Item icon={'delete-outline'} onPress={()=>this.setState({ isMenuOpen: false, deleteVisible: true })} title={"Eliminar"} />
                             <Menu.Item icon={'note-edit-outline'} onPress={()=>this.setState({ isMenuOpen: false }, this.props.openAddAnnotation)} title={"Añadir anotación"} />
+                            {(!this.state.isFilter)&&<Menu.Item icon={'account-group-outline'} onPress={()=>this.setState({ isMenuOpen: false }, this.props.openSetGroup)} title={"Usar grupo"} />}
                             <Menu.Item icon={(this.state.notify)? 'bell-outline': 'bell-off-outline'} onPress={this._changeNotifyState} title={"Notificar"} />
                             <Divider />
                             <Menu.Item icon={'close'} onPress={()=>this.setState({ isMenuOpen: false })} title={"Cerrar"} />

@@ -131,6 +131,7 @@ export default class ViewAssist extends Component<IProps, IState> {
         return `view-assist-${id}`;
     }
     _renderItem({ item }: ListRenderItemInfo<AssistUserData>) {
+        var reg = (decode(item.time) !== "No disponible");
         return(<List.Item
             key={`view-assist-${item.id}`}
             title={decode(item.name)}
@@ -145,7 +146,7 @@ export default class ViewAssist extends Component<IProps, IState> {
             </Pressable>}
             right={()=><List.Icon
                 icon={(item.status)? 'radiobox-marked': 'radiobox-blank'}
-                color={(item.status)? Colors.blue500: Colors.red500}
+                color={(reg)? (item.status)? Colors.blue500: Colors.red500: Colors.yellow500}
             />}
         />);
     }

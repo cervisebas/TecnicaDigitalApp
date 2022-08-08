@@ -114,7 +114,6 @@ export default class Page5 extends PureComponent<IProps, IState> {
             title={item.type}
             description={item.movent}
             importance={parseInt(item.importance)}
-            //onPress={()=>this.setState({ viewDetails: true, viewDetailsData: item })}
             onPress={()=>this.refViewDetailsRecords?.open(item)}
         />);
     }

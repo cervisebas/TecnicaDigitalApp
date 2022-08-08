@@ -1,8 +1,8 @@
-import { DrawerContentComponentProps, DrawerContentScrollView } from "@react-navigation/drawer";
+import { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { CommonActions, DrawerActions } from "@react-navigation/native";
 import { decode } from "base-64";
-import React, { Component, PureComponent, ReactNode } from "react";
-import { DeviceEventEmitter, EmitterSubscription, StyleSheet, View } from "react-native";
+import React, { PureComponent, ReactNode } from "react";
+import { DeviceEventEmitter, EmitterSubscription, ScrollView, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Avatar, Badge, Drawer, Text, Title } from "react-native-paper";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
@@ -114,39 +114,43 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         }
     }
     render(): ReactNode {
-        return(<View style={{ flex: 1, position: 'relative' }}>
-            <DrawerContentScrollView onLayout={({ nativeEvent })=>this.setState({ widht: nativeEvent.layout.width })} {...this.props} style={{ backgroundColor: Theme.colors.background }}>
+        return(<View style={styles.content}>
+            <View onLayout={({ nativeEvent })=>this.setState({ widht: nativeEvent.layout.width })} {...this.props} style={{ flex: 2 }}>
                 <View style={styles.headerImage}>
-                    <FastImage source={this.state.backgroundImage} style={{ width: '100%', height: '100%', opacity: 0.7 }} resizeMode={'cover'} />
-                    <View style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', position: 'absolute', bottom: 18, width: '100%' }}>
+                    <FastImage source={this.state.backgroundImage} style={styles.fastImage} resizeMode={'cover'} />
+                    <View style={styles.contentProfile}>
                         {(!this.state.loadingUser)? <Avatar.Image size={46} source={require('../Assets/profile.png')} style={{ marginLeft: 12 }} />
                         :<ImageLazyLoad size={46} source={{ uri: this.state.pictureUser }} circle style={{ marginLeft: 12 }} />}
-                        <Title numberOfLines={1} style={{ marginLeft: 12, width: this.state.widht - 78, color: '#000000' }}>{this.state.nameUser}</Title>
+                        <Title numberOfLines={1} style={[styles.profileName, { width: this.state.widht - 78 }]}>{this.state.nameUser}</Title>
                     </View>
                 </View>
-                {this.props.state.routes.map(({ key, name }, index)=>{
-                    const { title, drawerLabel, drawerIcon } = this.props.descriptors[key].options;
-                    return(<Drawer.Item
-                        key={index}
-                        label={(drawerLabel !== undefined)? drawerLabel as string: (title !== undefined)? title: name}
-                        icon={drawerIcon as any}
-                        active={index == this.props.state.index}
-                        onPress={()=>this.props.navigation.dispatch({ ...(index == this.props.state.index)? DrawerActions.closeDrawer(): CommonActions.navigate(name), target: this.props.state.key })}
-                    />);
-                })}
-                <Drawer.Item
-                    label={'Limpiar cache'}
-                    icon={'sd'}
-                    right={(props)=><Badge {...props}>{this.state.sizeCache}</Badge>}
-                    onPress={this.clearCache}
-                />
-                <Drawer.Item
-                    label={'Cerrar sesión'}
-                    icon={'logout'}
-                    onPress={this.closeSession}
-                />
-            </DrawerContentScrollView>
-            <View style={{ position: 'absolute', bottom: 0, right: 0, left: 0, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                <View style={styles.contentScrollView}>
+                    <ScrollView>
+                        {this.props.state.routes.map(({ key, name }, index)=>{
+                            const { title, drawerLabel, drawerIcon } = this.props.descriptors[key].options;
+                            return(<Drawer.Item
+                                key={index}
+                                label={(drawerLabel !== undefined)? drawerLabel as string: (title !== undefined)? title: name}
+                                icon={drawerIcon as any}
+                                active={index == this.props.state.index}
+                                onPress={()=>this.props.navigation.dispatch({ ...(index == this.props.state.index)? DrawerActions.closeDrawer(): CommonActions.navigate(name), target: this.props.state.key })}
+                            />);
+                        })}
+                        <Drawer.Item
+                            label={'Limpiar cache'}
+                            icon={'sd'}
+                            right={(props)=><Badge {...props}>{this.state.sizeCache}</Badge>}
+                            onPress={this.clearCache}
+                        />
+                        <Drawer.Item
+                            label={'Cerrar sesión'}
+                            icon={'logout'}
+                            onPress={this.closeSession}
+                        />
+                    </ScrollView>
+                </View>
+            </View>
+            <View style={styles.brandContent}>
                 <Text style={styles.textSubBrand}>from</Text>
                 <Text style={styles.textBrand}>SCAPPS</Text>
             </View>
@@ -155,6 +159,32 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
 };
 
 const styles = StyleSheet.create({
+    content: {
+        flex: 1,
+        position: 'relative',
+        backgroundColor: Theme.colors.background
+    },
+    fastImage: {
+        width: '100%',
+        height: '100%',
+        opacity: 0.7
+    },
+    contentProfile: {
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: 'row',
+        position: 'absolute',
+        bottom: 18,
+        width: '100%'
+    },
+    profileName: {
+        marginLeft: 12,
+        color: '#000000'
+    },
+    contentScrollView: {
+        flex: 3,
+        paddingBottom: 80
+    },
     headerImage: {
         width: '100%',
         height: 150,
@@ -181,5 +211,14 @@ const styles = StyleSheet.create({
         color: '#FF2E2E',
         fontSize: 18,
         fontFamily: 'Organetto-Bold'
+    },
+    brandContent: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        left: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20
     }
 });

@@ -152,6 +152,14 @@ type PreferencesAssist = {
     curses: string[];
 };
 
+// Groups
+type Groups = {
+    id: string;
+    curse: string;
+    name_group: string;
+    students: string[];
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -169,5 +177,6 @@ export type {
     DirectivesList,
     FamilyDataAssist,
     RecordData,
-    PreferencesAssist
+    PreferencesAssist,
+    Groups
 };

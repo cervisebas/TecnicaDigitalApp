@@ -5,6 +5,7 @@ import AssistSystem from "./ApiTecnica/assists";
 import DirectiveSystem from "./ApiTecnica/directives";
 import FamilySystem from "./ApiTecnica/family";
 import GenerateRegister from "./ApiTecnica/generate-register";
+import CursesGroupSystem from "./ApiTecnica/groups";
 import PreferencesSystem from "./ApiTecnica/Preferences";
 import { RecordSystem } from "./ApiTecnica/records";
 import StudentSystem from "./ApiTecnica/student";
@@ -23,6 +24,7 @@ const Records = new RecordSystem(urlBase, keyCode);
 const GeneratePDF = new GenerateRegister();
 const Actions = new ApiActions();
 const Prefences = new PreferencesSystem();
+const Groups = new CursesGroupSystem(urlBase, keyCode);
 
 export {
     Student,
@@ -34,5 +36,6 @@ export {
     GeneratePDF,
     Actions,
     Records,
-    Prefences
+    Prefences,
+    Groups
 };

@@ -152,7 +152,6 @@ export default class SelectStudentGroupEdit extends Component<IProps, IState> {
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
                         <Appbar.Content title={'Selecciona los alumnos'} />
-                        <Appbar.Action disabled={this.state.isLoading} icon={'cancel'} onPress={()=>this.setState({ visible: true })} />
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
                         <FlatList

@@ -26,21 +26,33 @@ export default class ImageLazyLoad extends PureComponent<IProps, IState> {
             isLoading: true,
             source: undefined
         };
+        this.updateImage = this.updateImage.bind(this);
     }
     private _isMount: boolean = false;
     componentDidMount() {
         this._isMount = true;
+        this.updateImage();
+    }
+    componentWillUnmount(): void {
+        this._isMount = false;
+    }
+    componentDidUpdate(prevProps: Readonly<IProps>): void {
+        if (prevProps.source.uri !== this.props.source.uri) this.forceNowUpdate();
+    }
+    forceNowUpdate() {
+        this.setState({
+            isLoading: true,
+            source: undefined
+        }, this.updateImage);
+    }
+    updateImage() {
         var fileName = this.props.source.uri.split('/').pop();
         RNFS.exists(`${RNFS.CachesDirectoryPath}/${fileName}`).then((val)=>{
             if (val) return (this._isMount)&&this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false });
             RNFS.downloadFile({ fromUrl: this.props.source.uri, toFile: `${RNFS.CachesDirectoryPath}/${fileName}` }).promise
                 .then(()=>(this._isMount)&&this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false }))
                 .catch(()=>(this._isMount)&&this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
-        })
-        .catch(()=>(this._isMount)&&this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
-    }
-    componentWillUnmount(): void {
-        this._isMount = false;
+        }).catch(()=>(this._isMount)&&this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
     }
     render(): React.ReactNode {
         return(<View style={[styles.view, { width: this.props.size, height: this.props.size }, this.props.style, (this.props.circle)&&styles.circle]}>

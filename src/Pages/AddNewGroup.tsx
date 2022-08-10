@@ -48,7 +48,6 @@ export default class AddNewGroup extends Component<IProps, IState> {
     private listGroup: string[] = ['- Seleccionar -', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
     closeAndClean() {
         this.close();
-        var calcHour = Assist.getCalcHour();
         this.setState({
             actualDatePicker: new Date(),
             formCourse: '- Seleccionar -',
@@ -71,7 +70,7 @@ export default class AddNewGroup extends Component<IProps, IState> {
     createGroup() {
         if (!this.verifyInputs()) return;
         this.props.next(this.state.formCourse, this.state.formGroup);
-        this.close();
+        this.closeAndClean();
     }
 
     // Controller

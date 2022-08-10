@@ -18,7 +18,7 @@ type Select = {
     annotations: number;
 };
 type IProps = {
-    editAssist: (id: string, datas: { id: string; curse: string; })=>any;
+    editAssist: (id: string, datas: { id: string; curse: string; date: string; })=>any;
     showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
     showSnackbar: (v: boolean, t: string, a?: ()=>any)=>any;
     openAnnotations: (data: AnnotationList[])=>any;

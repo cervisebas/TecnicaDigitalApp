@@ -9,7 +9,7 @@ import Theme from "../Themes";
 import CustomCard from "../Components/Elements/CustomCard";
 
 type IProps = {
-    openConfirm: (id: string, curse: string)=>any;
+    openConfirm: (id: string, curse: string, date: string)=>any;
     openView: (id: string, curse: string, date: string, hour: string, annotations: number)=>any;
 };
 type IState = {
@@ -44,7 +44,7 @@ export default class SearchGroupsResult extends Component<IProps, IState> {
             title={`Registro ${decode(item.curse)}`}
             date={`${decode(item.date)} (${decode(item.hour)}hs)`}
             state={(item.status == '0')? false: true}
-            openConfirm={()=>this.props.openConfirm(item.id, item.curse)}
+            openConfirm={()=>this.props.openConfirm(item.id, item.curse, item.date)}
             openView={()=>this.props.openView(item.id, item.curse, item.date, item.hour, item.annotations)}
         />);
     }

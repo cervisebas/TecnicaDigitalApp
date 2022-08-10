@@ -158,7 +158,7 @@ export default class Page1 extends Component<IProps, IState> {
                 });
         });
     }
-    openConfirm(idGroup: string, select: { id: string; curse: string; }) {
+    openConfirm(idGroup: string, select: { id: string; curse: string; date: string; }) {
         this.refLoadingComponent?.open('Cargando información...');
         Assist.getGroup(idGroup)
             .then((a)=>{
@@ -187,8 +187,8 @@ export default class Page1 extends Component<IProps, IState> {
     _keyExtractor({ id }: DataGroup) {
         return `p1-card-${id}`;
     }
-    _openConfirm(id: string, curse: string) {
-        this.openConfirm(id, { id: id, curse: decode(curse) });
+    _openConfirm(id: string, curse: string, date: string) {
+        this.openConfirm(id, { id: id, curse: decode(curse), date: decode(date) });
     }
     _openView(id: string, curse: string, date: string, hour: string, annotations: number) {
         this.openView(id, { id: id, curse: decode(curse), date: decode(date), hour: decode(hour), annotations: annotations });
@@ -199,7 +199,7 @@ export default class Page1 extends Component<IProps, IState> {
             title={`Registro ${decode(item.curse)}`}
             date={`${decode(item.date)} (${decode(item.hour)}hs)`}
             state={(item.status == '0')? false: true}
-            openConfirm={()=>this._openConfirm(item.id, item.curse)}
+            openConfirm={()=>this._openConfirm(item.id, item.curse, item.date)}
             openView={()=>this._openView(item.id, item.curse, item.date, item.hour, item.annotations)}
         />);
     }

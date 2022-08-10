@@ -11,7 +11,7 @@ import { Assist } from "../Scripts/ApiTecnica";
 
 type IProps = {
     createNow: (datas: { course: string; date: string; time: string; }, then?: ()=>any)=>Promise<string>;
-    openConfirm: (idGroup: string, select: { id: string; curse: string; })=>any;
+    openConfirm: (idGroup: string, select: { id: string; curse: string; date: string; })=>any;
 };
 type IState = {
     visible: boolean;
@@ -81,7 +81,7 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
         if (!this.verifyInputs()) return;
         this.props.createNow({ course: this.state.formCourse, date: this.state.formDate, time: this.state.formHour }, this.close)
             .then((id)=>{
-                this.props.openConfirm(id, { id, curse: this.state.formCourse });
+                this.props.openConfirm(id, { id, curse: this.state.formCourse, date: this.state.formDate });
                 this.closeAndClean();
             });
     }

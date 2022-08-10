@@ -41,7 +41,17 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         if (this.state.searchQuery.length > Query.length) return this.setState({ searchQuery: Query, listShow: this.state.list });
         this.setState({ searchQuery: Query });
     }
-    goSearch({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+    goSearch(event: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+        const { nativeEvent: { text } } = event;
+        if (text.indexOf('#') !== -1) if (parseInt(text) !== NaN) return this.goSearchForID(event);
+        this.goSearchForName(event);
+    }
+    goSearchForID({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+        const formattedQuery = text.slice(1, text.length);
+        const search = this.state.list.filter((user)=>user.id == formattedQuery);
+        this.setState({ listShow: search });
+    }
+    goSearchForName({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
         const formattedQuery = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trimStart().trimEnd();
         const search = this.state.list.filter((user)=>{
             var name1 = decode(user.name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -128,8 +138,8 @@ class ListEmpty extends PureComponent {
         super(props);
     }
     render(): React.ReactNode {
-        return(<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <Icon name={'list-box-outline'} size={48} />
+        return(<View style={styles.emptyContain}>
+            <Icon name={'account-search-outline'} size={48} />
             <Text style={{ marginTop: 12 }}>No se encontraron resultados</Text>
         </View>);
     }
@@ -183,5 +193,11 @@ const styles = StyleSheet.create({
     },
     listStyle: {
         paddingTop: 4
+    },
+    emptyContain: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column'
     }
 });

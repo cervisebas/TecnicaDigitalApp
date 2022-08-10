@@ -1,5 +1,6 @@
 import { decode } from "base-64";
-import React, { Component, ReactNode } from "react";
+import moment from "moment";
+import React, { Component, PureComponent, ReactNode } from "react";
 import { DeviceEventEmitter, FlatList, ListRenderItemInfo, Pressable, StyleSheet, ToastAndroid, View } from "react-native";
 import { Appbar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -18,7 +19,7 @@ type IProps = {
 };
 type IState = {
     visible: boolean;
-    select: { id: string; curse: string; };
+    select: { id: string; curse: string; date: string; };
     setData: AssistUserData[];
 
     alertVisible: boolean;
@@ -34,6 +35,7 @@ type IState = {
     notify: boolean;
 
     isFilter: boolean;
+    isAllMark: boolean;
 };
 
 export default class ConfirmAssist extends Component<IProps, IState> {
@@ -41,7 +43,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         super(props);
         this.state = {
             visible: false,
-            select: { id: '', curse: '' },
+            select: { id: '', curse: '', date: '' },
             setData: [],
             alertVisible: false,
             alertMessage: '',
@@ -52,12 +54,15 @@ export default class ConfirmAssist extends Component<IProps, IState> {
             dataBackup: [],
             dataLog: [],
             notify: true,
-            isFilter: false
+            isFilter: false,
+            isAllMark: false
         };
         this.closeAndClean = this.closeAndClean.bind(this);
         this.loadData = this.loadData.bind(this);
         this._renderItem = this._renderItem.bind(this);
         this._changeNotifyState = this._changeNotifyState.bind(this);
+        this._openDelete = this._openDelete.bind(this);
+        this._goSelectAll = this._goSelectAll.bind(this);
     }
     checkAction(idStudent: string, index: number) {
         let dataLog = this.state.dataLog;
@@ -147,20 +152,22 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     }
 
     // Controller
-    open(select: { id: string; curse: string; }, setData: AssistUserData[]) {
+    open(select: { id: string; curse: string; date: string; }, setData: AssistUserData[]) {
         this.setState({
             visible: true,
             select,
-            setData
+            setData,
+            notify: this.calculeDates(select.date)
         });
     }
     close() {
         this.setState({
             visible: false,
-            select: { id: '', curse: '' },
+            select: { id: '', curse: '', date: '' },
             setData: [],
             dataLog: [],
-            isFilter: false
+            isFilter: false,
+            notify: true
         });
     }
     setFilter(filter: string[]) {
@@ -171,6 +178,32 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         });
     }
 
+    // News
+    _openDelete() {
+        this.setState({ deleteVisible: true });
+    }
+    _goSelectAll() {
+        this.setState({
+            dataLog: this.state.dataLog.map((val)=>({
+                ...val,
+                check: !this.state.isAllMark
+            })),
+            isAllMark: !this.state.isAllMark
+        });
+    }
+    calculeDates(thisDate: string) {
+        try {
+            const _this = moment(thisDate, 'DD/MM/YYYY').toDate();
+            const _actual = moment().toDate();
+            const difference = _this.getTime() - _actual.getTime();
+            var TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+            if (TotalDays < 0) TotalDays *= -1;
+            return !(TotalDays >= 2);
+        } catch {
+            return false;
+        }
+    }
+
     render(): ReactNode {
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.closeAndClean}>
             <PaperProvider theme={Theme}>
@@ -178,17 +211,17 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
                         <Appbar.Content title={`Registro: ${this.state.select.curse}`}  />
-                        <Menu
-                            visible={this.state.isMenuOpen}
-                            onDismiss={()=>this.setState({ isMenuOpen: false })}
-                            anchor={<Appbar.Action color={'#FFFFFF'} disabled={this.state.isLoading} icon={'dots-vertical'} onPress={()=>this.setState({ isMenuOpen: true })} />}>
-                            <Menu.Item icon={'delete-outline'} onPress={()=>this.setState({ isMenuOpen: false, deleteVisible: true })} title={"Eliminar"} />
-                            <Menu.Item icon={'note-edit-outline'} onPress={()=>this.setState({ isMenuOpen: false }, this.props.openAddAnnotation)} title={"Añadir anotación"} />
-                            {(!this.state.isFilter)&&<Menu.Item icon={'account-group-outline'} onPress={()=>this.setState({ isMenuOpen: false }, this.props.openSetGroup)} title={"Usar grupo"} />}
-                            <Menu.Item icon={(this.state.notify)? 'bell-outline': 'bell-off-outline'} onPress={this._changeNotifyState} title={"Notificar"} />
-                            <Divider />
-                            <Menu.Item icon={'close'} onPress={()=>this.setState({ isMenuOpen: false })} title={"Cerrar"} />
-                        </Menu>
+                        <MenuComponent
+                            disable={this.state.isLoading}
+                            isFilter={this.state.isFilter}
+                            isNotify={this.state.notify}
+                            isAllMark={this.state.isAllMark}
+                            onDelete={this._openDelete}
+                            onAddNote={this.props.openAddAnnotation}
+                            onGroup={this.props.openSetGroup}
+                            onChangeNotify={this._changeNotifyState}
+                            onSelectAll={this._goSelectAll}
+                        />
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
                         <FlatList
@@ -241,6 +274,72 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                 </View>
             </PaperProvider>
         </CustomModal>);
+    }
+}
+
+type IProps2 = {
+    disable: boolean;
+    isFilter: boolean;
+    isNotify: boolean;
+    isAllMark: boolean;
+    onDelete: ()=>any;
+    onAddNote: ()=>any;
+    onGroup: ()=>any;
+    onChangeNotify: ()=>any;
+    onSelectAll: ()=>any;
+};
+type IState2 = {
+    isOpen: boolean;
+};
+class MenuComponent extends PureComponent<IProps2, IState2> {
+    constructor(props: IProps2) {
+        super(props);
+        this.state = {
+            isOpen: false
+        };
+        this._close = this._close.bind(this);
+        this._open = this._open.bind(this);
+        this._onDelete = this._onDelete.bind(this);
+        this._onAddNote = this._onAddNote.bind(this);
+        this._onGroup = this._onGroup.bind(this);
+        this._onSelectAll = this._onSelectAll.bind(this);
+    }
+    _close() {
+        this.setState({ isOpen: false });
+    }
+    _open() {
+        this.setState({ isOpen: true });
+    }
+    // Functions
+    _onDelete() {
+        this._close();
+        this.props.onDelete();
+    }
+    _onAddNote() {
+        this._close();
+        this.props.onAddNote();
+    }
+    _onGroup() {
+        this._close();
+        this.props.onGroup();
+    }
+    _onSelectAll() {
+        this._close();
+        this.props.onSelectAll();
+    }
+    render(): React.ReactNode {
+        return(<Menu
+            visible={this.state.isOpen}
+            onDismiss={this._close}
+            anchor={<Appbar.Action color={'#FFFFFF'} disabled={this.props.disable} icon={'dots-vertical'} onPress={this._open} />}>
+            <Menu.Item icon={'delete-outline'} onPress={this._onDelete} title={"Eliminar"} />
+            <Menu.Item icon={'note-edit-outline'} onPress={this._onAddNote} title={"Añadir anotación"} />
+            {(!this.props.isFilter)&&<Menu.Item icon={'account-group-outline'} onPress={this._onGroup} title={"Usar grupo"} />}
+            <Menu.Item icon={(this.props.isNotify)? 'bell-outline': 'bell-off-outline'} onPress={this.props.onChangeNotify} title={"Notificar"} />
+            <Menu.Item icon={(this.props.isAllMark)? 'checkbox-multiple-blank-outline': 'checkbox-multiple-marked-outline'} onPress={this._onSelectAll} title={(this.props.isAllMark)? 'Desmarcar todo': 'Marcar todo'} />
+            <Divider />
+            <Menu.Item icon={'close'} onPress={this._close} title={"Cerrar"} />
+        </Menu>);
     }
 }
 

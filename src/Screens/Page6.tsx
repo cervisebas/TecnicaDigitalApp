@@ -170,7 +170,7 @@ export default class Page6 extends Component<IProps, IState> {
                         refreshControl={<RefreshControl refreshing={this.state.isRefresh} colors={[Theme.colors.primary]} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
                         keyExtractor={this._keyExtractor}
                         getItemLayout={this._getItemLayout}
-                        contentContainerStyle={{ flex: (this.state.datas.length == 0)? 3: undefined }}
+                        contentContainerStyle={{ flex: (this.state.datas.length == 0)? 3: undefined, paddingBottom: 11 }}
                         ListEmptyComponent={<ListEmpty />}
                         renderItem={this._renderItem}
                     />:

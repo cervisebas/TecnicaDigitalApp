@@ -19,7 +19,7 @@ export default class CustomCard3 extends PureComponent<IProps, IState> {
                 <Button
                     icon={'arrow-right'}
                     onPress={(this.props.onPress)&&this.props.onPress}
-                    contentStyle={{ flexDirection: 'row-reverse' }}
+                    contentStyle={styles.button}
                 >Ver</Button>
             </Card.Actions>
         </Card>);
@@ -28,13 +28,20 @@ export default class CustomCard3 extends PureComponent<IProps, IState> {
 
 const styles = StyleSheet.create({
     card: {
-        margin: 8,
+        marginTop: 8,
+        marginLeft: 8,
+        marginRight: 8,
         height: 54
     },
     cardAction: {
         justifyContent: 'flex-end'
     },
     text: {
-        position: 'absolute', left: 16, fontSize: 18
+        position: 'absolute',
+        left: 16,
+        fontSize: 18
+    },
+    button: {
+        flexDirection: 'row-reverse'
     }
 });

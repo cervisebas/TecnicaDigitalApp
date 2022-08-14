@@ -166,8 +166,9 @@ export default class ConfirmAssist extends Component<IProps, IState> {
             select: { id: '', curse: '', date: '' },
             setData: [],
             dataLog: [],
+            notify: true,
             isFilter: false,
-            notify: true
+            isAllMark: false
         });
     }
     setFilter(filter: string[]) {

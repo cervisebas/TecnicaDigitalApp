@@ -80,7 +80,8 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
         this.setState({
             visible: true,
             datas,
-            type
+            type,
+            title: decode(datas[0].curse)
         });
     }
     close() {

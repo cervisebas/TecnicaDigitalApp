@@ -18,6 +18,7 @@ type IProps = {
     openDetailsAssist: (data: AssistIndividualData[])=>any;
     changeDesign: ()=>any;
     goLoading: (v: boolean, t: string, a?: ()=>any)=>any;
+    editNow: (data: StudentsData)=>any;
 };
 type IState = {
     visible: boolean;
@@ -63,6 +64,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.downloadImageTarget = this.downloadImageTarget.bind(this);
         this.shareImageTarget = this.shareImageTarget.bind(this);
         this.closeAndClear = this.closeAndClear.bind(this);
+        this.editNow = this.editNow.bind(this);
     }
     private defaultData: StudentsData = {
         id: '-1',
@@ -187,6 +189,11 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.refTarget = null;
         this.close();
     }
+    editNow() {
+        if (this.state.isLoadAssist) return ToastAndroid.show('No se puede editar el estudiante en este momento.', ToastAndroid.SHORT);
+        this.closeAndClear();
+        this.props.editNow(this.state.data);
+    }
 
     // Controller
     open(data: StudentsData, designCard: number | undefined) {
@@ -213,7 +220,8 @@ export default class ViewDetails extends Component<IProps, IState> {
                 <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClear} />
-                        <Appbar.Content title={'Ver más detalles'}  />
+                        <Appbar.Content title={'Ver más detalles'} />
+                        <Appbar.Action icon={'account-edit-outline'} onPress={this.editNow} />
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2 }}>
                         <View style={{ margin: 20, height: 100, width: (width - 40), flexDirection: 'row' }}>

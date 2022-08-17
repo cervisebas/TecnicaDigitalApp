@@ -1,17 +1,15 @@
 import { decode, encode } from "base-64";
-import React, { Component, PureComponent } from "react";
+import React, { Component, createRef, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, ToastAndroid, View } from "react-native";
-import { ActivityIndicator, Appbar, Button, Dialog, Divider, IconButton, Menu, Paragraph, Portal, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
+import { ActivityIndicator, Appbar, Button, Dialog, Divider, IconButton, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import ImageView from "react-native-image-viewing";
 import messaging from '@react-native-firebase/messaging';
 import CustomCard from "../Components/Elements/CustomCard";
-import LoadingController from "../Components/loading/loading-controller";
 import AddNewGroupAssist from "../Pages/AddNewGroupAssist";
 import ConfirmAssist from "../Pages/ConfirmAssist";
 import ViewAssist from "../Pages/ViewAssist";
 import { Assist, Groups, Prefences } from "../Scripts/ApiTecnica";
-import { AnnotationList, AssistUserData, DataGroup, Groups as GroupsTypes } from "../Scripts/ApiTecnica/types";
+import { AnnotationList, DataGroup, Groups as GroupsTypes } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 import AddAnnotationAssist from "../Pages/AddAnnotationAssist";
 import ViewAnnotations from "../Pages/ViewAnnotations";
@@ -22,6 +20,7 @@ import SearchGroupsResult from "../Pages/SearchGroupsResult";
 import ImageViewerText from "../Pages/ImageViewerText";
 import LoadingComponent from "../Components/LoadingComponent";
 import SetGroup from "../Pages/SetGroup";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 
 type IProps = {
     navigation: any;
@@ -36,9 +35,6 @@ type IState = {
     messageError: string;
     // Interfaz
     visibleAddNewGroup: boolean;
-    // Snackbar
-    snackBarView: boolean;
-    snackBarText: string;
 };
 
 export default class Page1 extends Component<IProps, IState> {
@@ -51,9 +47,7 @@ export default class Page1 extends Component<IProps, IState> {
             isError: false,
             isRefresh: false,
             messageError: '',
-            visibleAddNewGroup: false,
-            snackBarView: false,
-            snackBarText: ''
+            visibleAddNewGroup: false
         };
         this.loadData = this.loadData.bind(this);
         this.openConfirm = this.openConfirm.bind(this);
@@ -77,17 +71,18 @@ export default class Page1 extends Component<IProps, IState> {
     private event2: EmitterSubscription | null = null;
     private _isMount: boolean = false;
     // Refs Components
-    private refImageViewerText: ImageViewerText | null = null;
-    private refAddAnnotationAssist: AddAnnotationAssist | null = null;
-    private refConfirmAssist: ConfirmAssist | null = null;
-    private refViewAssist: ViewAssist | null = null;
-    private refViewAnnotations: ViewAnnotations | null = null;
-    private refAddNewGroupAssist: AddNewGroupAssist | null = null;
-    private refSearchGroups: SearchGroups | null = null;
-    private refSearchGroupsResult: SearchGroupsResult | null = null;
-    private refConfigurePreferences: ConfigurePreferences | null = null;
-    private refLoadingComponent: LoadingComponent | null = null;
-    private refSetGroup: SetGroup | null = null;
+    private refImageViewerText= createRef<ImageViewerText>();
+    private refAddAnnotationAssist= createRef<AddAnnotationAssist>();
+    private refConfirmAssist= createRef<ConfirmAssist>();
+    private refViewAssist= createRef<ViewAssist>();
+    private refViewAnnotations= createRef<ViewAnnotations>();
+    private refAddNewGroupAssist= createRef<AddNewGroupAssist>();
+    private refSearchGroups= createRef<SearchGroups>();
+    private refSearchGroupsResult= createRef<SearchGroupsResult>();
+    private refConfigurePreferences= createRef<ConfigurePreferences>();
+    private refLoadingComponent= createRef<LoadingComponent>();
+    private refSetGroup= createRef<SetGroup>();
+    private refCustomSnackbar = createRef<CustomSnackbar>();
 
 
     componentDidMount() {
@@ -128,9 +123,9 @@ export default class Page1 extends Component<IProps, IState> {
     reloadData(code: number, newData: DataGroup[]) {
         switch (code) {
             case 1:
-                if (!this.refViewAssist?.state.visible) return;
-                var f = newData.find((v)=>this.refViewAssist?.state.select.id == v.id);
-                if (f) this.refViewAssist.updateSelect({
+                if (!this.refViewAssist.current?.state.visible) return;
+                var f = newData.find((v)=>this.refViewAssist.current?.state.select.id == v.id);
+                if (f) this.refViewAssist.current.updateSelect({
                     id: f.id,
                     curse: decode(f.curse),
                     annotations: f.annotations,
@@ -142,44 +137,45 @@ export default class Page1 extends Component<IProps, IState> {
     }
     createNewGroup(datas: { course: string; date: string; time: string; }, then?: ()=>any): Promise<string> {
         return new Promise((resolve)=>{
-            this.refLoadingComponent?.open('Creando grupo...');
+            this.refLoadingComponent.current?.open('Creando grupo...');
             (then)&&then();
             Assist.create(encode(datas.course), encode(datas.date), encode(datas.time))
                 .then((a)=>{
-                    this.refLoadingComponent?.close();
-                    this.setState({snackBarView: true, snackBarText: 'Grupo creado correctamente.', isRefresh: true }, ()=>{
+                    this.refLoadingComponent.current?.close();
+                    this.refCustomSnackbar.current?.open('Grupo creado correctamente.');
+                    this.setState({ isRefresh: true }, ()=>{
                         this.loadData(undefined, true);
                         resolve(a);
                     });
                 })
                 .catch((error)=>{
-                    this.refLoadingComponent?.close();
-                    this.setState({ snackBarView: true, snackBarText: error.cause });
+                    this.refLoadingComponent.current?.close();
+                    this.refCustomSnackbar.current?.open(error.cause);
                 });
         });
     }
     openConfirm(idGroup: string, select: { id: string; curse: string; date: string; }) {
-        this.refLoadingComponent?.open('Cargando información...');
+        this.refLoadingComponent.current?.open('Cargando información...');
         Assist.getGroup(idGroup)
             .then((a)=>{
-                this.refLoadingComponent?.close();
-                this.refConfirmAssist?.open(select, a);
+                this.refLoadingComponent.current?.close();
+                this.refConfirmAssist.current?.open(select, a);
             })
-            .catch((a)=>{
-                this.refLoadingComponent?.close();
-                this.setState({ snackBarView: true, snackBarText: a.cause });
+            .catch((error)=>{
+                this.refLoadingComponent.current?.close();
+                this.refCustomSnackbar.current?.open(error.cause);
             });
     }
     openView(idGroup: string, select: { id: string; curse: string; date: string; hour: string; annotations: number; }) {
-        this.refLoadingComponent?.open('Cargando información...');
+        this.refLoadingComponent.current?.open('Cargando información...');
         Assist.getGroup(idGroup)
             .then((a)=>{
-                this.refLoadingComponent?.close();
-                this.refViewAssist?.open(select, a);
+                this.refLoadingComponent.current?.close();
+                this.refViewAssist.current?.open(select, a);
             })
-            .catch((a)=>{
-                this.refLoadingComponent?.close();
-                this.setState({ snackBarView: true, snackBarText: a.cause });
+            .catch((error)=>{
+                this.refLoadingComponent.current?.close();
+                this.refCustomSnackbar.current?.open(error.cause);
             });
     }
 
@@ -214,58 +210,57 @@ export default class Page1 extends Component<IProps, IState> {
     // Global Functions
     _showLoading(visible: boolean, text: string, after?: ()=>any){
         if (!visible) {
-            this.refLoadingComponent?.close();
+            this.refLoadingComponent.current?.close();
             return (after)&&after();
         }
-        this.refLoadingComponent?.open(text);
+        this.refLoadingComponent.current?.open(text);
         (after)&&after();
     }
     _openAddAnnotation() {
-        var idGroup = (this.refConfirmAssist?.state.visible)? this.refConfirmAssist.state.select.id: this.refViewAssist!.state.select.id;
-        this.refAddAnnotationAssist?.open(idGroup);
+        var idGroup = (this.refConfirmAssist.current?.state.visible)? this.refConfirmAssist.current.state.select.id: this.refViewAssist.current!.state.select.id;
+        this.refAddAnnotationAssist.current?.open(idGroup);
     }
     _openImage(source: string, text: string) {
-        this.refImageViewerText?.open(source, text);
+        this.refImageViewerText.current?.open(source, text);
     }
     _showSnackbar(visible: boolean, text: string, after?: ()=>any){
-        this.setState({
-            snackBarView: visible,
-            snackBarText: text
-        }, (after)&&after)
+        if (!visible) return this.refCustomSnackbar.current?.close();
+        this.refCustomSnackbar.current?.open(text);
+        (after)&&after();
     }
 
     // New
     _openAddGroup() {
         if (Prefences.isIntoSyncHours()) return this.setState({ visibleAddNewGroup: true });
-        this.refAddNewGroupAssist?.open();
+        this.refAddNewGroupAssist.current?.open();
     }
     _openConfigurePreferences() {
-        this.refConfigurePreferences?.open();
+        this.refConfigurePreferences.current?.open();
     }
     _openSearch() {
-        this.refSearchGroups?.open();
+        this.refSearchGroups.current?.open();
     }
     _goSearch(dateSearch: Date) {
-        this.refLoadingComponent?.open('Buscando...');
+        this.refLoadingComponent.current?.open('Buscando...');
         var date = moment(dateSearch).format('DD/MM/YYYY');
         var filter = this.state.dataGroups.filter((data)=>decode(data.date) == date);
         if (filter.length == 0) {
-            this.refSearchGroups?.open();
-            this.refLoadingComponent?.close();
+            this.refSearchGroups.current?.open();
+            this.refLoadingComponent.current?.close();
             return ToastAndroid.show('No se encontraron resultados', ToastAndroid.SHORT);
         }
-        this.refLoadingComponent?.close();
-        this.refSearchGroupsResult?.open(filter);
+        this.refLoadingComponent.current?.close();
+        this.refSearchGroupsResult.current?.open(filter);
     }
     _openAnnotations(data: AnnotationList[]) {
-        var select = this.refViewAssist!.state.select;
-        this.refViewAnnotations?.open(select, data);
+        var select = this.refViewAssist.current!.state.select;
+        this.refViewAnnotations.current?.open(select, data);
     }
     _openSetGroup() {
-        this.refSetGroup?.open(this.state.listGroups);
+        this.refSetGroup.current?.open(this.state.listGroups);
     }
     _setFilterConfirm(filter: string[]) {
-        this.refConfirmAssist?.setFilter(filter);
+        this.refConfirmAssist.current?.setFilter(filter);
     }
 
     render(): React.ReactNode {
@@ -302,12 +297,7 @@ export default class Page1 extends Component<IProps, IState> {
                     </View>
                     :<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator size={'large'} animating /></View>}
                 </View>
-                <Snackbar
-                    visible={this.state.snackBarView}
-                    onDismiss={()=>this.setState({ snackBarView: false })}
-                    action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackBarView: false }) }}>
-                    <Text>{this.state.snackBarText}</Text>
-                </Snackbar>
+                <CustomSnackbar ref={this.refCustomSnackbar} />
                 <Portal>
                     <Dialog visible={this.state.visibleAddNewGroup} onDismiss={()=>this.setState({ visibleAddNewGroup: false })}>
                         <Dialog.Title>Advertencia</Dialog.Title>
@@ -318,16 +308,16 @@ export default class Page1 extends Component<IProps, IState> {
                         </Dialog.Content>
                         <Dialog.Actions>
                             <Button onPress={()=>this.setState({ visibleAddNewGroup: false })}>Cancelar</Button>
-                            <Button onPress={()=>this.setState({ visibleAddNewGroup: false }, ()=>this.refAddNewGroupAssist?.open())}>Proceder</Button>
+                            <Button onPress={()=>this.setState({ visibleAddNewGroup: false }, ()=>this.refAddNewGroupAssist.current?.open())}>Proceder</Button>
                         </Dialog.Actions>
                     </Dialog>
                 </Portal>
 
                 {/* ##### Modal's ##### */}
-                <ImageViewerText ref={(ref)=>this.refImageViewerText = ref} />
-                <AddAnnotationAssist ref={(ref)=>this.refAddAnnotationAssist = ref} />
+                <ImageViewerText ref={this.refImageViewerText} />
+                <AddAnnotationAssist ref={this.refAddAnnotationAssist} />
                 <ConfirmAssist
-                    ref={(ref)=>this.refConfirmAssist = ref}
+                    ref={this.refConfirmAssist}
                     showLoading={this._showLoading}
                     showSnackbar={this._showSnackbar}
                     openImage={this._openImage}
@@ -335,7 +325,7 @@ export default class Page1 extends Component<IProps, IState> {
                     openSetGroup={this._openSetGroup}
                 />
                 <ViewAssist
-                    ref={(ref)=>this.refViewAssist = ref}
+                    ref={this.refViewAssist}
                     editAssist={this.openConfirm}
                     showSnackbar={this._showSnackbar}
                     showLoading={this._showLoading}
@@ -344,23 +334,23 @@ export default class Page1 extends Component<IProps, IState> {
                     openAddAnnotation={this._openAddAnnotation}
                 />
                 <ViewAnnotations
-                    ref={(ref)=>this.refViewAnnotations = ref}
+                    ref={this.refViewAnnotations}
                     goLoading={this._showLoading}
                 />
                 <AddNewGroupAssist
-                    ref={(ref)=>this.refAddNewGroupAssist = ref}
+                    ref={this.refAddNewGroupAssist}
                     createNow={this.createNewGroup}
                     openConfirm={this.openConfirm}
                 />
-                <SearchGroups ref={(ref)=>this.refSearchGroups = ref} goSearch={this._goSearch} />
+                <SearchGroups ref={this.refSearchGroups} goSearch={this._goSearch} />
                 <SearchGroupsResult
-                    ref={(ref)=>this.refSearchGroupsResult = ref}
+                    ref={this.refSearchGroupsResult}
                     openConfirm={this._openConfirm}
                     openView={this._openView}
                 />
-                <ConfigurePreferences ref={(ref)=>this.refConfigurePreferences = ref} />
-                <SetGroup ref={(ref)=>this.refSetGroup = ref} setFilter={this._setFilterConfirm} />
-                <LoadingComponent ref={(ref)=>this.refLoadingComponent = ref} />
+                <ConfigurePreferences ref={this.refConfigurePreferences} />
+                <SetGroup ref={this.refSetGroup} setFilter={this._setFilterConfirm} />
+                <LoadingComponent ref={this.refLoadingComponent} />
             </PaperProvider>
         </View>);
     }

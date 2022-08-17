@@ -244,7 +244,7 @@ export default class ViewAssist extends Component<IProps, IState> {
                         }, {
                             icon: 'note-edit-outline',
                             label: 'Añadir anotación',
-                            onPress: ()=>this.props.openAddAnnotation(),
+                            onPress: this.props.openAddAnnotation,
                         }]}
                         onStateChange={({ open })=>this.setState({ fabShow: open })}
                     />

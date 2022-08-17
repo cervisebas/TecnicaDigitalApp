@@ -1,4 +1,4 @@
-import React, { Component, PureComponent } from "react";
+import React, { Component, createRef, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
 import { ActivityIndicator, Appbar, IconButton, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -14,6 +14,7 @@ import CustomCard3 from "../Components/Elements/CustomCard3";
 import { decode } from "base-64";
 import ViewGroup from "../Pages/ViewGroup";
 import SelectStudentGroupEdit from "../Pages/SelectStudentGroupEdit";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 
 type IProps = {
     navigation: any;
@@ -31,8 +32,6 @@ type IState = {
     datas: GroupsTypes[];
     // Interfaz
     messageError: string;
-    snackBarView: boolean;
-    snackBarText: string;
 };
 
 export default class Page6 extends Component<IProps, IState> {
@@ -50,13 +49,10 @@ export default class Page6 extends Component<IProps, IState> {
             },
             datas: [],
             // Interfaz
-            messageError: '',
-            snackBarView: false,
-            snackBarText: ''
+            messageError: ''
         };
         this._openCreate = this._openCreate.bind(this);
         this._nextCreate = this._nextCreate.bind(this);
-        this._closeSnackbar = this._closeSnackbar.bind(this);
         this._showSnackbar = this._showSnackbar.bind(this);
         this._showLoading = this._showLoading.bind(this);
         this._showImageViewer = this._showImageViewer.bind(this);
@@ -66,12 +62,13 @@ export default class Page6 extends Component<IProps, IState> {
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     // Refs Components
-    private refAddNewGroup: AddNewGroup | null = null;
-    private refSelectStudentGroup: SelectStudentGroup | null = null;
-    private refLoadingComponent: LoadingComponent | null = null;
-    private refImageViewerText: ImageViewerText | null = null;
-    private refViewGroup: ViewGroup | null = null;
-    private refSelectStudentGroupEdit: SelectStudentGroupEdit | null = null;
+    private refAddNewGroup = createRef<AddNewGroup>();
+    private refSelectStudentGroup = createRef<SelectStudentGroup>();
+    private refLoadingComponent = createRef<LoadingComponent>();
+    private refImageViewerText = createRef<ImageViewerText>();
+    private refViewGroup = createRef<ViewGroup>();
+    private refSelectStudentGroupEdit = createRef<SelectStudentGroupEdit>();
+    private refCustomSnackbar = createRef<CustomSnackbar>();
 
     componentDidMount() {
         this.loadData();
@@ -98,43 +95,40 @@ export default class Page6 extends Component<IProps, IState> {
 
     // New's
     _openCreate() {
-        this.refAddNewGroup?.open();
+        this.refAddNewGroup.current?.open();
     }
     _nextCreate(curse: string, group: string) {
         var datas = this.state.studentsDatas.curses.find((v)=>v.label == curse);
         if (datas == undefined) return ToastAndroid.show('No se encontró la lista del curso seleccionado', ToastAndroid.SHORT);
-        this.refSelectStudentGroup?.open(curse, group, datas.students);
-    }
-    _closeSnackbar() {
-        this.setState({ snackBarView: false });
+        this.refSelectStudentGroup.current?.open(curse, group, datas.students);
     }
     _showSnackbar(snackBarText: string, after?: ()=>any) {
-        this.setState({ snackBarView: true, snackBarText });
+        this.refCustomSnackbar.current?.open(snackBarText);
         return (after)&&after();
     }
     _showLoading(visible: boolean, text: string, after?: ()=>any) {
         if (!visible) {
-            this.refLoadingComponent?.close();
+            this.refLoadingComponent.current?.close();
             return (after)&&after();
         }
-        this.refLoadingComponent?.open(text);
+        this.refLoadingComponent.current?.open(text);
         return (after)&&after();
     }
     _showImageViewer(src: string, text: string) {
-        this.refImageViewerText?.open(src, text);
+        this.refImageViewerText.current?.open(src, text);
     }
     _openViewGroup(item: GroupsTypes) {
         const students = this.state.studentsDatas.curses.find((v)=>v.label == decode(item.curse));
         if (students) {
             const list = students.students.filter((v)=>!!item.students.find((v2)=>v.id == v2));
-            return this.refViewGroup?.open(list, decode(item.curse), decode(item.name_group), item.id);
+            return this.refViewGroup.current?.open(list, decode(item.curse), decode(item.name_group), item.id);
         }
         ToastAndroid.show("Ocurrió un error inesperado", ToastAndroid.SHORT);
     }
     _goEdit(after: StudentsData[], id: string, curse: string) {
         var datas = this.state.studentsDatas.curses.find((v)=>v.label == curse);
         if (datas == undefined) return ToastAndroid.show('No se encontró la lista del curso seleccionado', ToastAndroid.SHORT);
-        this.refSelectStudentGroupEdit?.open(id, datas.students, after);
+        this.refSelectStudentGroupEdit.current?.open(id, datas.students, after);
     }
 
     // Flatlist
@@ -185,37 +179,31 @@ export default class Page6 extends Component<IProps, IState> {
                         </View>}
                     </View>}
                 </View>
-                <Snackbar
-                    visible={this.state.snackBarView}
-                    onDismiss={this._closeSnackbar}
-                    duration={3000}
-                    action={{ label: 'OCULTAR', onPress: this._closeSnackbar }}>
-                    <Text>{this.state.snackBarText}</Text>
-                </Snackbar>
+                <CustomSnackbar ref={this.refCustomSnackbar} />
 
                 {/* Modals */}
-                <AddNewGroup ref={(ref)=>this.refAddNewGroup = ref} next={this._nextCreate} />
+                <AddNewGroup ref={this.refAddNewGroup} next={this._nextCreate} />
                 <SelectStudentGroup
-                    ref={(ref) => this.refSelectStudentGroup = ref}
+                    ref={this.refSelectStudentGroup}
                     showLoading={this._showLoading}
                     showSnackbar={this._showSnackbar}
                     openImage={this._showImageViewer}
                 />
                 <SelectStudentGroupEdit
-                    ref={(ref) => this.refSelectStudentGroupEdit = ref}
+                    ref={this.refSelectStudentGroupEdit}
                     showLoading={this._showLoading}
                     showSnackbar={this._showSnackbar}
                     openImage={this._showImageViewer}
                 />
                 <ViewGroup
-                    ref={(ref)=>this.refViewGroup = ref}
+                    ref={this.refViewGroup}
                     showLoading={this._showLoading}
                     showSnackbar={this._showSnackbar}
                     openImage={this._showImageViewer}
                     goEdit={this._goEdit}
                 />
-                <ImageViewerText ref={(ref)=>this.refImageViewerText = ref} />
-                <LoadingComponent ref={(ref)=>this.refLoadingComponent = ref} />
+                <ImageViewerText ref={this.refImageViewerText} />
+                <LoadingComponent ref={this.refLoadingComponent} />
             </PaperProvider>
         </View>);
     }

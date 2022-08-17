@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { createRef, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
 import { ActivityIndicator, Appbar, Colors, Divider, IconButton, List, Menu, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -57,7 +57,7 @@ export default class Page5 extends PureComponent<IProps, IState> {
         this._filterNormal = this._filterNormal.bind(this);
     }
     private event: EmitterSubscription | null = null;
-    private refViewDetailsRecords: ViewDetailsRecord | null = null;
+    private refViewDetailsRecords = createRef<ViewDetailsRecord>();
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.loadData();
@@ -114,7 +114,7 @@ export default class Page5 extends PureComponent<IProps, IState> {
             title={item.type}
             description={item.movent}
             importance={parseInt(item.importance)}
-            onPress={()=>this.refViewDetailsRecords?.open(item)}
+            onPress={()=>this.refViewDetailsRecords.current?.open(item)}
         />);
     }
     _getItemLayout(_data: RecordData[] | null | undefined, index: number) {
@@ -159,7 +159,7 @@ export default class Page5 extends PureComponent<IProps, IState> {
                         </View>}
                     </View>}
                 </View>
-                <ViewDetailsRecord ref={(ref)=>this.refViewDetailsRecords = ref}/>
+                <ViewDetailsRecord ref={this.refViewDetailsRecords}/>
             </PaperProvider>
         </View>);
     }

@@ -71,10 +71,6 @@
 -keep class com.christopherdro.htmltopdf.** { *; }
 -dontwarn com.christopherdro.htmltopdf.**
 
-# react-native-image-picker
--keep class com.imagepicker.** { *; }
--dontwarn com.imagepicker.**
-
 # react-native-pager-view
 -keep class com.reactnativepagerview.** { *; }
 -dontwarn com.reactnativepagerview.**
@@ -132,3 +128,10 @@
 # react-native-linear-gradient
 -keep class com.BV.LinearGradient.** { *; }
 -dontwarn com.BV.LinearGradient.**
+
+# react-native-image-crop-picker
+-keep class com.reactnative.ivpusic.imagepicker.** { *; }
+-dontwarn com.reactnative.ivpusic.imagepicker.**
+-keep class com.yalantis.ucrop** { *; }
+-dontwarn com.yalantis.ucrop**
+-keep interface com.yalantis.ucrop** { *; }

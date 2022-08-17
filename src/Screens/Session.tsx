@@ -1,4 +1,4 @@
-import React, { Component, PureComponent } from "react";
+import React, { Component, createRef, PureComponent } from "react";
 import { DeviceEventEmitter, ImageBackground, Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput } from "react-native";
 import { Text, Provider as PaperProvider, TextInput, Button, Colors, Snackbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
@@ -59,8 +59,8 @@ export default class Session extends Component<IProps, IState> {
         this.student_changeTextDNI = this.student_changeTextDNI.bind(this);
         this.goLogInStudent = this.goLogInStudent.bind(this);
     }
-    private input1: NativeTextInput | null = null;
-    private input2: NativeTextInput | null = null;
+    private input1 = createRef<NativeTextInput>();
+    private input2 = createRef<NativeTextInput>();
     logInNow() {
         if (!this.verifyInputs()) return;
         this.setState({ isLoading: true }, ()=>
@@ -93,8 +93,6 @@ export default class Session extends Component<IProps, IState> {
             snackbarShow: false,
             snackbarText: ''
         });
-        this.input1 = null;
-        this.input2 = null;
     }
     componentDidUpdate() {
         if (!this.props.visible) {
@@ -116,12 +114,12 @@ export default class Session extends Component<IProps, IState> {
         if (this.state.formUserName.length < 6) {
             errors += 1;
             this.setState({ formErrorUserName: true });
-            this.input1?.focus();
+            this.input1.current?.focus();
         }
         if (this.state.formPassword.length < 8) {
             errors += 1;
             this.setState({ formErrorPassword: true });
-            (errors == 1)&&this.input2?.focus();
+            (errors == 1)&&this.input2.current?.focus();
         }
         (errors !== 0)&&this.setState({ snackbarShow: true, snackbarText: 'Revise los datos ingresados.' });
         return errors == 0;
@@ -179,12 +177,12 @@ export default class Session extends Component<IProps, IState> {
                                     textContentType={'username'}
                                     blurOnSubmit={false}
                                     value={this.state.formUserName}
-                                    error={this.state.formErrorPassword}
+                                    error={this.state.formErrorUserName}
                                     disabled={this.state.isLoading}
-                                    render={(props)=><NativeTextInput {...props} ref={(ref)=>this.input1 = ref} />}
+                                    render={(props)=><NativeTextInput {...props} ref={this.input1} />}
                                     onChangeText={(text)=>this.setState({ formUserName: text, formErrorUserName: false })}
                                     returnKeyType={'next'}
-                                    onSubmitEditing={()=>this.input2?.focus()}
+                                    onSubmitEditing={()=>this.input2.current?.focus()}
                                 />
                                 <TextInput
                                     label={'Contraseña'}
@@ -198,7 +196,7 @@ export default class Session extends Component<IProps, IState> {
                                     value={this.state.formPassword}
                                     error={this.state.formErrorPassword}
                                     disabled={this.state.isLoading}
-                                    render={(props)=><NativeTextInput {...props} ref={(ref)=>this.input2 = ref} />}
+                                    render={(props)=><NativeTextInput {...props} ref={this.input2} />}
                                     onChangeText={(text)=>this.setState({ formPassword: text, formErrorPassword: false })}
                                     returnKeyType={'send'}
                                     onSubmitEditing={this.logInNow}

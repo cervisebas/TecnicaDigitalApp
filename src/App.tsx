@@ -16,6 +16,7 @@ import RNFS from "react-native-fs";
 import FastImage from "react-native-fast-image";
 import Page5 from "./Screens/Page5";
 import Page6 from "./Screens/Page6";
+import ImageCropPicker from "react-native-image-crop-picker";
 
 type IProps = {};
 type IState = {
@@ -66,6 +67,7 @@ export default class AppAdmin extends Component<IProps, IState> {
                     this.setState({ textLoading: `Limpiando: ${((i * 100) / files.length).toFixed(0)}%` });
                 }
                 await FastImage.clearMemoryCache();
+                await ImageCropPicker.clean();
                 setTimeout(()=>this.setState({ showLoading: false }, ()=>{
                     ToastAndroid.show('Cache limpiada con éxito.', ToastAndroid.SHORT);
                     DeviceEventEmitter.emit('reloadCacheSize');

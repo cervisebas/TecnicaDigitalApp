@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import { DeviceEventEmitter, EmitterSubscription, Platform, StatusBar, View } from "react-native";
 import { NavigationContainer, NavigationContainerRef, StackActions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -40,7 +40,7 @@ export default class Index extends Component<IProps, IState> {
         this.changePage = this.changePage.bind(this);
         this.onMessageReceived = this.onMessageReceived.bind(this);
     }
-    private refNavigate: NavigationContainerRef<ReactNavigation.RootParamList> | null = null;
+    private refNavigate = createRef<NavigationContainerRef<ReactNavigation.RootParamList>>();
     private event1 : EmitterSubscription | null = null;
     componentDidMount(): void {
         this.event1 = DeviceEventEmitter.addListener('ChangeIndexNavigation', this.changePage);
@@ -58,7 +58,6 @@ export default class Index extends Component<IProps, IState> {
     componentWillUnmount() {
         this.event1?.remove();
         this.event1 = null;
-        this.refNavigate = null;
     }
     async startNotifications() {
         messaging().onMessage(this.onMessageReceived);
@@ -80,7 +79,7 @@ export default class Index extends Component<IProps, IState> {
     }
     changePage(namePage: string) {
         const replaceAction = StackActions.replace(namePage);
-        this.refNavigate?.dispatch(replaceAction);
+        this.refNavigate.current?.dispatch(replaceAction);
     }
     async verifyFolder() {
         if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`))
@@ -90,7 +89,7 @@ export default class Index extends Component<IProps, IState> {
         return(<View style={{ flex: 1, ...this.state.marginAndroid }}>
             <StatusBar backgroundColor={'#FF3232'} barStyle={'light-content'} />
             <PaperProvider theme={Theme}>
-                <NavigationContainer ref={(ref)=>this.refNavigate = ref} theme={Theme}>
+                <NavigationContainer ref={this.refNavigate} theme={Theme}>
                     <Stack.Navigator initialRouteName={'Default'} screenOptions={{ headerShown: false }}>
                         <Stack.Screen name="Admin" component={AppAdmin} />
                         <Stack.Screen name="Family" component={AppFamily} />

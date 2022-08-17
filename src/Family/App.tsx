@@ -1,4 +1,4 @@
-import React, { Component, PureComponent } from "react";
+import React, { Component, createRef, PureComponent } from "react";
 import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, ProgressBar, Provider as PaperProvider, Snackbar, Text, Title } from "react-native-paper";
@@ -91,11 +91,11 @@ export default class AppFamily extends Component<IProps, IState> {
     private event: EmitterSubscription | null = null;
     // Refs Components
     private refTarget: ViewShot | null | any = null;
-    private refChangeCardDesign: ChangeCardDesign | null = null;
-    private refImageViewer: ImageViewer | null = null;
-    private refViewDetailsAssist: ViewDetailsAssist | null = null;
-    private refLoadingComponent: LoadingComponent | null = null;
-    private refFamilyOptions: FamilyOptions | null = null;
+    private refChangeCardDesign = createRef<ChangeCardDesign>();
+    private refImageViewer = createRef<ImageViewer>();
+    private refViewDetailsAssist = createRef<ViewDetailsAssist>();
+    private refLoadingComponent = createRef<LoadingComponent>();
+    private refFamilyOptions = createRef<FamilyOptions>();
 
     componentDidMount() {
         var scales: number[] = [];
@@ -180,11 +180,11 @@ export default class AppFamily extends Component<IProps, IState> {
             .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
     }
     shareImageTarget() {
-        this.refLoadingComponent?.open('Espere por favor...');
+        this.refLoadingComponent.current?.open('Espere por favor...');
         this.generateImage('base64')
             .then((base64)=>{
                 var nameFile: string = `student-${this.state.studentData!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
-                this.refLoadingComponent?.close();
+                this.refLoadingComponent.current?.close();
                 Share.open({
                     url: `data:image/png;base64,${base64}`,
                     filename: nameFile,
@@ -194,35 +194,35 @@ export default class AppFamily extends Component<IProps, IState> {
                 }).catch(()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' }));
             })
             .catch(()=>{
-                this.refLoadingComponent?.close();
+                this.refLoadingComponent.current?.close();
                 this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' });
             });
     }
     /* ###### ########## ###### */
     _openDetailsAssit() {
         if (this.state.assistData!.length == 0) return ToastAndroid.show("No se encontraron registros...", ToastAndroid.SHORT);
-        this.refViewDetailsAssist?.open(this.state.assistData as any);
+        this.refViewDetailsAssist.current?.open(this.state.assistData as any);
     }
     closeSession() {
-        this.refLoadingComponent?.open('Cerrando sesión...');
+        this.refLoadingComponent.current?.open('Cerrando sesión...');
         this.setState({ viewLogOut: false }, async()=>{
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
             await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
             await MainWidget.init();
             DeviceEventEmitter.emit('reVerifySession');
-            this.refLoadingComponent?.close();
+            this.refLoadingComponent.current?.close();
         });
     }
 
     // New's
     _openChangeDesign() {
-        this.refChangeCardDesign?.open();
+        this.refChangeCardDesign.current?.open();
     }
     _openImageViewer(src: string) {
-        this.refImageViewer?.open(src);
+        this.refImageViewer.current?.open(src);
     }
     _openOptions() {
-        this.refFamilyOptions?.open();
+        this.refFamilyOptions.current?.open();
     }
 
     render(): React.ReactNode {
@@ -342,19 +342,19 @@ export default class AppFamily extends Component<IProps, IState> {
 
                 {/* Modal's */}
                 <ChangeCardDesign
-                    ref={(ref)=>this.refChangeCardDesign = ref}
+                    ref={this.refChangeCardDesign}
                     onChange={(option)=>this.setState({ designCardElection: option })}
                 />
-                <ImageViewer ref={(ref)=>this.refImageViewer = ref} />
-                <ViewDetailsAssist ref={(ref)=>this.refViewDetailsAssist = ref} />
+                <ImageViewer ref={this.refImageViewer} />
+                <ViewDetailsAssist ref={this.refViewDetailsAssist} />
                 <FamilyOptions
-                    ref={(ref)=>this.refFamilyOptions = ref}
+                    ref={this.refFamilyOptions}
                     data={this.state.studentData}
                     closeSession={()=>this.setState({ viewLogOut: true })}
                     openImage={this._openImageViewer}
                     openDialog={(title, text)=>this.setState({ dialogVisible: true, dialogTitle: title, dialogText: text })}
                 />
-                <LoadingComponent ref={(ref)=>this.refLoadingComponent = ref} />
+                <LoadingComponent ref={this.refLoadingComponent} />
             </PaperProvider>
         </View>);
     }

@@ -16,6 +16,7 @@ type IProps = {
     dni: string;
     style?: StyleProp<ViewStyle>;
     refTarget?: (ref: ViewShot | null)=>any;
+    refTarget2?: React.RefObject<ViewShot>;
     type?: number;
     onPress?: (ref: ViewShot)=>any;
 };
@@ -48,7 +49,7 @@ export default class CustomCredential extends PureComponent<IProps, IState> {
     render(): React.ReactNode {
         return(<View style={[this.props.style]}>
             <Pressable onPress={this._onPress} android_ripple={(this.props.onPress)? { color: 'rgba(0, 0, 0, 0.5)', foreground: true }: undefined}>
-                <ViewShot ref={this._ref} style={{ ...this.getSize(), overflow: 'hidden' }} options={{ width: 227, height: 142, format: 'png', quality: 1 }}>
+                <ViewShot ref={(this.props.refTarget2)? this.props.refTarget2: this._ref} style={{ ...this.getSize(), overflow: 'hidden' }} options={{ width: 227, height: 142, format: 'png', quality: 1 }}>
                     {(this.props.type)?
                         (this.props.type == 1)? <Card1 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
                         (this.props.type == 2)? <Card2 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:

@@ -25,9 +25,6 @@ export default class ScreenLoading extends Component<IProps, IState> {
         var probability: number = Math.floor(Math.random() * (1000 - 0)) + 0;
         this.setState({ logo: (probability == 500)? require('../Assets/logo-troll.webp'): require('../Assets/logo.webp') });
     }
-    componentWillUnmount() {
-        this.setState({ logo: undefined });
-    }
     componentDidUpdate() {
         if (this.props.visible) {
             if (this.state.logo == undefined) {

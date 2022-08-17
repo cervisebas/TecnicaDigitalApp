@@ -1,8 +1,7 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
-import { Button, ActivityIndicator, Appbar, Dialog, Divider, IconButton, List, Paragraph, Portal, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
+import { Button, ActivityIndicator, Appbar, Dialog, Divider, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import ImageView from "react-native-image-viewing";
 import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
@@ -16,6 +15,7 @@ import EditDirective from "../Pages/EditDirective";
 import ChangePasswordDirective from "../Pages/ChangePasswordDirective";
 import ChangePermissionDirective from "../Pages/ChangePermissionDirective";
 import ImageViewer from "../Pages/ImageViewer";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 
 type IProps = {
     navigation: any;
@@ -28,8 +28,6 @@ type IState = {
     datas: DirectivesList[];
     showLoading: boolean;
     textLoading: string;
-    snackBarView: boolean;
-    snackBarText: string;
     showConfirmDelete: boolean;
 };
 
@@ -44,8 +42,6 @@ export default class Page4 extends Component<IProps, IState> {
             datas: [],
             showLoading: false,
             textLoading: '',
-            snackBarView: false,
-            snackBarText: '',
             showConfirmDelete: false
         };
         this._renderItem = this._renderItem.bind(this);
@@ -65,15 +61,17 @@ export default class Page4 extends Component<IProps, IState> {
         'Cancelar'
     ];
     private idOptionSelect: string = '-1';
-    // Refs
-    private actionSheet: ActionSheet | null = null;
-    private refViewDirective: ViewDirective | null = null;
-    private refImageViewer: ImageViewer | null = null;
-    private refAddDirective: AddDirective | null = null;
-    private refEditDirective: EditDirective | null = null;
-    private refChangePasswordDirective: ChangePasswordDirective | null = null;
-    private refChangePermissionDirective: ChangePermissionDirective | null = null;
-    
+    // Refs    
+    private actionSheet = createRef<ActionSheet>();
+    private refViewDirective = createRef<ViewDirective>();
+    private refImageViewer = createRef<ImageViewer>();
+    private refAddDirective = createRef<AddDirective>();
+    private refEditDirective = createRef<EditDirective>();
+    private refChangePasswordDirective = createRef<ChangePasswordDirective>();
+    private refChangePermissionDirective = createRef<ChangePermissionDirective>();
+    private refCustomSnackbar = createRef<CustomSnackbar>();
+
+
     componentDidMount() {
         this.loadData();
         this.event = DeviceEventEmitter.addListener('reload-page4', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
@@ -112,10 +110,10 @@ export default class Page4 extends Component<IProps, IState> {
             position={decode(item.position)}
             permission={parseInt(item.permission)}
             source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
-            onPress={()=>this.refViewDirective?.open(item)}
+            onPress={()=>this.refViewDirective.current?.open(item)}
             onEdit={()=>{
                 this.idOptionSelect = item.id;
-                this.actionSheet?.show();
+                this.actionSheet.current?.show();
             }}
             onDelete={()=>{
                 this.idOptionSelect = item.id;
@@ -131,42 +129,41 @@ export default class Page4 extends Component<IProps, IState> {
     deleteNow() {
         this.setState({ showLoading: true, textLoading: 'Eliminado directivo...' }, ()=>
             Directive.delete(this.idOptionSelect)
-                .then(()=>this.setState({
-                    showLoading: false,
-                    snackBarView: true,
-                    snackBarText: 'El directivo se eliminó correctamente.',
-                    isRefresh: true
-                }, this.loadData))
-                .catch((error)=>this.setState({ showLoading: false, snackBarView: true, snackBarText: error.cause }))
+                .then(()=>{
+                    this.refCustomSnackbar.current?.open('El directivo se eliminó correctamente.');
+                    this.setState({ showLoading: false, isRefresh: true }, this.loadData);
+                })
+                .catch((error)=>{
+                    this.refCustomSnackbar.current?.open(error.cause);
+                    this.setState({ showLoading: false });
+                })
         );
     }
     selectEditOptions(opt: number) {
         switch (opt) {
             case 0:
                 var data = this.state.datas.find((v)=>this.idOptionSelect == v.id);
-                this.refEditDirective?.open(data!);
+                this.refEditDirective.current?.open(data!);
                 break;
             case 1:
                 var data = this.state.datas.find((v)=>this.idOptionSelect == v.id);
-                this.refChangePasswordDirective?.open(data!);
+                this.refChangePasswordDirective.current?.open(data!);
                 break;
             case 2:
                 var data = this.state.datas.find((v)=>this.idOptionSelect == v.id);
-                this.refChangePermissionDirective?.open(data!);
+                this.refChangePermissionDirective.current?.open(data!);
                 break;
         }
     }
     openImageViewer(source: string) {
-        this.refImageViewer?.open(source);
+        this.refImageViewer.current?.open(source);
     }
     showSnackbar(visible: boolean, text: string) {
-        this.setState({
-            snackBarView: visible,
-            snackBarText: text
-        });
+        if (!visible) return this.refCustomSnackbar.current?.close();
+        this.refCustomSnackbar.current?.open(text);
     }
     _openAddDirective() {
-        this.refAddDirective?.open();
+        this.refAddDirective.current?.open();
     }
 
     render(): React.ReactNode {
@@ -199,12 +196,7 @@ export default class Page4 extends Component<IProps, IState> {
                         </View>}
                     </View>}
                 </View>
-                <Snackbar
-                    visible={this.state.snackBarView}
-                    onDismiss={()=>this.setState({ snackBarView: false })}
-                    action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackBarView: false }) }}>
-                    <Text>{this.state.snackBarText}</Text>
-                </Snackbar>
+                <CustomSnackbar ref={this.refCustomSnackbar} />
                 <Portal>
                     <Dialog visible={this.state.showConfirmDelete} onDismiss={()=>this.setState({ showConfirmDelete: false })}>
                         <Dialog.Title>Confirmar por favor</Dialog.Title>
@@ -220,7 +212,7 @@ export default class Page4 extends Component<IProps, IState> {
 
                 {/* Modals */}
                 <ActionSheet
-                    ref={(ref)=>this.actionSheet = ref}
+                    ref={this.actionSheet}
                     userInterfaceStyle={'light'}
                     title={'¿Qué desea editar?'}
                     options={this.optionsMenuEdit}
@@ -228,12 +220,12 @@ export default class Page4 extends Component<IProps, IState> {
                     destructiveButtonIndex={3}
                     onPress={this.selectEditOptions}
                 />
-                <ViewDirective ref={(ref)=>this.refViewDirective = ref} openImage={this.openImageViewer} />
-                <ImageViewer ref={(ref)=>this.refImageViewer = ref} />
-                <AddDirective ref={(ref)=>this.refAddDirective = ref} showSnackbar={this.showSnackbar} />
-                <EditDirective ref={(ref)=>this.refEditDirective = ref} showSnackbar={this.showSnackbar} />
-                <ChangePasswordDirective ref={(ref)=>this.refChangePasswordDirective = ref} showSnackbar={this.showSnackbar} />
-                <ChangePermissionDirective ref={(ref)=>this.refChangePermissionDirective = ref} showSnackbar={this.showSnackbar} />
+                <ViewDirective ref={this.refViewDirective} openImage={this.openImageViewer} />
+                <ImageViewer ref={this.refImageViewer} />
+                <AddDirective ref={this.refAddDirective} showSnackbar={this.showSnackbar} />
+                <EditDirective ref={this.refEditDirective} showSnackbar={this.showSnackbar} />
+                <ChangePasswordDirective ref={this.refChangePasswordDirective} showSnackbar={this.showSnackbar} />
+                <ChangePermissionDirective ref={this.refChangePermissionDirective} showSnackbar={this.showSnackbar} />
                 <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
             </PaperProvider>
         </View>);

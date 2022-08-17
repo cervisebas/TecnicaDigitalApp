@@ -33,7 +33,6 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         this.clearCache = this.clearCache.bind(this);
         this.loadData = this.loadData.bind(this);
         this.changeBackgroundImage = this.changeBackgroundImage.bind(this);
-        this.updateSizeCacheFolder = this.updateSizeCacheFolder.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private interval: NodeJS.Timer | null = null;
@@ -49,8 +48,6 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         });
         this.changeBackgroundImage();
         this.interval = setInterval(this.changeBackgroundImage, 120000);
-        this.interval2 = setInterval(this.updateSizeCacheFolder, 30000);
-        this.updateSizeCacheFolder();
     }
     componentWillUnmount() {
         this._isMount = false;
@@ -85,34 +82,6 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         DeviceEventEmitter.emit('ClearNowCache');
         this.props.navigation.closeDrawer();
     }
-    async updateSizeCacheFolder() {
-        try {
-            var size = 0;
-            var finalSize = 0;
-            var convert = true;
-            var unit = "B";
-            var files = await RNFS.readDir(RNFS.CachesDirectoryPath);
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                size += file.size;
-            }
-            while (convert) {
-                if (parseInt((size / 1000).toFixed(0)) >= 1 && finalSize == 0) {
-                    finalSize = size / 1000;
-                    unit = 'Kb';
-                } else if (parseInt((finalSize / 1000).toFixed(0)) >= 1) {
-                    finalSize = (finalSize == 0)? size / 1000: finalSize / 1000;
-                    unit = (unit == 'Kb')? 'Mb': 'Gb';
-                } else {
-                    (finalSize == 0)&&(finalSize = size);
-                    convert = false;
-                }
-            }
-            (this._isMount)&&this.setState({ sizeCache: `${finalSize.toFixed(0)}${unit}` });
-        } catch {
-            (this._isMount)&&this.setState({ sizeCache: '-0B' });
-        }
-    }
     render(): ReactNode {
         return(<View style={styles.content}>
             <View onLayout={({ nativeEvent })=>this.setState({ widht: nativeEvent.layout.width })} {...this.props} style={{ flex: 2 }}>
@@ -136,12 +105,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                                 onPress={()=>this.props.navigation.dispatch({ ...(index == this.props.state.index)? DrawerActions.closeDrawer(): CommonActions.navigate(name), target: this.props.state.key })}
                             />);
                         })}
-                        <Drawer.Item
-                            label={'Limpiar cache'}
-                            icon={'sd'}
-                            right={(props)=><Badge {...props}>{this.state.sizeCache}</Badge>}
-                            onPress={this.clearCache}
-                        />
+                        <ClearCacheItem onPress={this.clearCache} />
                         <Drawer.Item
                             label={'Cerrar sesión'}
                             icon={'logout'}
@@ -157,6 +121,80 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         </View>);
     }
 };
+
+type IProps2 = {
+    onPress: ()=>any;
+};
+type IState2 = {
+    sizeCache: string;
+};
+
+class ClearCacheItem extends PureComponent<IProps2, IState2> {
+    constructor(props: IProps2) {
+        super(props);
+        this.state = {
+            sizeCache: '0B'
+        };
+        this._right = this._right.bind(this);
+    }
+    private _isMount: boolean = false;
+    componentDidMount(): void {
+        this._isMount = true;
+        this.startNow();
+    }
+    componentWillUnmount(): void {
+        this._isMount = false;
+    }
+    async startNow() {
+        while (this._isMount) {
+            await this.updateSizeCacheFolder();
+            await this.waitTime(2500);
+        }
+    }
+    waitTime(time: number) {
+        return new Promise(async(resolve: any)=>setTimeout(resolve, time));
+    }
+    async updateSizeCacheFolder() {
+        try {
+            var size = 0;
+            var finalSize = 0;
+            var convert = true;
+            var unit = "B";
+            var files = await RNFS.readDir(RNFS.CachesDirectoryPath);
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                size += file.size;
+            }
+            while (convert) {
+                if (parseInt((size / 1000).toFixed(0)) >= 1 && finalSize == 0) {
+                    finalSize = size / 1000;
+                    unit = 'Kb';
+                } else if (parseInt((finalSize / 1000).toFixed(0)) >= 1) {
+                    finalSize = (finalSize == 0)? size / 1000: finalSize / 1000;
+                    unit = (unit == 'Kb')? 'Mb': 'Gb';
+                } else {
+                    (finalSize == 0)&&(finalSize = size);
+                    convert = false;
+                }
+            }
+            const sizeCache = `${finalSize.toFixed(0)}${unit}`;
+            if (this._isMount) if (sizeCache !== this.state.sizeCache) this.setState({ sizeCache });
+        } catch {
+            (this._isMount)&&this.setState({ sizeCache: '-0B' });
+        }
+    }
+    _right(props: { color: string; }) {
+        return(<Badge {...props}>{this.state.sizeCache}</Badge>);
+    }
+    render(): React.ReactNode {
+        return(<Drawer.Item
+            label={'Limpiar cache'}
+            icon={'sd'}
+            right={this._right}
+            onPress={this.props.onPress}
+        />);
+    }
+}
 
 const styles = StyleSheet.create({
     content: {

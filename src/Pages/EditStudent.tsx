@@ -1,18 +1,21 @@
 import { Picker } from "@react-native-picker/picker";
 import { decode, encode } from "base-64";
 import moment from "moment";
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import { View, Image, ImageSourcePropType, TouchableHighlight, Dimensions, StyleSheet, ScrollView, ToastAndroid, DeviceEventEmitter, Pressable } from "react-native";
 import DatePicker from "react-native-date-picker";
-import { launchImageLibrary } from "react-native-image-picker";
-import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
+import ImageCropPicker, { Options, Image as TypeImageCrop } from "react-native-image-crop-picker";
+import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { Directive, Student, urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 
-type IProps = {};
+type IProps = {
+    goEditActionSheet: ()=>any;
+};
 type IState = {
     visible: boolean;
     data: StudentsData | undefined;
@@ -25,8 +28,6 @@ type IState = {
     isLoading: boolean;
 
     // Interfaz
-    snackBarView: boolean;
-    snackBarText: string;
     loadData: boolean;
 
     // Form
@@ -67,8 +68,6 @@ export default class EditStudent extends Component<IProps, IState> {
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
             isLoading: false,
             // Interfaz
-            snackBarView: false,
-            snackBarText: '',
             loadData: false,
             // Form
             formName: '',
@@ -87,10 +86,27 @@ export default class EditStudent extends Component<IProps, IState> {
             errorFormDNI: false
         };
         this.closeAndClean = this.closeAndClean.bind(this);
-        this.changeImage = this.changeImage.bind(this);
+        this.changeImage2 = this.changeImage2.bind(this);
         this.sendData = this.sendData.bind(this);
+        this.errorImagePicker = this.errorImagePicker.bind(this);
     }
     private listCourses: string[] = ['- Seleccionar -', 'Archivados', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
+    private refCustomSnackbar = createRef<CustomSnackbar>();
+    private defaultOptions: Options = {
+        cropping: true,
+        multiple: false,
+        mediaType: 'photo',
+        cropperStatusBarColor: '#FF3232',
+        cropperActiveWidgetColor: '#FF3232',
+        cropperToolbarColor: '#FF3232',
+        cropperToolbarWidgetColor: '#FFFFFF',
+        cropperToolbarTitle: 'Editar imagen',
+        writeTempFile: true,
+        includeBase64: false,
+        includeExif: false,
+        compressImageMaxWidth: 512,
+        compressImageMaxHeight: 512
+    };
     componentDidUpdate() {
         if (this.state.visible && !this.state.loadData && this.state.data) {
             this.setState({
@@ -116,9 +132,6 @@ export default class EditStudent extends Component<IProps, IState> {
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
             isLoading: false,
-            // Interfaz
-            snackBarView: false,
-            snackBarText: '',
             // Form
             formName: '',
             formCourse: '- Seleccionar -',
@@ -138,37 +151,22 @@ export default class EditStudent extends Component<IProps, IState> {
             this.setState({ loadData: false });
         });
     }
-    async changeImage() {
-        const result = await launchImageLibrary({ mediaType: 'photo', includeExtra: false, selectionLimit: 1 });
+    changeImage2({ mime, path }: TypeImageCrop) {
+        const filename = path.replace(/^.*[\\\/]/, '');
         this.setState({ isLoadImage: true }, ()=>
-            (result.assets)?
-                this.setState({
-                    imageShow: { uri: result.assets[0].uri },
-                    formImage: {
-                        uri: result.assets[0].uri,
-                        type: result.assets[0].type,
-                        name: result.assets[0].fileName
-                    },
-                    isLoadImage: false
-                }, ()=>{
-                    if (result.assets) {
-                        var verify = (result.assets[0].fileName?.indexOf('.png') !== -1) || (result.assets[0].fileName?.indexOf('.jpg') !== -1) || (result.assets[0].fileName?.indexOf('.jpeg') !== -1) || (result.assets[0].fileName?.indexOf('.webp') !== -1);
-                        if (!verify) {
-                            ToastAndroid.show('La extensión de la imagen no es válida.', ToastAndroid.SHORT);
-                            this.setState({
-                                imageShow: require('../Assets/profile.png'),
-                                formImage: { uri: '', type: '', name: '' },
-                                isLoadImage: false
-                            });
-                        }
-                    }
-                }):
-                this.setState({
-                    imageShow: require('../Assets/profile.png'),
-                    formImage: { uri: '', type: '', name: '' },
-                    isLoadImage: false
-                })
-            );
+            this.setState({
+                imageShow: { uri: path },
+                formImage: {
+                    uri: path,
+                    type: mime,
+                    name: filename
+                },
+                isLoadImage: false
+            }, ()=>{
+                var verify = (filename!.indexOf('.png') !== -1) || (filename!.indexOf('.jpg') !== -1) || (filename!.indexOf('.jpeg') !== -1) || (filename!.indexOf('.webp') !== -1);
+                if (!verify) ToastAndroid.show('La extensión de la imagen no es válida.', ToastAndroid.SHORT);
+            })
+        );
     }
     calcYears(date: string): number {
         var dateNow = new Date();
@@ -227,32 +225,50 @@ export default class EditStudent extends Component<IProps, IState> {
                 form.append('email', encode(this.state.formEmail));
                 form.append('date', encode(this.state.formDate));
                 (this.state.formImage.uri?.length !== 0)&&form.append('image', this.state.formImage);
+                (this.state.formImage.uri?.length == 0 && this.state.data?.picture.length !== 0)&&form.append('isRemoveImage', true);
                 var verify = this.verifyInputs();
-                if (!verify) return this.setState({ snackBarView: true, snackBarText: 'Por favor revise los datos ingresados.', isLoading: false });
-                Student.modify(form).then(()=>this.setState({
-                    isLoading: false,
-                    snackBarView: true,
-                    snackBarText: 'Estudiante editado con exito.',
-                    formName: '',
-                    formCourse: '1°1',
-                    formTel: '',
-                    formEmail: '',
-                    formDNI: '',
-                    formDate: moment(new Date()).format('DD/MM/YYYY'),
-                    formImage: { uri: '', type: '', name: '' },
-                    imageShow: require('../Assets/profile.png'),
-                    actualDatePicker: new Date(),
-                    actualDate: moment(new Date()).format('DD/MM/YYYY')
-                }, ()=>{
-                    DeviceEventEmitter.emit('reloadPage3', true);
-                    this.closeAndClean();
-                })).catch((error)=>this.setState({
-                    isLoading: false,
-                    snackBarView: true,
-                    snackBarText: error.cause
-                }));
+                if (!verify) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open('Por favor revise los datos ingresados.'));
+                Student.modify(form).then(()=>{
+                    this.refCustomSnackbar.current?.open('Estudiante editado con exito.');
+                    this.setState({
+                        isLoading: false,
+                        formName: '',
+                        formCourse: '1°1',
+                        formTel: '',
+                        formEmail: '',
+                        formDNI: '',
+                        formDate: moment(new Date()).format('DD/MM/YYYY'),
+                        formImage: { uri: '', type: '', name: '' },
+                        imageShow: require('../Assets/profile.png'),
+                        actualDatePicker: new Date(),
+                        actualDate: moment(new Date()).format('DD/MM/YYYY')
+                    }, ()=>{
+                        DeviceEventEmitter.emit('reloadPage3', true);
+                        this.closeAndClean();
+                    });
+                }).catch((error)=>{
+                    this.refCustomSnackbar.current?.open(error.cause);
+                    this.setState({ isLoading: false })
+                });
             })    
         );
+    }
+    errorImagePicker(error: object) {
+        const ErrorString = String(error);
+        if (ErrorString.indexOf('User cancelled image selection') != -1) return this.refCustomSnackbar.current?.open('Acción cancelada por el usuario.');
+        if (ErrorString.indexOf('User did not grant camera permission') != -1) return this.refCustomSnackbar.current?.open('No se proporcionó acceso a la cámara.');
+    }
+    removePicture() {
+        const showError = ()=>this.refCustomSnackbar.current?.open('Ya imagen ya ha sido removida.');
+        var isOnlyImage = false;
+        if ((this.state.imageShow as any).uri) if ((this.state.imageShow as any).uri !== `${urlBase}/image/default.png`) isOnlyImage = true;
+        if (this.state.formImage.uri == undefined && !isOnlyImage) return showError();
+        if (this.state.formImage.uri!.length == 0 && !isOnlyImage) return showError();
+        this.setState({
+            imageShow: require('../Assets/profile.png'),
+            formImage: { uri: '', type: '', name: '' },
+        });
+        this.refCustomSnackbar.current?.open('Image del perfil removida.');
     }
 
     // Controller
@@ -268,6 +284,11 @@ export default class EditStudent extends Component<IProps, IState> {
             data: undefined
         });
     }
+    actionSetPicture(index: number) {
+        if (index == 0) ImageCropPicker.openCamera(this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
+        if (index == 1) ImageCropPicker.openPicker(this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
+        if (index == 2) this.removePicture();
+    }
     
     render(): React.ReactNode {
         return(<CustomModal visible={this.state.visible} onRequestClose={this.closeAndClean}>
@@ -279,7 +300,7 @@ export default class EditStudent extends Component<IProps, IState> {
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2, backgroundColor: Theme.colors.background }}>
                         <View style={{ width: '100%', height: 124, flexDirection: 'row' }}>
-                            <TouchableHighlight disabled={this.state.isLoading} onPress={this.changeImage} style={{ position: 'relative', marginTop: 16, marginBottom: 16, marginRight: 16, marginLeft: 16, height: 100, width: 100, borderRadius: 168, overflow: 'hidden', elevation: 2, backgroundColor: '#FFFFFF' }}>
+                            <TouchableHighlight disabled={this.state.isLoading} onPress={this.props.goEditActionSheet} style={{ position: 'relative', marginTop: 16, marginBottom: 16, marginRight: 16, marginLeft: 16, height: 100, width: 100, borderRadius: 168, overflow: 'hidden', elevation: 2, backgroundColor: '#FFFFFF' }}>
                                 <View>
                                     <Image
                                         source={this.state.imageShow}
@@ -357,12 +378,7 @@ export default class EditStudent extends Component<IProps, IState> {
                             </View>
                         </View>
                     </ScrollView>
-                    <Snackbar
-                        visible={this.state.snackBarView}
-                        onDismiss={()=>this.setState({ snackBarView: false })}
-                        action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackBarView: false }) }}>
-                        <Text>{this.state.snackBarText}</Text>
-                    </Snackbar>
+                    <CustomSnackbar ref={this.refCustomSnackbar} />
                     <Portal>
                         <Dialog visible={this.state.viewModalDate} dismissable={true} onDismiss={()=>this.setState({ viewModalDate: false })}>
                             <Dialog.Title>Fecha de nacimiento</Dialog.Title>

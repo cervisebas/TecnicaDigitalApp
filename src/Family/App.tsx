@@ -1,7 +1,7 @@
-import React, { Component, createRef, PureComponent } from "react";
+import React, { Component, createRef } from "react";
 import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, ProgressBar, Provider as PaperProvider, Snackbar, Text, Title } from "react-native-paper";
+import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import Theme from "../Themes";
 import messaging from '@react-native-firebase/messaging';
 import { Family, urlBase } from "../Scripts/ApiTecnica";
@@ -18,6 +18,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import MainWidget from "../Scripts/MainWidget";
 import ImageViewer from "../Pages/ImageViewer";
 import LoadingComponent from "../Components/LoadingComponent";
+import QueryCall from "./Components/QueryCall";
+import WelcomeCard from "./Components/WelcomeCard";
+import SupportCard from "./Components/SupportCard";
+import AssistCard from "./Components/AssistCard";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 
 type IProps = {};
 type IState = {
@@ -41,8 +46,6 @@ type IState = {
     scaleImage: number;
     designCardElection: number | undefined;
     // Interfaz
-    snackBarView: boolean;
-    snackBarText: string;
     dialogVisible: boolean;
     dialogTitle: string;
     dialogText: string;
@@ -68,8 +71,6 @@ export default class AppFamily extends Component<IProps, IState> {
             numNotAssist: 'Cargando...',
             numTotalAssist: 'Cargando...',
             scaleImage: 0.3,
-            snackBarView: false,
-            snackBarText: '',
             designCardElection: undefined,
             viewLogOut: false,
             disableButtonDetailAssist: false,
@@ -87,6 +88,8 @@ export default class AppFamily extends Component<IProps, IState> {
         this._openChangeDesign = this._openChangeDesign.bind(this);
         this._openImageViewer = this._openImageViewer.bind(this);
         this._openOptions = this._openOptions.bind(this);
+        this._support_open_phone = this._support_open_phone.bind(this);
+        this._onChangeCardDesign = this._onChangeCardDesign.bind(this);
     }
     private event: EmitterSubscription | null = null;
     // Refs Components
@@ -96,6 +99,8 @@ export default class AppFamily extends Component<IProps, IState> {
     private refViewDetailsAssist = createRef<ViewDetailsAssist>();
     private refLoadingComponent = createRef<LoadingComponent>();
     private refFamilyOptions = createRef<FamilyOptions>();
+    private refQueryCall = createRef<QueryCall>();
+    private refCustomSnackbar = createRef<CustomSnackbar>();
 
     componentDidMount() {
         var scales: number[] = [];
@@ -109,12 +114,6 @@ export default class AppFamily extends Component<IProps, IState> {
     componentWillUnmount() {
         this.event?.remove();
         this.event = null;
-        this.refTarget = null;
-        this.setState({
-            studentData: undefined,
-            assistData: undefined,
-            designCardElection: undefined
-        });
     }
     loadDataAssist() {
         this.setState({ isLoadingAssist: true, isErrorAssist: false, numAssist: 'Cargando...', numNotAssist: 'Cargando...', numTotalAssist: 'Cargando...', disableButtonDetailAssist: false }, ()=>
@@ -158,7 +157,7 @@ export default class AppFamily extends Component<IProps, IState> {
     viewImageTarget() {
         this.generateImage()
             .then(this._openImageViewer)
-            .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
+            .catch(()=>this.refCustomSnackbar.current?.open('Error al generar la imagen.'));
     }
     async downloadImageTarget() {
         const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
@@ -167,17 +166,17 @@ export default class AppFamily extends Component<IProps, IState> {
             buttonNegative: "Cancelar",
             buttonPositive: "Aceptar"
         });
-        if (permission == PermissionsAndroid.RESULTS.DENIED) return this.setState({ snackBarView: true, snackBarText: 'Se denegó el acceso al almacenamiento.' });
+        if (permission == PermissionsAndroid.RESULTS.DENIED) return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
         this.generateImage()
             .then((uri)=>{
                 var codeName: number = Math.floor(Math.random() * (99999 - 10000)) + 10000;
                 var nameFile: string = `student-${this.state.studentData!.id}`;
                 nameFile += `-credential-${codeName}`;
                 RNFS.copyFile(uri, `${RNFS.DownloadDirectoryPath}/${nameFile}.png`)
-                    .then(()=>this.setState({ snackBarView: true, snackBarText: 'Imagen guardada con éxito' }))
-                    .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al guardar la imagen' }));
+                    .then(()=>this.refCustomSnackbar.current?.open('Imagen guardada con éxito'))
+                    .catch(()=>this.refCustomSnackbar.current?.open('Error al guardar la imagen'));
             })
-            .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
+            .catch(()=>this.refCustomSnackbar.current?.open('Error al generar la imagen.'));
     }
     shareImageTarget() {
         this.refLoadingComponent.current?.open('Espere por favor...');
@@ -191,11 +190,11 @@ export default class AppFamily extends Component<IProps, IState> {
                     type: 'png',
                     showAppsToView: false,
                     isNewTask: true
-                }).catch(()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' }));
+                }).catch(()=>this.refCustomSnackbar.current?.open('Acción cancelada por el usuario.'));
             })
             .catch(()=>{
                 this.refLoadingComponent.current?.close();
-                this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' });
+                this.refCustomSnackbar.current?.open('Error al generar la imagen.');
             });
     }
     /* ###### ########## ###### */
@@ -209,8 +208,8 @@ export default class AppFamily extends Component<IProps, IState> {
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
             await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
             await MainWidget.init();
-            DeviceEventEmitter.emit('reVerifySession');
             this.refLoadingComponent.current?.close();
+            DeviceEventEmitter.emit('reVerifySession');
         });
     }
 
@@ -224,6 +223,14 @@ export default class AppFamily extends Component<IProps, IState> {
     _openOptions() {
         this.refFamilyOptions.current?.open();
     }
+    _onChangeCardDesign(option: number | undefined) {
+        this.setState({ designCardElection: option });
+    }
+
+    // Support
+    _support_open_phone() {
+        this.refQueryCall.current?.open();
+    }
 
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
@@ -233,44 +240,20 @@ export default class AppFamily extends Component<IProps, IState> {
                     <Appbar.Action icon={'account-circle-outline'} disabled={this.state.isLoading} onPress={this._openOptions} />
                 </Appbar.Header>
                 {(!this.state.isLoading)? (this.state.studentData)&&<View style={{ flex: 2, overflow: 'hidden' }}>
-                    <ScrollView style={{ flex: 3 }} refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={this.loadData} colors={[Theme.colors.accent]} />}>
-                        <Card style={{ marginLeft: 12, marginRight: 12, marginTop: 12 }} elevation={3}>
-                            <Card.Content style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                <Title style={{ width: '95%', overflow: 'hidden' }} numberOfLines={1}><Text style={{ fontWeight: 'bold' }}>Bienvenid@</Text> {decode(this.state.studentData.name)}</Title>
-                            </Card.Content>
-                        </Card>
-                        <Card style={{ marginLeft: 12, marginRight: 12, marginTop: 8, overflow: 'hidden' }} elevation={3}>
-                            {(!this.state.isErrorAssist)? <>
-                                {(this.state.isLoadingAssist)&&<ProgressBar indeterminate />}
-                                <Card.Title
-                                    title={'Asistencia:'}
-                                    right={(props)=><IconButton
-                                        {...props}
-                                        icon={'reload'}
-                                        disabled={this.state.isLoadingAssist}
-                                        onPress={this.loadDataAssist}
-                                        color={Theme.colors.accent}
-                                    />}
-                                />
-                                <Card.Content>
-                                    <PointItemList title="Presentes" text={this.state.numAssist} />
-                                    <PointItemList title="Ausentes" text={this.state.numNotAssist} />
-                                    <PointItemList title="Total" text={this.state.numTotalAssist} />
-                                </Card.Content>
-                                <Card.Actions style={{ justifyContent: 'flex-end' }}>
-                                    <Button icon={'account-details'} disabled={this.state.isLoadingAssist || this.state.disableButtonDetailAssist} onPress={this._openDetailsAssit}>Ver detalles</Button>
-                                </Card.Actions>
-                            </>:
-                            <>
-                                <Card.Content>
-                                    <View style={{ flexDirection: 'column', alignItems: 'center', marginTop: 24, marginBottom: 12 }}>
-                                        <Icon name={'alert-outline'} size={48} style={{ fontSize: 48 }} />
-                                        <Text style={{ marginTop: 10 }}>{this.state.messageErrorAssist}</Text>
-                                        <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={this.loadDataAssist} style={{ marginTop: 12 }} />
-                                    </View>
-                                </Card.Content>
-                            </>}
-                        </Card>
+                    <ScrollView style={{ flex: 3 }} contentContainerStyle={{ paddingBottom: 8 }} refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={this.loadData} colors={[Theme.colors.accent]} />}>
+                        <WelcomeCard namestudent={this.state.studentData.name} />
+                        <AssistCard
+                            isLoading={this.state.isLoadingAssist}
+                            isError={this.state.isErrorAssist}
+                            isDisableDetailAssist={this.state.disableButtonDetailAssist}
+                            messageError={this.state.messageErrorAssist}
+                            assist={this.state.numAssist}
+                            notAssist={this.state.numNotAssist}
+                            total={this.state.numTotalAssist}
+                            reloadAssist={this.loadDataAssist}
+                            openDetailsAssit={this._openDetailsAssit}
+                        />
+                        <SupportCard openDialogPhone={this._support_open_phone} />
                         <Card style={{ marginLeft: 12, marginRight: 12, marginTop: 8 }} elevation={3}>
                             <Card.Title
                                 title={'Tarjeta de ingreso'}
@@ -311,13 +294,7 @@ export default class AppFamily extends Component<IProps, IState> {
                         <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={this.loadData} style={{ marginTop: 12 }} />
                     </View>
                 </View>}
-                <Snackbar
-                    visible={this.state.snackBarView}
-                    onDismiss={()=>this.setState({ snackBarView: false })}
-                    duration={3000}
-                    action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackBarView: false }) }}>
-                    <Text>{this.state.snackBarText}</Text>
-                </Snackbar>
+                <CustomSnackbar ref={this.refCustomSnackbar} />
                 <Portal>
                     <Dialog visible={this.state.viewLogOut} onDismiss={()=>this.setState({ viewLogOut: false })}>
                         <Dialog.Title>Espere por favor!!!</Dialog.Title>
@@ -338,12 +315,13 @@ export default class AppFamily extends Component<IProps, IState> {
                             <Button onPress={()=>this.setState({ dialogVisible: false }, this._openOptions)}>Aceptar</Button>
                         </Dialog.Actions>
                     </Dialog>
+                    <QueryCall ref={this.refQueryCall} />
                 </Portal>
 
                 {/* Modal's */}
                 <ChangeCardDesign
                     ref={this.refChangeCardDesign}
-                    onChange={(option)=>this.setState({ designCardElection: option })}
+                    onChange={this._onChangeCardDesign}
                 />
                 <ImageViewer ref={this.refImageViewer} />
                 <ViewDetailsAssist ref={this.refViewDetailsAssist} />
@@ -359,20 +337,6 @@ export default class AppFamily extends Component<IProps, IState> {
         </View>);
     }
 }
-
-type IProps2 = { title: string; text: string };
-class PointItemList extends PureComponent<IProps2> {
-    constructor(props: IProps2) {
-        super(props);
-    }
-    render(): React.ReactNode {
-        return(<View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            <Text style={{ marginLeft: 14 }}>⦿</Text>
-            <Text style={{ marginLeft: 6, fontWeight: 'bold' }}>{`${this.props.title}:`}</Text>
-            <Text style={{ marginLeft: 2 }}>{this.props.text}</Text>
-        </View>);
-    }
-};
 
 const styles = StyleSheet.create({
     target: {

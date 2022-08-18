@@ -21,7 +21,6 @@ type IState = {
     visible: boolean;
     idStudent: string;
     switchNotifications: boolean;
-    showEasterEgg: boolean;
 };
 
 export default class FamilyOptions extends Component<IProps, IState> {
@@ -30,8 +29,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
         this.state = {
             visible: false,
             idStudent: '#00000',
-            switchNotifications: false,
-            showEasterEgg: false
+            switchNotifications: false
         };
         this.loadData = this.loadData.bind(this);
         this.setSwitchSubscription = this.setSwitchSubscription.bind(this);
@@ -42,17 +40,12 @@ export default class FamilyOptions extends Component<IProps, IState> {
     componentDidMount() {
         this.loadData(true);
     }
-    runEasterEgg() {
-        var random = Math.floor(Math.random() * (21 - 1) + 1);
-        this.setState({ showEasterEgg: (random == 10) });
-    }
     loadData(s?: boolean) {
         if (!s) {
             var id = '';
             for (let i = 0; i < 5 - this.props.data!.id.length; i++) { id += '0'; }
             this.setState({ idStudent: `#${id}${this.props.data!.id}` });
         }
-        this.runEasterEgg();
         Family.getSubscribeData()
             .then((v)=>this.setState({ switchNotifications: v }))
             .catch(()=>this.setState({ switchNotifications: false }));
@@ -110,7 +103,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                         margin: 10
                     }}
                 />
-                {(this.state.showEasterEgg)&&<Text style={styles.textBrand}>SCAPPS</Text>}
+                <Text style={styles.textBrand}>SCAPPS</Text>
                 <View style={{ width: '100%', alignItems: 'center' }}>
                     <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
                     <View style={{ marginTop: 16, width: '100%' }}>

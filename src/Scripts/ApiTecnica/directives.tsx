@@ -22,8 +22,9 @@ export default class DirectiveSystem {
                     if (result.ok) {
                         (result.datas) && await this.saveDataLocal(result.datas);
                         this.openSession = true;
-                        resolve(true);
+                        return resolve(true);
                     }
+                    if (result.datas) return reject({ ok: false, cause: result.cause, relogin: false, error: result.datas as any });
                     return reject({ ok: false, relogin: true, cause: (result.cause)? result.cause: 'Ocurrio un error inesperado.' });
                 }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', relogin: false, error }));
             } catch (error) {

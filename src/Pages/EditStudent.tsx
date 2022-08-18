@@ -225,7 +225,7 @@ export default class EditStudent extends Component<IProps, IState> {
                 form.append('email', encode(this.state.formEmail));
                 form.append('date', encode(this.state.formDate));
                 (this.state.formImage.uri?.length !== 0)&&form.append('image', this.state.formImage);
-                (this.state.formImage.uri?.length == 0 && this.state.data?.picture.length !== 0)&&form.append('isRemoveImage', true);
+                (this.isRemovePicture())&&form.append('isRemoveImage', true);
                 var verify = this.verifyInputs();
                 if (!verify) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open('Por favor revise los datos ingresados.'));
                 Student.modify(form).then(()=>{
@@ -248,7 +248,7 @@ export default class EditStudent extends Component<IProps, IState> {
                     });
                 }).catch((error)=>{
                     this.refCustomSnackbar.current?.open(error.cause);
-                    this.setState({ isLoading: false })
+                    this.setState({ isLoading: false });0
                 });
             })    
         );
@@ -266,9 +266,16 @@ export default class EditStudent extends Component<IProps, IState> {
         if (this.state.formImage.uri!.length == 0 && !isOnlyImage) return showError();
         this.setState({
             imageShow: require('../Assets/profile.png'),
-            formImage: { uri: '', type: '', name: '' },
+            formImage: { uri: '', type: '', name: '' }
         });
         this.refCustomSnackbar.current?.open('Image del perfil removida.');
+    }
+    isRemovePicture() {
+        var isOnlyImage = false;
+        if ((this.state.imageShow as any).uri) if ((this.state.imageShow as any).uri !== `${urlBase}/image/default.png`) isOnlyImage = true;
+        if (this.state.formImage.uri == undefined && !isOnlyImage) return true;
+        if (this.state.formImage.uri!.length == 0 && !isOnlyImage) return true;
+        return false;
     }
 
     // Controller

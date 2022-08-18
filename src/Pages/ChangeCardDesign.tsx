@@ -45,12 +45,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         return(<CardImages
             key={`card-desing-${item.id}`}
             width={this.state.width}
-            styles={{
-                marginTop: 0,
-                marginBottom: 12,
-                marginLeft: 12,
-                marginRight: 12
-            }}
+            styles={styles.itemsCards}
             source={item.source}
             onPress={()=>{
                 this.props.onChange(item.option);
@@ -119,14 +114,7 @@ class CardImages extends PureComponent<IProps2, IState2> {
             <FastImage
                 source={this.props.source as any}
                 resizeMode={'cover'}
-                style={{
-                    borderColor: '#000000',
-                    borderWidth: 2,
-                    width: '100%',
-                    height: '100%',
-                    overflow: 'hidden',
-                    borderRadius: 8
-                }}
+                style={styles.fastImageItem}
             />
         </TouchableHighlight>);
     }
@@ -154,5 +142,19 @@ const styles = StyleSheet.create({
         maxHeight: 300,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    itemsCards: {
+        marginTop: 0,
+        marginBottom: 12,
+        marginLeft: 12,
+        marginRight: 12
+    },
+    fastImageItem: {
+        borderColor: '#000000',
+        borderWidth: 2,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        borderRadius: 8
     }
 });

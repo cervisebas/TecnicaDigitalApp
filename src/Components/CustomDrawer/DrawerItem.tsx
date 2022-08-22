@@ -86,7 +86,7 @@ const DrawerItem = ({
   return (
     <View {...rest}>
       <TouchableRipple
-        borderless={Platform.Version < 23}
+        borderless={Platform.Version > 25}
         delayPressIn={0}
         onPress={onPress}
         style={[

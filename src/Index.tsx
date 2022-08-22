@@ -49,7 +49,7 @@ export default class Index extends Component<IProps, IState> {
         this.event1 = DeviceEventEmitter.addListener('ChangeIndexNavigation', this.changePage);
         if (Platform.OS == 'android') {
             SplashScreen.hide();
-            SystemNavigationBar.setNavigationColor('#FF3232', true);
+            SystemNavigationBar.setNavigationColor('#FF3232', 'light', 'navigation');
             DeviceInfo.getApiLevel().then(async(level)=>(level <= 26)&&this.setState({ marginAndroid: { marginTop: StatusBar.currentHeight || 24, marginBottom: await getNavigationBarHeight() } }));
             this.verifyFolder();
         }

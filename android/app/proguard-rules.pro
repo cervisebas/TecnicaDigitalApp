@@ -135,3 +135,7 @@
 -keep class com.yalantis.ucrop** { *; }
 -dontwarn com.yalantis.ucrop**
 -keep interface com.yalantis.ucrop** { *; }
+
+# react-native-version-check
+-keep class io.xogus.reactnative.versioncheck.** { *; }
+-dontwarn io.xogus.reactnative.versioncheck.**

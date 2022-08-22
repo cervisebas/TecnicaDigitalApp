@@ -21,10 +21,10 @@ import UpdateCheck from "./UpdateCheck";
 
 type IProps = {};
 type IState = {
-    marginAndroid: {
+    /*marginAndroid: {
         marginTop: number;
         marginBottom: number;
-    };
+    };*/
 };
 
 const Stack = createNativeStackNavigator();
@@ -32,12 +32,6 @@ const Stack = createNativeStackNavigator();
 export default class Index extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
-        this.state = {
-            marginAndroid: {
-                marginTop: 0,
-                marginBottom: 0
-            }
-        };
         this.changePage = this.changePage.bind(this);
         this.onMessageReceived = this.onMessageReceived.bind(this);
         this._goCheckUpdate = this._goCheckUpdate.bind(this);
@@ -50,7 +44,7 @@ export default class Index extends Component<IProps, IState> {
         if (Platform.OS == 'android') {
             SplashScreen.hide();
             SystemNavigationBar.setNavigationColor('#FF3232', 'light', 'navigation');
-            DeviceInfo.getApiLevel().then(async(level)=>(level <= 26)&&this.setState({ marginAndroid: { marginTop: StatusBar.currentHeight || 24, marginBottom: await getNavigationBarHeight() } }));
+            //DeviceInfo.getApiLevel().then(async(level)=>(level <= 26)&&this.setState({ marginAndroid: { marginTop: StatusBar.currentHeight || 24, marginBottom: await getNavigationBarHeight() } }));
             this.verifyFolder();
         }
         this.startNotifications();
@@ -92,7 +86,7 @@ export default class Index extends Component<IProps, IState> {
         this.refUpdateCheck.current?.checkUpdateNow();
     }
     render(): React.ReactNode {
-        return(<View style={{ flex: 1, ...this.state.marginAndroid }}>
+        return(<View style={{ flex: 1 }}>
             <StatusBar backgroundColor={'#FF3232'} barStyle={'light-content'} />
             <PaperProvider theme={Theme}>
                 <NavigationContainer ref={this.refNavigate} theme={Theme}>

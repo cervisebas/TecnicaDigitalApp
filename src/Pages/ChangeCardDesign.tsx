@@ -103,9 +103,16 @@ class CardImages extends PureComponent<IProps2, IState2> {
         };
     }
     componentDidMount() {
-        var scales: number[] = [];
-        for (let i = 1; i > 0; i -= 0.001) { scales.push(i); }
-        scales.forEach((val)=>(((3600 * val) > (this.props.width - 24)) && this.state.width == 0)&&this.setState({ width: 3600 * val, height: 2337 * val }));
+        var isFind = false;
+        var useScale = 0.001;
+        while (!isFind) {
+            if (((3600 * useScale) > (this.props.width - 24)) && this.state.width == 0) {
+                this.setState({ width: 3600 * useScale, height: 2337 * useScale });
+                isFind = true;
+            } else {
+                useScale += 0.001;
+            }
+        }
     }
     render(): React.ReactNode {
         return(<TouchableHighlight

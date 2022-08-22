@@ -1,3 +1,4 @@
+import { Image } from "react-native";
 import { decode } from "base-64";
 import RNHTMLtoPDF from "react-native-html-to-pdf";
 import RNFS from "react-native-fs";
@@ -143,7 +144,7 @@ export default class GenerateRegister {
                     fileName: nameFile,
                     width: 595,
                     directory: 'Documents',
-                    fonts: ['../../Fonts/Arialn.ttf']
+                    fonts: [Image.resolveAssetSource(require('../../Fonts/Arialn.ttf')).uri]
                 };
                 RNHTMLtoPDF.convert(options)
                     .then((value)=>(value.filePath)? resolve(value.filePath): reject('Ocurrió un error al generar el archivo.'))

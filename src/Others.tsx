@@ -4,7 +4,9 @@ import ScreenLoading from "./Screens/ScreenLoading";
 import Session from "./Screens/Session";
 import { Actions, Directive, Family } from "./Scripts/ApiTecnica";
 
-type IProps = {};
+type IProps = {
+    goCheckUpdate: ()=>any;
+};
 type IState = {
     showScreenLoading: boolean;
     showMessageLoading: boolean | undefined;
@@ -21,6 +23,7 @@ export default class Others extends Component<IProps, IState> {
             messageLoading: undefined,
             showSessionView: false
         };
+        this._goTipical = this._goTipical.bind(this);
     }
     private event1: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -43,12 +46,16 @@ export default class Others extends Component<IProps, IState> {
         this.event3 = null;
         this.event4 = null;
     }
+    _goTipical() {
+        DeviceEventEmitter.emit('loadNowAll');
+        this.props.goCheckUpdate();
+    }
     verify() {
         Actions.verifySession().then((opt: number)=>{
             if (opt == 0) {
                 DeviceEventEmitter.emit('ChangeIndexNavigation', 'Admin');
                 Directive.verify()
-                    .then(()=>this.setState({ showScreenLoading: false }, ()=>DeviceEventEmitter.emit('loadNowAll')))
+                    .then(()=>this.setState({ showScreenLoading: false }, this._goTipical))
                     .catch((action)=>this.setState({
                         showSessionView: !!action.relogin,
                         showScreenLoading: !action.relogin,
@@ -58,7 +65,7 @@ export default class Others extends Component<IProps, IState> {
             } else if (opt == 1) {
                 DeviceEventEmitter.emit('ChangeIndexNavigation', 'Family');
                 Family.verify()
-                    .then(()=>this.setState({ showScreenLoading: false }, ()=>DeviceEventEmitter.emit('loadNowAll')))
+                    .then(()=>this.setState({ showScreenLoading: false }, this._goTipical))
                     .catch((action)=>this.setState({
                         showSessionView: !!action.relogin,
                         showScreenLoading: !action.relogin,

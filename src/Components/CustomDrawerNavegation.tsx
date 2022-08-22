@@ -4,7 +4,8 @@ import { decode } from "base-64";
 import React, { PureComponent, ReactNode } from "react";
 import { DeviceEventEmitter, EmitterSubscription, ScrollView, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
-import { Avatar, Badge, Drawer, Text, Title } from "react-native-paper";
+import { Avatar, Badge, Text, Title } from "react-native-paper";
+import { Drawer } from "./CustomDrawer";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
 import ImageLazyLoad from "./Elements/ImageLazyLoad";
@@ -68,7 +69,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     }
     async loadData() {
         var userData = await Directive.getDataLocal();
-        this.setState({
+        (this._isMount)&&this.setState({
             nameUser: `@${decode(userData.username)}`,
             pictureUser: `${urlBase}/image/${decode(userData.picture)}`,
             loadingUser: true

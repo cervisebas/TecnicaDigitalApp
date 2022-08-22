@@ -1,8 +1,9 @@
 import { decode } from "base-64";
 import React, { PureComponent } from "react";
 import { FlatList, ListRenderItemInfo, NativeSyntheticEvent, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
-import { Appbar, Divider, Provider as PaperProvider, Searchbar, Text } from "react-native-paper";
+import { Appbar, Divider, ProgressBar, Provider as PaperProvider, Searchbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import stringSimilarity from "string-similarity";
 import CustomModal from "../Components/CustomModal";
 import ItemStudent from "../Components/Elements/CustomItem";
 import { urlBase } from "../Scripts/ApiTecnica";
@@ -18,7 +19,7 @@ type IState = {
     visible: boolean;
     list: StudentsData[];
     listShow: StudentsData[];
-    searchQuery: string;
+    isLoading: number;
 };
 
 export default class SearchStudents extends PureComponent<IProps, IState> {
@@ -28,21 +29,19 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
             visible: false,
             list: [],
             listShow: [],
-            searchQuery: ''
+            isLoading: 0
         };
         this._renderItem = this._renderItem.bind(this);
-        this.onChangeSearch = this.onChangeSearch.bind(this);
         this.goSearch = this.goSearch.bind(this);
+        this.reSearch = this.reSearch.bind(this);
         this.close = this.close.bind(this);
     }
+    private TextSearch: string = "";
     
     // Search
-    onChangeSearch(Query: string) {
-        if (this.state.searchQuery.length > Query.length) return this.setState({ searchQuery: Query, listShow: this.state.list });
-        this.setState({ searchQuery: Query });
-    }
     goSearch(event: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
         const { nativeEvent: { text } } = event;
+        this.TextSearch = text;
         if (text.indexOf('#') !== -1) if (parseInt(text) !== NaN) return this.goSearchForID(event);
         this.goSearchForName(event);
     }
@@ -55,9 +54,17 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         const formattedQuery = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trimStart().trimEnd();
         const search = this.state.list.filter((user)=>{
             var name1 = decode(user.name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-            return name1.indexOf(formattedQuery) !== -1;
+            const similarity = stringSimilarity.compareTwoStrings(name1, formattedQuery);
+            return name1.indexOf(formattedQuery) !== -1 || parseFloat(similarity.toFixed(2)) > 0.3;
         });
         this.setState({ listShow: search });
+    }
+    reSearch() {
+        this.goSearch({
+            nativeEvent: {
+                text: this.TextSearch
+            }
+        } as any);
     }
 
     // Flatlist
@@ -97,8 +104,16 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
     close() {
         this.setState({
             visible: false,
-            list: []
+            list: [],
+            isLoading: 0
         });
+    }
+    updateList(isLoading: boolean, list?: StudentsData[]) {
+        if (isLoading == true) return this.setState({ isLoading: (isLoading)? 1: 0 });
+        this.setState({
+            isLoading: 0,
+            list: list!
+        }, this.reSearch);
     }
 
     render(): React.ReactNode {
@@ -112,9 +127,11 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
                     <View style={{ flex: 2 }}>
                         <View style={styles.viewSearchbar}>
                             <CustomSearchbar
+                                visible={this.state.visible}
                                 onEmpty={()=>this.setState({ listShow: this.state.list })}
                                 onSubmit={this.goSearch}
                             />
+                            <ProgressBar indeterminate style={[styles.progressBar, { opacity: 0 }]} color={'#FFFFFF'} />
                         </View>
                         <FlatList
                             data={this.state.listShow}
@@ -146,19 +163,57 @@ class ListEmpty extends PureComponent {
 }
 
 type IProps2 = {
+    visible: boolean;
     onEmpty: ()=>any;
     onSubmit: (event: NativeSyntheticEvent<TextInputSubmitEditingEventData>)=>any;
 };
 type IState2 = {
     searchQuery: string;
+    placeholder: string;
 };
 class CustomSearchbar extends PureComponent<IProps2, IState2> {
     constructor(props: IProps2) {
         super(props);
         this.state = {
-            searchQuery: ''
+            searchQuery: '',
+            placeholder: this.writeHere
         };
         this.onChangeSearch = this.onChangeSearch.bind(this);
+        this.changePlaceholder = this.changePlaceholder.bind(this);
+    }
+    private writeHere: string = 'Escribe para buscar...';
+    private examples: string[] = [
+        'Ejemplo: Cerviño o #2',
+        'Ejemplo: Saffer o #3',
+        'Ejemplo: Zucchelli o #89',
+        'Ejemplo: Falabella o #27',
+        'Ejemplo: Zapata o #75',
+        'Ejemplo: Astor o #110'
+    ];
+    private forIndex: number = 0;
+    private interval: NodeJS.Timer | undefined = undefined;
+    private intervalTime: number = 10000;
+    componentDidMount(): void {
+        if (this.props.visible) this.interval = setInterval(this.changePlaceholder, this.intervalTime);
+    }
+    componentWillUnmount(): void {
+        clearInterval(this.interval);
+    }
+    componentDidUpdate(): void {
+        if (this.props.visible && this.state.searchQuery.length == 0) {
+            if (this.interval == undefined) this.interval = setInterval(this.changePlaceholder, this.intervalTime);
+        } else if (this.interval !== undefined) {
+            clearInterval(this.interval);
+            this.interval = undefined;
+        }
+    }
+    changePlaceholder() {
+        if (!this.props.visible) return (this.state.placeholder !== this.writeHere)&&this.setState({ placeholder: this.writeHere });
+        if (this.state.placeholder == this.writeHere) {
+            this.setState({ placeholder: this.examples[this.forIndex] });
+            return (this.forIndex == (this.examples.length - 1))? this.forIndex = 0: this.forIndex += 1;
+        }
+        this.setState({ placeholder: this.writeHere });
     }
     onChangeSearch(Query: string) {
         if (this.state.searchQuery.length > Query.length) return this.setState({ searchQuery: Query }, this.props.onEmpty);
@@ -168,7 +223,7 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
         return(<Searchbar
             value={this.state.searchQuery}
             style={styles.searchbar}
-            placeholder={'Escribe para buscar...'}
+            placeholder={this.state.placeholder}
             onChangeText={this.onChangeSearch}
             onSubmitEditing={this.props.onSubmit}
         />);
@@ -180,7 +235,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginLeft: 8,
         marginRight: 8,
-        marginBottom: 12
+        marginBottom: 8
     },
     viewLoading: {
         flex: 3,
@@ -189,7 +244,9 @@ const styles = StyleSheet.create({
     },
     viewSearchbar: {
         backgroundColor: Theme.colors.primary,
-        marginTop: -8
+        marginTop: -8,
+        borderBottomColor: Theme.colors.primary,
+        borderBottomWidth: 1
     },
     listStyle: {
         paddingTop: 4
@@ -199,5 +256,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column'
+    },
+    progressBar: {
+        width: '100%',
+        height: 4
     }
 });

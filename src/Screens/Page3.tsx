@@ -113,9 +113,18 @@ export default class Page3 extends PureComponent<IProps, IState> {
     loadData() {
         var isLoading = !this.state.isRefresh;
         (isLoading)&&this.setState({ datas: [] });
+        if (this.refSearchStudents.current?.state.visible) this.refSearchStudents.current.updateList(true);
         this.setState({ isLoading, isError: false }, ()=>
             Student.getAll()
-                .then((value)=>this.setState({ datas: value.curses, studentList: value.students, isLoading: false, isRefresh: false }))
+                .then((value)=>{
+                    this.setState({
+                        datas: value.curses,
+                        studentList: value.students,
+                        isLoading: false,
+                        isRefresh: false
+                    });
+                    if (this.refSearchStudents.current?.state.visible) this.refSearchStudents.current.updateList(false, value.students);
+                })
                 .catch((error)=>this.setState({ isLoading: true, isError: true, messageError: error.cause, isRefresh: false }))
         );
     }

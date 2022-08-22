@@ -17,6 +17,7 @@ import AppFamily from "./Family/App";
 import 'react-native-gesture-handler';
 import 'moment/min/locales';
 import MainWidget from "./Scripts/MainWidget";
+import UpdateCheck from "./UpdateCheck";
 
 type IProps = {};
 type IState = {
@@ -39,8 +40,10 @@ export default class Index extends Component<IProps, IState> {
         };
         this.changePage = this.changePage.bind(this);
         this.onMessageReceived = this.onMessageReceived.bind(this);
+        this._goCheckUpdate = this._goCheckUpdate.bind(this);
     }
     private refNavigate = createRef<NavigationContainerRef<ReactNavigation.RootParamList>>();
+    private refUpdateCheck = createRef<UpdateCheck>();
     private event1 : EmitterSubscription | null = null;
     componentDidMount(): void {
         this.event1 = DeviceEventEmitter.addListener('ChangeIndexNavigation', this.changePage);
@@ -85,6 +88,9 @@ export default class Index extends Component<IProps, IState> {
         if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`))
             RNFS.mkdir(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`);
     }
+    _goCheckUpdate() {
+        this.refUpdateCheck.current?.checkUpdateNow();
+    }
     render(): React.ReactNode {
         return(<View style={{ flex: 1, ...this.state.marginAndroid }}>
             <StatusBar backgroundColor={'#FF3232'} barStyle={'light-content'} />
@@ -96,7 +102,8 @@ export default class Index extends Component<IProps, IState> {
                         <Stack.Screen name="Default" component={Default} />
                     </Stack.Navigator>
                 </NavigationContainer>
-                <Others />
+                <UpdateCheck ref={this.refUpdateCheck} />
+                <Others goCheckUpdate={this._goCheckUpdate} />
             </PaperProvider>
         </View>);
     }

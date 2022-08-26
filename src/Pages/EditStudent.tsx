@@ -12,6 +12,8 @@ import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { Directive, Student, urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
+// Images
+import ImageProfile from "../Assets/profile.png";
 
 type IProps = {
     goEditActionSheet: ()=>any;
@@ -62,7 +64,7 @@ export default class EditStudent extends Component<IProps, IState> {
             visible: false,
             data: undefined,
             isLoadImage: false,
-            imageShow: require('../Assets/profile.png'),
+            imageShow: ImageProfile,
             viewModalDate: false,
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
@@ -127,7 +129,7 @@ export default class EditStudent extends Component<IProps, IState> {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
         this.setState({
             isLoadImage: false,
-            imageShow: require('../Assets/profile.png'),
+            imageShow: ImageProfile,
             viewModalDate: false,
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
@@ -239,7 +241,7 @@ export default class EditStudent extends Component<IProps, IState> {
                         formDNI: '',
                         formDate: moment(new Date()).format('DD/MM/YYYY'),
                         formImage: { uri: '', type: '', name: '' },
-                        imageShow: require('../Assets/profile.png'),
+                        imageShow: ImageProfile,
                         actualDatePicker: new Date(),
                         actualDate: moment(new Date()).format('DD/MM/YYYY')
                     }, ()=>{
@@ -265,7 +267,7 @@ export default class EditStudent extends Component<IProps, IState> {
         if (this.state.formImage.uri == undefined && !isOnlyImage) return showError();
         if (this.state.formImage.uri!.length == 0 && !isOnlyImage) return showError();
         this.setState({
-            imageShow: require('../Assets/profile.png'),
+            imageShow: ImageProfile,
             formImage: { uri: '', type: '', name: '' }
         });
         this.refCustomSnackbar.current?.open('Image del perfil removida.');

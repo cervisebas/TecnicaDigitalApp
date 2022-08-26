@@ -1,17 +1,12 @@
 import React, { Component, createRef } from "react";
-import { DeviceEventEmitter, Dimensions, EmitterSubscription, PermissionsAndroid, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, EmitterSubscription, RefreshControl, ScrollView, StyleSheet, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { ActivityIndicator, Appbar, Button, Card, Dialog, IconButton, Paragraph, Portal, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
+import { ActivityIndicator, Appbar, Button, Dialog, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Theme from "../Themes";
 import messaging from '@react-native-firebase/messaging';
-import { Family, urlBase } from "../Scripts/ApiTecnica";
+import { Family } from "../Scripts/ApiTecnica";
 import { FamilyDataAssist, StudentsData } from "../Scripts/ApiTecnica/types";
-import { decode } from "base-64";
 import ViewDetailsAssist from "../Pages/ViewDetailsAssist";
-import CustomCredential from "../Components/CustomCredential";
-import ViewShot, { captureRef } from "react-native-view-shot";
-import RNFS from "react-native-fs";
-import Share from "react-native-share";
 import ChangeCardDesign from "../Pages/ChangeCardDesign";
 import FamilyOptions from "../Pages/FamilyOptions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +18,7 @@ import WelcomeCard from "./Components/WelcomeCard";
 import SupportCard from "./Components/SupportCard";
 import AssistCard from "./Components/AssistCard";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import CardCredential from "./Components/CardCredential";
 
 type IProps = {};
 type IState = {
@@ -43,7 +39,6 @@ type IState = {
     numTotalAssist: string;
     disableButtonDetailAssist: boolean;
     // Card
-    scaleImage: number;
     designCardElection: number | undefined;
     // Interfaz
     dialogVisible: boolean;
@@ -70,7 +65,6 @@ export default class AppFamily extends Component<IProps, IState> {
             numAssist: 'Cargando...',
             numNotAssist: 'Cargando...',
             numTotalAssist: 'Cargando...',
-            scaleImage: 0.3,
             designCardElection: undefined,
             viewLogOut: false,
             disableButtonDetailAssist: false,
@@ -80,9 +74,6 @@ export default class AppFamily extends Component<IProps, IState> {
         };
         this.loadData = this.loadData.bind(this);
         this.loadDataAssist = this.loadDataAssist.bind(this);
-        this.viewImageTarget = this.viewImageTarget.bind(this);
-        this.downloadImageTarget = this.downloadImageTarget.bind(this);
-        this.shareImageTarget = this.shareImageTarget.bind(this);
         this.closeSession = this.closeSession.bind(this);
         this._openDetailsAssit = this._openDetailsAssit.bind(this);
         this._openChangeDesign = this._openChangeDesign.bind(this);
@@ -90,10 +81,11 @@ export default class AppFamily extends Component<IProps, IState> {
         this._openOptions = this._openOptions.bind(this);
         this._support_open_phone = this._support_open_phone.bind(this);
         this._onChangeCardDesign = this._onChangeCardDesign.bind(this);
+        this._openSnackbar = this._openSnackbar.bind(this);
+        this._openLoading = this._openLoading.bind(this);
     }
     private event: EmitterSubscription | null = null;
     // Refs Components
-    private refTarget: ViewShot | null | any = null;
     private refChangeCardDesign = createRef<ChangeCardDesign>();
     private refImageViewer = createRef<ImageViewer>();
     private refViewDetailsAssist = createRef<ViewDetailsAssist>();
@@ -101,13 +93,9 @@ export default class AppFamily extends Component<IProps, IState> {
     private refFamilyOptions = createRef<FamilyOptions>();
     private refQueryCall = createRef<QueryCall>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
+    private refCardCredential = createRef<CardCredential>();
 
     componentDidMount() {
-        var scales: number[] = [];
-        for (let i = 1; i > 0; i -= 0.001) { scales.push(i); }
-        var scaleUse: number = 0;
-        scales.forEach((val)=>(((1200 * val) < (width - 56)) && scaleUse == 0) && (scaleUse = val));
-        this.setState({ scaleImage: scaleUse });
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.loadData();
     }
@@ -116,6 +104,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this.event = null;
     }
     loadDataAssist() {
+        this.checkShowPopoverDesign();
         this.setState({ isLoadingAssist: true, isErrorAssist: false, numAssist: 'Cargando...', numNotAssist: 'Cargando...', numTotalAssist: 'Cargando...', disableButtonDetailAssist: false }, ()=>
             Family.getDataAssistStudent()
                 .then(async(data)=>{
@@ -144,60 +133,18 @@ export default class AppFamily extends Component<IProps, IState> {
                 .catch((v)=>this.setState({ isLoading: true, isError: true, messageError: v.cause }))
         );
     }
+    async checkShowPopoverDesign() {
+        try {
+            const verify = await AsyncStorage.getItem('show-popover-design');
+            if (verify == null) {
+                await AsyncStorage.setItem('show-popover-design', '1');
+                setTimeout(()=>DeviceEventEmitter.emit('OpenDesignsPopover'), 1000);
+            }
+        } catch {
+            return;
+        }
+    }
 
-
-    /* ###### Credential ###### */
-    generateImage(result?: "tmpfile" | "base64" | "data-uri" | "zip-base64" | undefined): Promise<string> {
-        return new Promise((resolve, reject)=>{
-            captureRef(this.refTarget, { quality: 1, format: 'png', result: (result)? result: 'tmpfile' })
-                .then((uri)=>resolve(uri))
-                .catch(()=>reject());
-        });
-    }
-    viewImageTarget() {
-        this.generateImage()
-            .then(this._openImageViewer)
-            .catch(()=>this.refCustomSnackbar.current?.open('Error al generar la imagen.'));
-    }
-    async downloadImageTarget() {
-        const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-            title: "Atención",
-            message: "Para guardar la imagen se necesita acceder al almacenamiento de su dispositivo, por favor acepte los permisos que se requieren.",
-            buttonNegative: "Cancelar",
-            buttonPositive: "Aceptar"
-        });
-        if (permission == PermissionsAndroid.RESULTS.DENIED) return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
-        this.generateImage()
-            .then((uri)=>{
-                var codeName: number = Math.floor(Math.random() * (99999 - 10000)) + 10000;
-                var nameFile: string = `student-${this.state.studentData!.id}`;
-                nameFile += `-credential-${codeName}`;
-                RNFS.copyFile(uri, `${RNFS.DownloadDirectoryPath}/${nameFile}.png`)
-                    .then(()=>this.refCustomSnackbar.current?.open('Imagen guardada con éxito'))
-                    .catch(()=>this.refCustomSnackbar.current?.open('Error al guardar la imagen'));
-            })
-            .catch(()=>this.refCustomSnackbar.current?.open('Error al generar la imagen.'));
-    }
-    shareImageTarget() {
-        this.refLoadingComponent.current?.open('Espere por favor...');
-        this.generateImage('base64')
-            .then((base64)=>{
-                var nameFile: string = `student-${this.state.studentData!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
-                this.refLoadingComponent.current?.close();
-                Share.open({
-                    url: `data:image/png;base64,${base64}`,
-                    filename: nameFile,
-                    type: 'png',
-                    showAppsToView: false,
-                    isNewTask: true
-                }).catch(()=>this.refCustomSnackbar.current?.open('Acción cancelada por el usuario.'));
-            })
-            .catch(()=>{
-                this.refLoadingComponent.current?.close();
-                this.refCustomSnackbar.current?.open('Error al generar la imagen.');
-            });
-    }
-    /* ###### ########## ###### */
     _openDetailsAssit() {
         if (this.state.assistData!.length == 0) return ToastAndroid.show("No se encontraron registros...", ToastAndroid.SHORT);
         this.refViewDetailsAssist.current?.open(this.state.assistData as any);
@@ -225,6 +172,13 @@ export default class AppFamily extends Component<IProps, IState> {
     }
     _onChangeCardDesign(option: number | undefined) {
         this.setState({ designCardElection: option });
+    }
+    _openSnackbar(text: string) {
+        this.refCustomSnackbar.current?.open(text);
+    }
+    _openLoading(visible: boolean, text?: string) {
+        if (visible) this.refLoadingComponent.current?.open(text!);
+        this.refLoadingComponent.current?.close();
     }
 
     // Support
@@ -254,33 +208,15 @@ export default class AppFamily extends Component<IProps, IState> {
                             openDetailsAssit={this._openDetailsAssit}
                         />
                         <SupportCard openDialogPhone={this._support_open_phone} />
-                        <Card style={{ marginLeft: 12, marginRight: 12, marginTop: 8 }} elevation={3}>
-                            <Card.Title
-                                title={'Tarjeta de ingreso'}
-                                right={(props)=><IconButton
-                                    {...props}
-                                    icon={'pencil-ruler'}
-                                    color={Theme.colors.accent}
-                                    onPress={this._openChangeDesign}
-                                />}
-                            />
-                            <Card.Content>
-                                <CustomCredential
-                                    scale={this.state.scaleImage}
-                                    image={`${urlBase}/image/${decode(this.state.studentData.picture)}`}
-                                    name={decode(this.state.studentData.name)}
-                                    dni={decode(this.state.studentData.dni)}
-                                    style={styles.target}
-                                    refTarget={(ref)=>this.refTarget = ref}
-                                    type={this.state.designCardElection}
-                                    onPress={this.viewImageTarget}
-                                />
-                            </Card.Content>
-                            <Card.Actions style={{ justifyContent: 'flex-end' }}>
-                                <Button icon={'cloud-download-outline'} onPress={this.downloadImageTarget}>Descargar</Button>
-                                <Button icon={'share-variant-outline'} onPress={this.shareImageTarget}>Compartir</Button>
-                            </Card.Actions>
-                        </Card>
+                        <CardCredential
+                            ref={this.refCardCredential}
+                            studentData={this.state.studentData}
+                            designCardElection={this.state.designCardElection}
+                            openChangeDesign={this._openChangeDesign}
+                            openImageViewer={this._openImageViewer}
+                            showSnackbar={this._openSnackbar}
+                            showLoading={this._openLoading}
+                        />
                         <View style={{ height: 16 }}></View>
                     </ScrollView>
                 </View>: (!this.state.isError)?

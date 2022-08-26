@@ -10,6 +10,8 @@ import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 import FastImage from "react-native-fast-image";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
+// Images
+import HatImage from "../Assets/hat_student.webp";
 
 type IProps = {
     data: StudentsData | undefined;
@@ -91,7 +93,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                             style={{ width: '100%', height: '100%' }}
                         />
                     </TouchableHighlight>
-                    <FastImage source={require('../Assets/hat_student.webp')} style={styles.crownImage} />
+                    <FastImage source={HatImage} style={styles.crownImage} />
                 </View>
                 <IconButton
                     icon={'arrow-left'}

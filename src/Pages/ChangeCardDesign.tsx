@@ -4,6 +4,14 @@ import FastImage from "react-native-fast-image";
 import { Appbar, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
+// Images
+import Design1 from "../Assets/Examples/desing1.webp";
+import Design2 from "../Assets/Examples/desing2.webp";
+import Design3 from "../Assets/Examples/desing3.webp";
+import Design4 from "../Assets/Examples/desing4.webp";
+import Design5 from "../Assets/Examples/desing5.webp";
+import Design6 from "../Assets/Examples/desing6.webp";
+import Design7 from "../Assets/Examples/desing7.webp";
 
 type IProps = {
     onChange: (option: number | undefined)=>any;
@@ -30,13 +38,13 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         this.close = this.close.bind(this);
     }
     private list: Item[] = [
-        { id: 1, source: require('../Assets/Examples/desing1.webp'), option: undefined },
-        { id: 2, source: require('../Assets/Examples/desing2.webp'), option: 1 },
-        { id: 3, source: require('../Assets/Examples/desing4.webp'), option: 2 },
-        { id: 4, source: require('../Assets/Examples/desing3.webp'), option: 3 },
-        { id: 5, source: require('../Assets/Examples/desing5.webp'), option: 4 },
-        { id: 6, source: require('../Assets/Examples/desing6.webp'), option: 5 },
-        { id: 7, source: require('../Assets/Examples/desing7.webp'), option: 6 }
+        { id: 1, source: Design1, option: undefined },
+        { id: 2, source: Design2, option: 1 },
+        { id: 3, source: Design4, option: 2 },
+        { id: 4, source: Design3, option: 3 },
+        { id: 5, source: Design5, option: 4 },
+        { id: 6, source: Design6, option: 5 },
+        { id: 7, source: Design7, option: 6 }
     ];
     _keyExtractor(item: Item) {
         return `card-desing-${item.id}`;

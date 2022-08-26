@@ -11,6 +11,8 @@ import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { Directive, Student } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
+// Images
+import ImageProfile from "../Assets/profile.png";
 
 type IProps = {
     goEditActionSheet: ()=>any;
@@ -54,7 +56,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
         this.state = {
             visible: false,
             isLoadImage: false,
-            imageShow: require('../Assets/profile.png'),
+            imageShow: ImageProfile,
             viewModalDate: false,
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
@@ -99,7 +101,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
         this.setState({
             isLoadImage: false,
-            imageShow: require('../Assets/profile.png'),
+            imageShow: ImageProfile,
             viewModalDate: false,
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
@@ -206,7 +208,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
                         formDNI: '',
                         formDate: moment(new Date()).format('DD/MM/YYYY'),
                         formImage: { uri: '', type: '', name: '' },
-                        imageShow: require('../Assets/profile.png'),
+                        imageShow: ImageProfile,
                         actualDatePicker: new Date(),
                         actualDate: moment(new Date()).format('DD/MM/YYYY')
                     }, ()=>DeviceEventEmitter.emit('reloadPage3', true))

@@ -31,7 +31,8 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginLeft: 8,
         marginRight: 8,
-        height: 54
+        height: 54,
+        flexDirection: 'column'
     },
     cardAction: {
         justifyContent: 'flex-end'

@@ -1,5 +1,5 @@
 import React, { Component, createRef } from "react";
-import { DeviceEventEmitter, Dimensions, EmitterSubscription, RefreshControl, ScrollView, StyleSheet, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
+import { DeviceEventEmitter, EmitterSubscription, RefreshControl, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { ActivityIndicator, Appbar, Button, Dialog, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Theme from "../Themes";
@@ -19,6 +19,7 @@ import SupportCard from "./Components/SupportCard";
 import AssistCard from "./Components/AssistCard";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import CardCredential from "./Components/CardCredential";
+import ScreenTutorial from "./Screens/Tutorial";
 
 type IProps = {};
 type IState = {
@@ -46,8 +47,6 @@ type IState = {
     dialogText: string;
     viewLogOut: boolean;
 };
-
-const { width } = Dimensions.get('window');
 
 export default class AppFamily extends Component<IProps, IState> {
     constructor(props: IProps) {
@@ -83,6 +82,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this._onChangeCardDesign = this._onChangeCardDesign.bind(this);
         this._openSnackbar = this._openSnackbar.bind(this);
         this._openLoading = this._openLoading.bind(this);
+        this.checkWelcome = this.checkWelcome.bind(this);
     }
     private event: EmitterSubscription | null = null;
     // Refs Components
@@ -94,6 +94,7 @@ export default class AppFamily extends Component<IProps, IState> {
     private refQueryCall = createRef<QueryCall>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private refCardCredential = createRef<CardCredential>();
+    private refTutorial = createRef<ScreenTutorial>();
 
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
@@ -104,7 +105,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this.event = null;
     }
     loadDataAssist() {
-        this.checkShowPopoverDesign();
+        this.checkWelcome();
         this.setState({ isLoadingAssist: true, isErrorAssist: false, numAssist: 'Cargando...', numNotAssist: 'Cargando...', numTotalAssist: 'Cargando...', disableButtonDetailAssist: false }, ()=>
             Family.getDataAssistStudent()
                 .then(async(data)=>{
@@ -133,16 +134,19 @@ export default class AppFamily extends Component<IProps, IState> {
                 .catch((v)=>this.setState({ isLoading: true, isError: true, messageError: v.cause }))
         );
     }
-    async checkShowPopoverDesign() {
-        try {
-            const verify = await AsyncStorage.getItem('show-popover-design');
-            if (verify == null) {
-                await AsyncStorage.setItem('show-popover-design', '1');
-                setTimeout(()=>DeviceEventEmitter.emit('OpenDesignsPopover'), 1000);
+    checkWelcome() {
+        AsyncStorage.getItem('firts-open').then((firts)=>{
+            if (firts == null) {
+                AsyncStorage.setItem('firts-open', '1');
+                return this.refTutorial.current?.open();
             }
-        } catch {
-            return;
-        }
+            AsyncStorage.getItem('show-popover-design').then((verify)=>{
+                if (verify == null) {
+                    AsyncStorage.setItem('show-popover-design', '1');
+                    setTimeout(()=>DeviceEventEmitter.emit('OpenDesignsPopover'), 1000);
+                }
+            });
+        });
     }
 
     _openDetailsAssit() {
@@ -255,6 +259,7 @@ export default class AppFamily extends Component<IProps, IState> {
                 </Portal>
 
                 {/* Modal's */}
+                <ScreenTutorial ref={this.refTutorial} onClose={this.checkWelcome} />
                 <ChangeCardDesign
                     ref={this.refChangeCardDesign}
                     onChange={this._onChangeCardDesign}

@@ -19,7 +19,6 @@ type IProps = {
     openImageViewer: (uri: string)=>any;
     showSnackbar: (text: string)=>any;
     showLoading: (visible: boolean, text?: string)=>any;
-    onLoad?: ()=>any;
 };
 type IState = {
     scaleImage: number;
@@ -112,7 +111,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
             .catch(()=>this.props.showSnackbar('Error al generar la imagen.'));
     }
     render(): React.ReactNode {
-        return(<View onLayout={this.props.onLoad}>
+        return(<View>
             <Card style={styles.card} elevation={3}>
                 <Card.Title
                     title={'Tarjeta de ingreso'}

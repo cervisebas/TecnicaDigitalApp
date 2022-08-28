@@ -1,14 +1,12 @@
 import Barcode from "@kichiyaki/react-native-barcode-generator";
 import React, { PureComponent } from "react";
-import { NativeSyntheticEvent, StyleSheet, TextLayoutEventData } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
-import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
-import Background from "../../Assets/Desings/card5.png";
+import Background from "../../Assets/Desings/card9.png";
+import { NativeSyntheticEvent, StyleSheet, TextLayoutEventData } from "react-native";
 
 type IPropsCard = {
     scale: number;
-    image: string;
     name: string;
     dni: string;
 };
@@ -16,11 +14,11 @@ type IStateCard = {
     textTop: number;
 };
 
-export default class Card5 extends PureComponent<IPropsCard, IStateCard> {
+export default class Card7 extends PureComponent<IPropsCard, IStateCard> {
     constructor(props: IPropsCard) {
         super(props);
         this.state = {
-            textTop: 148
+            textTop: 281
         };
         this._onTextLayout = this._onTextLayout.bind(this);
     }
@@ -29,7 +27,7 @@ export default class Card5 extends PureComponent<IPropsCard, IStateCard> {
     }
     _onTextLayout({ nativeEvent: { lines } }: NativeSyntheticEvent<TextLayoutEventData>) {
         this.setState({
-            textTop: (lines.length >= 2)? this.getScale(148): this.getScale(192)
+            textTop: (lines.length >= 2)? this.getScale(213): this.getScale(281)
         });
     }
     render(): React.ReactNode {
@@ -39,43 +37,36 @@ export default class Card5 extends PureComponent<IPropsCard, IStateCard> {
                 style={styles.background}
                 resizeMode={'cover'}
             />
-            <ImageLazyLoadCard
-                source={{ uri: this.props.image }}
-                size={this.getScale(300)}
-                style={{
-                    position: 'absolute',
-                    top: this.getScale(80),
-                    left: this.getScale(60),
-                    overflow: 'hidden',
-                    borderRadius: this.getScale(14)
-                }}
-            />
             <Text
                 style={{
                     position: 'absolute',
-                    left: this.getScale(420),
+                    left: this.getScale(486),
                     top: this.state.textTop,
                     justifyContent: 'center',
-                    width: this.getScale(780),
-                    fontSize: this.getScale(64),
+                    width: this.getScale(647),
                     color: '#FFFFFF',
-                    fontWeight: '600',
-                    textShadowColor: 'rgba(255, 255, 255, 0.40)',
-                    textShadowOffset: { width: this.getScale(2.5), height: this.getScale(2.5) },
-                    textShadowRadius: this.getScale(2)
+                    textAlign: 'center',
+                    fontWeight: 'normal',
+                    textShadowColor: 'rgba(0, 0, 0, 1)',
+                    textShadowOffset: {
+                        width: this.getScale(3),
+                        height: this.getScale(3)
+                    },
+                    textShadowRadius: this.getScale(4),
+                    fontSize: this.getScale(64)
                 }}
                 numberOfLines={2}
                 onTextLayout={this._onTextLayout}
             >{this.props.name}</Text>
             <Barcode
                 value={`eest${this.props.dni}`}
-                width={this.getScale(1000)}
-                maxWidth={this.getScale(1000)}
-                height={this.getScale(245)}
+                width={this.getScale(607.84)}
+                maxWidth={this.getScale(607.84)}
+                height={this.getScale(151.14)}
                 style={{
                     position: 'absolute',
-                    top: this.getScale(480),
-                    left: this.getScale(100)
+                    top: this.getScale(523),
+                    left: this.getScale(506)
                 }}
             />
         </>);

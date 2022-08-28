@@ -3,6 +3,8 @@ import React, { PureComponent } from "react";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
 import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
+import Background from "../../Assets/Desings/default.png";
+import { StyleSheet } from "react-native";
 
 type IPropsCard = {
     scale: number;
@@ -18,7 +20,7 @@ export default class DesingDefault extends PureComponent<IPropsCard, IStateCard>
     constructor(props: IPropsCard) {
         super(props);
         this.state = {
-            textTop: 0
+            textTop: 192
         };
     }
     getScale(t: number) {
@@ -27,8 +29,8 @@ export default class DesingDefault extends PureComponent<IPropsCard, IStateCard>
     render(): React.ReactNode {
         return(<>
             <FastImage
-                source={require('../../Assets/Desings/default.png')}
-                style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
+                source={Background}
+                style={styles.background}
                 resizeMode={'cover'}
             />
             <ImageLazyLoadCard
@@ -60,13 +62,23 @@ export default class DesingDefault extends PureComponent<IPropsCard, IStateCard>
                 value={`eest${this.props.dni}`}
                 width={this.getScale(1000)}
                 maxWidth={this.getScale(1000)}
-                height={this.getScale(247)}
+                height={this.getScale(245)}
                 style={{
                     position: 'absolute',
-                    top: this.getScale(495),
+                    top: this.getScale(480),
                     left: this.getScale(100)
                 }}
             />
         </>);
     }
 }
+
+const styles = StyleSheet.create({
+    background: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0
+    }
+});

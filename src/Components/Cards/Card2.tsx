@@ -3,6 +3,8 @@ import React, { PureComponent } from "react";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
 import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
+import Background from "../../Assets/Desings/card2.png";
+import { StyleSheet } from "react-native";
 
 type IPropsCard = {
     scale: number;
@@ -27,18 +29,18 @@ export default class Card2 extends PureComponent<IPropsCard, IStateCard> {
     render(): React.ReactNode {
         return(<>
             <FastImage
-                source={require('../../Assets/Desings/card2.png')}
-                style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
+                source={Background}
+                style={styles.background}
                 resizeMode={'cover'}
             />
             <ImageLazyLoadCard
                 source={{ uri: this.props.image }}
-                size={this.getScale(308)}
+                size={this.getScale(316)}
                 circle
                 style={{
                     position: 'absolute',
-                    top: this.getScale(246),
-                    left: this.getScale(140),
+                    top: this.getScale(232),
+                    left: this.getScale(143),
                     overflow: 'hidden',
                     borderWidth: this.getScale(8),
                     borderColor: '#00A3FF'
@@ -60,15 +62,25 @@ export default class Card2 extends PureComponent<IPropsCard, IStateCard> {
             >{this.props.name}</Text>
             <Barcode
                 value={`eest${this.props.dni}`}
-                width={this.getScale(526)}
-                maxWidth={this.getScale(526)}
+                width={this.getScale(526.32)}
+                maxWidth={this.getScale(526.32)}
                 height={this.getScale(130)}
                 style={{
                     position: 'absolute',
-                    top: this.getScale(432),
-                    left: this.getScale(576)
+                    top: this.getScale(420),
+                    left: this.getScale(570)
                 }}
             />
         </>);
     }
 }
+
+const styles = StyleSheet.create({
+    background: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0
+    }
+});

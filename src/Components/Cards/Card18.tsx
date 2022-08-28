@@ -1,19 +1,18 @@
 import Barcode from "@kichiyaki/react-native-barcode-generator";
 import React, { PureComponent } from "react";
-import { StyleSheet } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
-import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
-import Background from "../../Assets/Desings/card3.png";
+import Background from "../../Assets/Desings/card20.png";
+import { StyleSheet } from "react-native";
 
 type IPropsCard = {
     scale: number;
-    image: string;
     name: string;
     dni: string;
 };
+type IStateCard = {};
 
-export default class Card3 extends PureComponent<IPropsCard> {
+export default class Card18 extends PureComponent<IPropsCard, IStateCard> {
     constructor(props: IPropsCard) {
         super(props);
     }
@@ -25,30 +24,18 @@ export default class Card3 extends PureComponent<IPropsCard> {
             <FastImage
                 source={Background}
                 style={styles.background}
-                resizeMode={'cover'}
-            />
-            <ImageLazyLoadCard
-                source={{ uri: this.props.image }}
-                size={this.getScale(300)}
-                style={{
-                    position: 'absolute',
-                    top: this.getScale(80),
-                    left: this.getScale(60),
-                    overflow: 'hidden',
-                    borderWidth: this.getScale(8),
-                    borderColor: '#FF2E2E',
-                    borderRadius: this.getScale(16)
-                }}
+                resizeMode={'contain'}
             />
             <Text
                 style={{
                     position: 'absolute',
-                    left: this.getScale(420),
-                    top: this.getScale(122),
+                    left: this.getScale(36),
+                    top: this.getScale(32),
                     justifyContent: 'center',
-                    width: this.getScale(780),
-                    fontSize: this.getScale(64),
-                    color: '#000000'
+                    color: '#000000',
+                    fontWeight: '700',
+                    width: this.getScale(492),
+                    fontSize: this.getScale(44)
                 }}
                 numberOfLines={1}
             >{this.props.name}</Text>
@@ -56,7 +43,7 @@ export default class Card3 extends PureComponent<IPropsCard> {
                 value={`eest${this.props.dni}`}
                 width={this.getScale(1000)}
                 maxWidth={this.getScale(1000)}
-                height={this.getScale(245)}
+                height={this.getScale(247)}
                 style={{
                     position: 'absolute',
                     top: this.getScale(481),

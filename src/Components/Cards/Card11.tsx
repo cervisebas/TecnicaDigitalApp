@@ -1,24 +1,34 @@
 import Barcode from "@kichiyaki/react-native-barcode-generator";
 import React, { PureComponent } from "react";
-import { StyleSheet } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
-import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
-import Background from "../../Assets/Desings/card3.png";
+import Background from "../../Assets/Desings/card13.png";
+import { NativeSyntheticEvent, StyleSheet, TextLayoutEventData } from "react-native";
 
 type IPropsCard = {
     scale: number;
-    image: string;
     name: string;
     dni: string;
 };
+type IStateCard = {
+    textTop: number;
+};
 
-export default class Card3 extends PureComponent<IPropsCard> {
+export default class Card11 extends PureComponent<IPropsCard, IStateCard> {
     constructor(props: IPropsCard) {
         super(props);
+        this.state = {
+            textTop: 257
+        };
+        this._onTextLayout = this._onTextLayout.bind(this);
     }
     getScale(t: number) {
         return ((this.props.scale * t) / 1);
+    }
+    _onTextLayout({ nativeEvent: { lines } }: NativeSyntheticEvent<TextLayoutEventData>) {
+        this.setState({
+            textTop: (lines.length >= 2)? this.getScale(199): this.getScale(257)
+        });
     }
     render(): React.ReactNode {
         return(<>
@@ -27,36 +37,31 @@ export default class Card3 extends PureComponent<IPropsCard> {
                 style={styles.background}
                 resizeMode={'cover'}
             />
-            <ImageLazyLoadCard
-                source={{ uri: this.props.image }}
-                size={this.getScale(300)}
-                style={{
-                    position: 'absolute',
-                    top: this.getScale(80),
-                    left: this.getScale(60),
-                    overflow: 'hidden',
-                    borderWidth: this.getScale(8),
-                    borderColor: '#FF2E2E',
-                    borderRadius: this.getScale(16)
-                }}
-            />
             <Text
                 style={{
                     position: 'absolute',
-                    left: this.getScale(420),
-                    top: this.getScale(122),
+                    left: this.getScale(80),
+                    top: this.state.textTop,
                     justifyContent: 'center',
-                    width: this.getScale(780),
-                    fontSize: this.getScale(64),
-                    color: '#000000'
+                    width: this.getScale(549),
+                    textAlign: 'center',
+                    fontWeight: '700',
+                    textShadowColor: 'rgba(0, 0, 0, 0.35)',
+                    textShadowOffset: {
+                        width: this.getScale(2),
+                        height: this.getScale(2)
+                    },
+                    textShadowRadius: this.getScale(4),
+                    fontSize: this.getScale(58)
                 }}
-                numberOfLines={1}
+                numberOfLines={2}
+                onTextLayout={this._onTextLayout}
             >{this.props.name}</Text>
             <Barcode
                 value={`eest${this.props.dni}`}
                 width={this.getScale(1000)}
                 maxWidth={this.getScale(1000)}
-                height={this.getScale(245)}
+                height={this.getScale(247)}
                 style={{
                     position: 'absolute',
                     top: this.getScale(481),

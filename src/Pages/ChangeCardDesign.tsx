@@ -5,13 +5,29 @@ import { Appbar, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
 // Images
-import Design1 from "../Assets/Examples/desing1.webp";
-import Design2 from "../Assets/Examples/desing2.webp";
-import Design3 from "../Assets/Examples/desing3.webp";
-import Design4 from "../Assets/Examples/desing4.webp";
-import Design5 from "../Assets/Examples/desing5.webp";
-import Design6 from "../Assets/Examples/desing6.webp";
-import Design7 from "../Assets/Examples/desing7.webp";
+import Design1 from "../Assets/Examples/design1.webp";
+import Design2 from "../Assets/Examples/design2.webp";
+import Design3 from "../Assets/Examples/design3.webp";
+import Design4 from "../Assets/Examples/design4.webp";
+import Design5 from "../Assets/Examples/design5.webp";
+import Design6 from "../Assets/Examples/design6.webp";
+import Design7 from "../Assets/Examples/design7.webp";
+import Design8 from "../Assets/Examples/design8.webp";
+import Design9 from "../Assets/Examples/design9.webp";
+import Design10 from "../Assets/Examples/design10.webp";
+import Design11 from "../Assets/Examples/design11.webp";
+import Design12 from "../Assets/Examples/design12.webp";
+import Design13 from "../Assets/Examples/design13.webp";
+import Design14 from "../Assets/Examples/design14.webp";
+import Design15 from "../Assets/Examples/design15.webp";
+import Design16 from "../Assets/Examples/design16.webp";
+import Design17 from "../Assets/Examples/design17.webp";
+import Design18 from "../Assets/Examples/design18.webp";
+import Design19 from "../Assets/Examples/design19.webp";
+import Design20 from "../Assets/Examples/design20.webp";
+import Design21 from "../Assets/Examples/design21.webp";
+import Design22 from "../Assets/Examples/design22.webp";
+import Design23 from "../Assets/Examples/design23.webp";
 
 type IProps = {
     onChange: (option: number | undefined)=>any;
@@ -44,7 +60,23 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         { id: 4, source: Design3, option: 3 },
         { id: 5, source: Design5, option: 4 },
         { id: 6, source: Design6, option: 5 },
-        { id: 7, source: Design7, option: 6 }
+        { id: 7, source: Design7, option: 6 },
+        { id: 8, source: Design8, option: 7 },
+        { id: 9, source: Design9, option: 8 },
+        { id: 10, source: Design10, option: 9 },
+        { id: 11, source: Design11, option: 10 },
+        { id: 12, source: Design12, option: 11 },
+        { id: 13, source: Design13, option: 12 },
+        { id: 14, source: Design14, option: 13 },
+        { id: 15, source: Design15, option: 14 },
+        { id: 16, source: Design16, option: 15 },
+        { id: 17, source: Design17, option: 16 },
+        { id: 18, source: Design18, option: 17 },
+        { id: 19, source: Design19, option: 18 },
+        { id: 20, source: Design20, option: 19 },
+        { id: 21, source: Design21, option: 20 },
+        { id: 22, source: Design22, option: 21 },
+        { id: 23, source: Design23, option: 22 }
     ];
     _keyExtractor(item: Item) {
         return `card-desing-${item.id}`;

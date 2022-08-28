@@ -24,11 +24,13 @@ export default class Others extends Component<IProps, IState> {
             showSessionView: false
         };
         this._goTipical = this._goTipical.bind(this);
+        this._setTimeoutScreenLoading = this._setTimeoutScreenLoading.bind(this);
     }
     private event1: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     private event3: EmitterSubscription | null = null;
     private event4: EmitterSubscription | null = null;
+    private timeout_screenloading: number = 0;
     componentDidMount() {
         this.event1 = DeviceEventEmitter.addListener('turnScreenLoading', (data: boolean)=>this.setState({ showScreenLoading: data }));
         this.event2 = DeviceEventEmitter.addListener('turnSessionView', (data: boolean)=>this.setState({ showSessionView: data }));
@@ -41,10 +43,6 @@ export default class Others extends Component<IProps, IState> {
         this.event2?.remove();
         this.event3?.remove();
         this.event4?.remove();
-        this.event1 = null;
-        this.event2 = null;
-        this.event3 = null;
-        this.event4 = null;
     }
     _goTipical() {
         DeviceEventEmitter.emit('loadNowAll');
@@ -55,7 +53,14 @@ export default class Others extends Component<IProps, IState> {
             if (opt == 0) {
                 DeviceEventEmitter.emit('ChangeIndexNavigation', 'Admin');
                 Directive.verify()
-                    .then(()=>this.setState({ showScreenLoading: false }, this._goTipical))
+                    //.then(()=>this.setState({ showScreenLoading: false }, this._goTipical))
+                    .then(()=>{
+                        this._goTipical();
+                        setTimeout(()=>{
+                            this.setState({ showScreenLoading: false });
+                            this.timeout_screenloading = 0;
+                        }, this.timeout_screenloading)
+                    })
                     .catch((action)=>this.setState({
                         showSessionView: !!action.relogin,
                         showScreenLoading: !action.relogin,
@@ -65,7 +70,13 @@ export default class Others extends Component<IProps, IState> {
             } else if (opt == 1) {
                 DeviceEventEmitter.emit('ChangeIndexNavigation', 'Family');
                 Family.verify()
-                    .then(()=>this.setState({ showScreenLoading: false }, this._goTipical))
+                    .then(()=>{
+                        this._goTipical();
+                        setTimeout(()=>{
+                            this.setState({ showScreenLoading: false });
+                            this.timeout_screenloading = 0;
+                        }, this.timeout_screenloading);
+                    })
                     .catch((action)=>this.setState({
                         showSessionView: !!action.relogin,
                         showScreenLoading: !action.relogin,
@@ -83,6 +94,12 @@ export default class Others extends Component<IProps, IState> {
             })
         });
     }
+
+    // New's
+    _setTimeoutScreenLoading(time: number) {
+        this.timeout_screenloading = time;
+    }
+
     render(): React.ReactNode {
         return(<>
             <Session visible={this.state.showSessionView} />
@@ -90,6 +107,7 @@ export default class Others extends Component<IProps, IState> {
                 visible={this.state.showScreenLoading}
                 showMessage={this.state.showMessageLoading}
                 message={this.state.messageLoading}
+                setTimeout={this._setTimeoutScreenLoading}
             />
         </>);
     }

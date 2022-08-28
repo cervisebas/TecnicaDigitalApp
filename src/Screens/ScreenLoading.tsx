@@ -15,6 +15,7 @@ type IProps = {
     visible: boolean;
     showMessage: boolean | undefined;
     message: string | undefined;
+    setTimeout?: (time: number)=>any;
 };
 type IState = {
     logo: ImageSourcePropType | undefined;
@@ -41,12 +42,14 @@ export default class ScreenLoading extends Component<IProps, IState> {
         var probability: number = Math.floor(Math.random() * (1000 - 0)) + 0;
         const showLogo = ()=>{
             switch (probability) {
-                case 500:
+                case 666:
                     return logoTroll;
                 case 100 || 200 || 300:
+                    (this.props.setTimeout)&&this.props.setTimeout(9000);
                     setTimeout(()=>this.setState({ logo: logo }), 8000);
                     return logoAnim1;
                 case 400 || 500 || 600:
+                    (this.props.setTimeout)&&this.props.setTimeout(6000);
                     setTimeout(()=>this.setState({ logo: logo }), 5000);
                     return logoAnim2;
             }

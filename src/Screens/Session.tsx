@@ -3,6 +3,7 @@ import { DeviceEventEmitter, ImageBackground, Keyboard, StyleProp, TouchableWith
 import { Text, Provider as PaperProvider, TextInput, Button, Colors, Snackbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Directive, Family } from "../Scripts/ApiTecnica";
+import Background from "../Assets/background-session.webp";
 import Theme from "../Themes";
 
 type IProps = {
@@ -162,7 +163,7 @@ export default class Session extends Component<IProps, IState> {
         return(<CustomModal visible={this.props.visible} animationInTiming={0} animationOutTiming={0} animationIn={'fadeIn'} animationOut={'fadeOut'}>
             <PaperProvider theme={Theme}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                    {(this.props.visible)? <ImageBackground source={require('../Assets/background-session.webp')} resizeMode="cover" style={{ flex: 2, backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
+                    {(this.props.visible)? <ImageBackground source={Background} resizeMode="cover" style={{ flex: 2, backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
                         <View style={{ width: '100%', alignItems: 'center' }}>
                             <CustomTitle />
                             {(this.state.isDirective)? <View style={{ marginTop: 16, width: '90%' }}>

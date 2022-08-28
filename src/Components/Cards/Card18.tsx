@@ -24,7 +24,7 @@ export default class Card18 extends PureComponent<IPropsCard, IStateCard> {
             <FastImage
                 source={Background}
                 style={styles.background}
-                resizeMode={'contain'}
+                resizeMode={'cover'}
             />
             <Text
                 style={{

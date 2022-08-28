@@ -8,6 +8,8 @@ import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { urlBase } from "../Scripts/ApiTecnica";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
+// Images
+import CoronaPicture from "../Assets/Corona.webp";
 
 type IProps = {
     openImage: (image: string)=>any;
@@ -91,7 +93,7 @@ export default class ViewDirective extends Component<IProps, IState> {
                             style={{ width: '100%', height: '100%' }}
                         />
                     </TouchableHighlight>
-                    {(this.getIntPermission(this.state.data.permission) >= 4)&&<FastImage source={require('../Assets/Corona.webp')} style={styles.crownImage} />}
+                    {(this.getIntPermission(this.state.data.permission) >= 4)&&<FastImage source={CoronaPicture} style={styles.crownImage} />}
                 </View>
                 <IconButton
                     icon={'arrow-left'}

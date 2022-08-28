@@ -10,6 +10,12 @@ import { Directive, urlBase } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
 import ImageLazyLoad from "./Elements/ImageLazyLoad";
 import RNFS from "react-native-fs";
+// Images
+import AnimationTop from "../Assets/animation-top.gif";
+import AnimationTop1 from "../Assets/animation-top-1.gif";
+import AnimationTop2 from "../Assets/animation-top-2.gif";
+import AnimationTop3 from "../Assets/animation-top-3.gif";
+import ProfilePicture from "../Assets/profile.png";
 
 type IState = {
     nameUser: any;
@@ -27,7 +33,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
             pictureUser: '',
             loadingUser: false,
             widht: 0,
-            backgroundImage: require('../Assets/animation-top.gif'),
+            backgroundImage: AnimationTop,
             sizeCache: '0B'
         };
         this.closeSession = this.closeSession.bind(this);
@@ -62,10 +68,10 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     }
     changeBackgroundImage() {
         var random = Math.floor(Math.random() * (7 - 0) + 0);
-        if (random == 2 || random == 4) return this.setState({ backgroundImage: require('../Assets/animation-top-2.gif') });
-        if (random == 3 || random == 6) return this.setState({ backgroundImage: require('../Assets/animation-top-3.gif') });
-        if (random == 5) return this.setState({ backgroundImage: require('../Assets/animation-top-1.gif') });
-        this.setState({ backgroundImage: require('../Assets/animation-top.gif') });
+        if (random == 2 || random == 4) return this.setState({ backgroundImage: AnimationTop2 });
+        if (random == 3 || random == 6) return this.setState({ backgroundImage: AnimationTop3 });
+        if (random == 5) return this.setState({ backgroundImage: AnimationTop1 });
+        this.setState({ backgroundImage: AnimationTop });
     }
     async loadData() {
         var userData = await Directive.getDataLocal();
@@ -89,7 +95,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                 <View style={styles.headerImage}>
                     <FastImage source={this.state.backgroundImage} style={styles.fastImage} resizeMode={'cover'} />
                     <View style={styles.contentProfile}>
-                        {(!this.state.loadingUser)? <Avatar.Image size={46} source={require('../Assets/profile.png')} style={{ marginLeft: 12 }} />
+                        {(!this.state.loadingUser)? <Avatar.Image size={46} source={ProfilePicture} style={{ marginLeft: 12 }} />
                         :<ImageLazyLoad size={46} source={{ uri: this.state.pictureUser }} circle style={{ marginLeft: 12 }} />}
                         <Title numberOfLines={1} style={[styles.profileName, { width: this.state.widht - 78 }]}>{this.state.nameUser}</Title>
                     </View>

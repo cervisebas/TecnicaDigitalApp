@@ -3,6 +3,8 @@ import { ImageSourcePropType, StyleProp, StyleSheet, View, ViewStyle } from "rea
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 import RNFS from "react-native-fs";
 import FastImage from "react-native-fast-image";
+// Images
+import ProfilePicture from "../../Assets/profile.png";
 
 type IProps = {
     source: {
@@ -39,9 +41,9 @@ export default class ImageLazyLoadCard extends PureComponent<IProps, IState> {
             if (val) return (this._isMount)&&this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false });
             RNFS.downloadFile({ fromUrl: this.props.source.uri, toFile: `${RNFS.CachesDirectoryPath}/${fileName}` }).promise
                 .then(()=>(this._isMount)&&this.setState({ source: { uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` }, isLoading: false }))
-                .catch(()=>(this._isMount)&&this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
+                .catch(()=>(this._isMount)&&this.setState({ source: ProfilePicture, isLoading: false }));
         })
-        .catch(()=>(this._isMount)&&this.setState({ source: require('../../Assets/profile.png'), isLoading: false }));
+        .catch(()=>(this._isMount)&&this.setState({ source: ProfilePicture, isLoading: false }));
     }
     componentWillUnmount() {
         this._isMount = false;

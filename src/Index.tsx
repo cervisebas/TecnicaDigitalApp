@@ -3,11 +3,9 @@ import { DeviceEventEmitter, EmitterSubscription, Platform, StatusBar, View } fr
 import { NavigationContainer, NavigationContainerRef, StackActions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Provider as PaperProvider } from "react-native-paper";
-import { getNavigationBarHeight } from 'react-native-android-navbar-height';
 import SystemNavigationBar from "react-native-system-navigation-bar";
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import SplashScreen from 'react-native-splash-screen';
-import DeviceInfo from 'react-native-device-info';
 import notifee from '@notifee/react-native';
 import RNFS from "react-native-fs";
 import Theme from "./Themes";

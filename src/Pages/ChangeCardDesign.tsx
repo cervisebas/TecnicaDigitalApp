@@ -136,7 +136,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={'Ver más detalles'} />
-                        {(!this.state.bannerVisible)&&<Appbar.Action icon={'information-outline'} onPress={this._showBanner} />}
+                        {(!this.state.bannerVisible && this.props.isFamily)&&<Appbar.Action icon={'information-outline'} onPress={this._showBanner} />}
                     </Appbar.Header>
                     <Banner
                         visible={this.state.bannerVisible}

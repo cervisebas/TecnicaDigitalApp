@@ -82,7 +82,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this._onChangeCardDesign = this._onChangeCardDesign.bind(this);
         this._openSnackbar = this._openSnackbar.bind(this);
         this._openLoading = this._openLoading.bind(this);
-        this.checkWelcome = this.checkWelcome.bind(this);
+        this.checkWelcomeAndData = this.checkWelcomeAndData.bind(this);
     }
     private event: EmitterSubscription | null = null;
     // Refs Components
@@ -102,10 +102,9 @@ export default class AppFamily extends Component<IProps, IState> {
     }
     componentWillUnmount() {
         this.event?.remove();
-        this.event = null;
     }
     loadDataAssist() {
-        this.checkWelcome();
+        this.checkWelcomeAndData();
         this.setState({ isLoadingAssist: true, isErrorAssist: false, numAssist: 'Cargando...', numNotAssist: 'Cargando...', numTotalAssist: 'Cargando...', disableButtonDetailAssist: false }, ()=>
             Family.getDataAssistStudent()
                 .then(async(data)=>{
@@ -134,7 +133,7 @@ export default class AppFamily extends Component<IProps, IState> {
                 .catch((v)=>this.setState({ isLoading: true, isError: true, messageError: v.cause }))
         );
     }
-    checkWelcome() {
+    checkWelcomeAndData() {
         AsyncStorage.getItem('firts-open').then((firts)=>{
             if (firts == null) {
                 AsyncStorage.setItem('firts-open', '1');
@@ -146,6 +145,15 @@ export default class AppFamily extends Component<IProps, IState> {
                     setTimeout(()=>DeviceEventEmitter.emit('OpenDesignsPopover'), 1000);
                 }
             });
+        });
+        AsyncStorage.getItem('card-design-election-student').then((election)=>{
+            try {
+                if (election !== null) this.setState({
+                    designCardElection: (election == '0')? undefined: parseInt(election)
+                });
+            } catch {
+                this.setState({ designCardElection: undefined });
+            }
         });
     }
 
@@ -176,6 +184,7 @@ export default class AppFamily extends Component<IProps, IState> {
     }
     _onChangeCardDesign(option: number | undefined) {
         this.setState({ designCardElection: option });
+        AsyncStorage.setItem('card-design-election-student', (option !== undefined)? option.toString(): '0');
     }
     _openSnackbar(text: string) {
         this.refCustomSnackbar.current?.open(text);
@@ -259,10 +268,11 @@ export default class AppFamily extends Component<IProps, IState> {
                 </Portal>
 
                 {/* Modal's */}
-                <ScreenTutorial ref={this.refTutorial} onClose={this.checkWelcome} />
+                <ScreenTutorial ref={this.refTutorial} onClose={this.checkWelcomeAndData} />
                 <ChangeCardDesign
                     ref={this.refChangeCardDesign}
                     onChange={this._onChangeCardDesign}
+                    isFamily={true}
                 />
                 <ImageViewer ref={this.refImageViewer} />
                 <ViewDetailsAssist ref={this.refViewDetailsAssist} />

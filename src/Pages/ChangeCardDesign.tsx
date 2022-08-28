@@ -1,7 +1,8 @@
 import React, { Component, PureComponent } from "react";
-import { FlatList, ImageSourcePropType, ListRenderItemInfo, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from "react-native";
+import { FlatList, ImageSourcePropType, LayoutChangeEvent, ListRenderItemInfo, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from "react-native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FastImage from "react-native-fast-image";
-import { Appbar, Provider as PaperProvider } from "react-native-paper";
+import { Appbar, Banner, Paragraph, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
 // Images
@@ -28,13 +29,16 @@ import Design20 from "../Assets/Examples/design20.webp";
 import Design21 from "../Assets/Examples/design21.webp";
 import Design22 from "../Assets/Examples/design22.webp";
 import Design23 from "../Assets/Examples/design23.webp";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type IProps = {
     onChange: (option: number | undefined)=>any;
+    isFamily?: boolean;
 };
 type IState = {
     visible: boolean;
     width: number;
+    bannerVisible: boolean;
 };
 
 type Item = {
@@ -48,9 +52,13 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         super(props);
         this.state = {
             visible: false,
-            width: 0
+            width: 0,
+            bannerVisible: false
         };
         this._renderItem = this._renderItem.bind(this);
+        this._onLayout = this._onLayout.bind(this);
+        this._showBanner = this._showBanner.bind(this);
+        this._hideBanner = this._hideBanner.bind(this);
         this.close = this.close.bind(this);
     }
     private list: Item[] = [
@@ -78,6 +86,12 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         { id: 22, source: Design22, option: 21 },
         { id: 23, source: Design23, option: 22 }
     ];
+
+    componentDidMount(): void {
+        if (this.props.isFamily)
+            AsyncStorage.getItem('is-now-visible-banner-family')
+                .then((value)=>(value == null)&&this.setState({ bannerVisible: true }));
+    }
     _keyExtractor(item: Item) {
         return `card-desing-${item.id}`;
     }
@@ -94,6 +108,19 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         />);
     }
 
+    _onLayout({ nativeEvent }: LayoutChangeEvent) {
+        this.setState({
+            width: nativeEvent.layout.width
+        });
+    }
+    _showBanner() {
+        this.setState({ bannerVisible: true });
+    }
+    _hideBanner() {
+        this.setState({ bannerVisible: false });
+        AsyncStorage.setItem('is-now-visible-banner-family', '1');
+    }
+
     // Controller
     open() {
         this.setState({ visible: true });
@@ -105,11 +132,18 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
     render(): React.ReactNode {
         return(<CustomModal visible={this.state.visible} style={{ padding: 16 }} animationIn={'fadeInUp'} animationOut={'fadeOutDown'} onRequestClose={this.close}>
             <PaperProvider theme={Theme}>
-                <View onLayout={({ nativeEvent })=>this.setState({ width: nativeEvent.layout.width })} style={styles.contain}>
+                <View onLayout={this._onLayout} style={styles.contain}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
-                        <Appbar.Content title={'Ver más detalles'}  />
+                        <Appbar.Content title={'Ver más detalles'} />
+                        {(!this.state.bannerVisible)&&<Appbar.Action icon={'information-outline'} onPress={this._showBanner} />}
                     </Appbar.Header>
+                    <Banner
+                        visible={this.state.bannerVisible}
+                        actions={[{ label: 'OCULTAR', onPress: this._hideBanner }]}
+                        icon={({ size })=><Icon name={"information-outline"} size={size} />}
+                        children={'Ahora el diseño que elijas se mantendrá colocado, aunque reinicies la aplicación.'}
+                    />
                     <View style={{ flex: 2 }}>
                         {(this.state.width !== 0)&&<FlatList
                             data={this.list}

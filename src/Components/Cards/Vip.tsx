@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
 import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
-import Background from "../../Assets/Desings/vip.png";
+import Background from "../../Assets/Desings/vip.webp";
 
 type IPropsCard = {
     scale: number;

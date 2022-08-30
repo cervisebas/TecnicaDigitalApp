@@ -13,7 +13,7 @@ import { keyCodeAdmin } from "./SecurityKeyCodes";
 //const keyCode: string = encode('Zr4u7x!A%D*G-KaNdRgUkXp2s5v8y/B?E(H+MbQeShVmYq3t6w9z$C&F)J@NcRfU');
 //const keyCodeFamily: string = encode('k3Ra4Q3HAL9MR7SAEPSNGY3mQNWsvWY2pLdLcu5LesH8rx6g2EFsrFAuCxsShbV7');
 //const urlBase: string = 'http://192.168.1.34/TecnicaDigitalApi';
-const urlBase: string = 'https://tecnica-digital.ga';
+const urlBase: string = 'https://tecnicadigital.com.ar';
 
 const Student = new StudentSystem(urlBase, keyCodeAdmin);
 const Directive = new DirectiveSystem(urlBase, keyCodeAdmin);

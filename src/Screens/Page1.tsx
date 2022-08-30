@@ -194,6 +194,7 @@ export default class Page1 extends Component<IProps, IState> {
             key={`p1-card-${item.id}`}
             title={`Registro ${decode(item.curse)}`}
             date={`${decode(item.date)} (${decode(item.hour)}hs)`}
+            annotations={item.annotations}
             state={(item.status == '0')? false: true}
             openConfirm={()=>this._openConfirm(item.id, item.curse, item.date)}
             openView={()=>this._openView(item.id, item.curse, item.date, item.hour, item.annotations)}

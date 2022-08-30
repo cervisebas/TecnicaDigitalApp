@@ -38,6 +38,7 @@ export default class AppAdmin extends Component<IProps, IState> {
             textLoading: ''
         };
         this.clearNowCache = this.clearNowCache.bind(this);
+        this.closeSession = this.closeSession.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -51,11 +52,14 @@ export default class AppAdmin extends Component<IProps, IState> {
         this.event = null;
         this.event2 = null;
     }
-    async closeSession() {
-        await Directive.closeSession();
-        await messaging().unsubscribeFromTopic("directives");
-        await MainWidget.init();
-        DeviceEventEmitter.emit('reVerifySession');
+    closeSession() {
+        this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: true }, async()=>{
+            await Directive.closeSession();
+            await messaging().unsubscribeFromTopic("directives");
+            await MainWidget.init();
+            this.setState({ showLoading: false, viewLogOut: false });
+            DeviceEventEmitter.emit('reVerifySession');
+        });
     }
     clearNowCache() {
         this.setState({ viewClearCache: false, showLoading: true, textLoading: 'Limpiando: 0%' }, async()=>{

@@ -37,14 +37,6 @@ export class CustomPicker2 extends PureComponent<IProps, IState2> {
         this.onPressOut = this.onPressOut.bind(this);
     }
     private ref: Picker<string> | null = null;
-    componentWillUnmount() {
-        this.ref = null;
-        this.setState({
-            indexColors: 0,
-            widthMax: 0,
-            widthText: 0
-        });
-    }
     onPress() {
         if (!this.props.disabled) return this.ref?.focus();
         return undefined;

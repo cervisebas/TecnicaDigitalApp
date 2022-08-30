@@ -10,8 +10,11 @@ type AssistData = {
 };
 
 export default new class MainWidget {
-    constructor() {}
-    private errorData = JSON.stringify({ numAssist: 'Sin datos', numNotAssist: 'Sin datos', numTotal: 'Sin datos' });
+    private errorData = JSON.stringify({
+        numAssist: 'Sin datos',
+        numNotAssist: 'Sin datos',
+        numTotal: 'Sin datos'
+    });
     async init() {
         var getData = await this.getOldData();
         if (getData) return SharedStorage.set(JSON.stringify(getData));

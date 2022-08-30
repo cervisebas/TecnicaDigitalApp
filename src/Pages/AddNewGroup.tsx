@@ -5,7 +5,6 @@ import { Appbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import Theme from "../Themes";
-import { Assist } from "../Scripts/ApiTecnica";
 
 type IProps = {
     next: (curse: string, group: string)=>any;

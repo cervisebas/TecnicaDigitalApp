@@ -72,10 +72,6 @@ export default class AddDirective extends Component<IProps, IState> {
     private positions: string[] = ['- Seleccionar -', 'Docente', 'Preceptor/a', 'Secretario/a', 'Director/a', 'Vicedirector/a', 'Otro'];
     private permissions: string[] = ['0', '1', '2', '3', '5', '4', '1'];
 
-    componentWillUnmount() {
-        this.clearNow();
-    }
-
     verifyInputs() {
         if (this.state.formName.length < 4) {
             this.setState({ formErrorName: true });

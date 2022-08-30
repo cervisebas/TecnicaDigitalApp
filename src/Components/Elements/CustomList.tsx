@@ -4,19 +4,38 @@ import { List } from "react-native-paper";
 
 type IProps = {
     title: string;
+    leght: number;
     id?: string | number;
     style?: StyleProp<ViewStyle>;
 };
-type IState = {};
+type IState = {
+    count: string;
+};
 
 export default class CustomList extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
+        this.state = {
+            count: 'Cargando...'
+        };
+    }
+    componentDidMount(): void {
+        this.setState({
+            count: `${this.props.leght} ${
+                (this.props.title.indexOf('Archivado') !== -1)?
+                    'en lista':
+                    (this.props.title.indexOf('Profesor') !== -1)?
+                        'profesores':
+                        'estudiantes'
+                }`
+        });
     }
     render(): ReactNode {
         return(<List.Accordion
             id={this.props.id}
             title={this.props.title}
+            description={this.state.count}
+            descriptionStyle={styles.description}
             style={[this.props.style, styles.list]}
         >
             {this.props.children}
@@ -40,5 +59,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.22,
         shadowRadius: 2.22,
         elevation: 3
+    },
+    description: {
+        marginLeft: 4
     }
 });

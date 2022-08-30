@@ -29,6 +29,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     text: {
-        position: 'absolute', left: 16, fontSize: 18
+        position: 'absolute',
+        left: 16,
+        fontSize: 18
     }
 });

@@ -6,6 +6,7 @@ type IProps = {
     title: string;
     date: string;
     state: boolean;
+    annotations: number;
     openView?: ()=>any;
     openConfirm?: ()=>any;
 };
@@ -14,13 +15,19 @@ type IState = {};
 export default class CustomCard extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
+        this._titleRight = this._titleRight.bind(this);
+    }
+    _titleRight(props: { size: number; }) {
+        return(<Text {...props} style={styles.textDate}>{this.props.date}</Text>);
     }
     render(): ReactNode {
         return(<Card style={styles.card} elevation={3}>
             <Card.Title
                 title={this.props.title}
-                right={(props)=><Text style={{ marginRight: 16 }} {...props}>{this.props.date}</Text>} />
-            <Card.Actions style={{ position: 'relative' }}>
+                subtitle={(this.props.annotations !== 0)? (this.props.annotations == 1)? `1 anotación`: `${this.props.annotations} anotaciones`: undefined}
+                subtitleStyle={styles.subtitle}
+                right={this._titleRight} />
+            <Card.Actions style={styles.cardAction}>
                 <Button
                     icon={(this.props.state)? 'eye-outline': 'account-multiple-check-outline'}
                     onPress={(this.props.state)? (this.props.openView)&&this.props.openView: (this.props.openConfirm)&&this.props.openConfirm}
@@ -58,5 +65,14 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 12,
         right: 16
+    },
+    subtitle: {
+        marginLeft: 8
+    },
+    textDate: {
+        marginRight: 16
+    },
+    cardAction: {
+        position: 'relative'
     }
 });

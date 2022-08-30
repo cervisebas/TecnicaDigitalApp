@@ -52,7 +52,6 @@ export default class Index extends Component<IProps, IState> {
     }
     componentWillUnmount() {
         this.event1?.remove();
-        this.event1 = null;
     }
     async startNotifications() {
         messaging().onMessage(this.onMessageReceived);

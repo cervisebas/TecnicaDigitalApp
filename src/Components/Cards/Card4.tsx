@@ -3,7 +3,7 @@ import React, { PureComponent } from "react";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
 import ImageLazyLoadCard from "../Elements/ImageLazyLoadCard";
-import Background from "../../Assets/Desings/card4.png";
+import Background from "../../Assets/Desings/card4.webp";
 import { StyleSheet } from "react-native";
 
 type IPropsCard = {

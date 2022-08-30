@@ -59,9 +59,8 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     componentWillUnmount() {
         this._isMount = false;
         this.event?.remove();
-        this.event = null;
-        clearInterval(this.interval as any);
-        clearInterval(this.interval2 as any);
+        clearInterval(this.interval!);
+        clearInterval(this.interval2!);
     }
     componentDidUpdate() {
         if (Directive.openSession) if (!this.state.loadingUser) this.loadData();

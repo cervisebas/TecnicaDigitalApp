@@ -2,7 +2,7 @@ import Barcode from "@kichiyaki/react-native-barcode-generator";
 import React, { PureComponent } from "react";
 import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
-import Background from "../../Assets/Desings/card19.png";
+import Background from "../../Assets/Desings/card19.webp";
 import { NativeSyntheticEvent, StyleSheet, TextLayoutEventData } from "react-native";
 
 type IPropsCard = {

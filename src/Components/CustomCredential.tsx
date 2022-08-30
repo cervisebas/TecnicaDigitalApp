@@ -1,6 +1,8 @@
 import React, { PureComponent } from "react";
 import { Pressable, StyleProp, View, ViewStyle } from "react-native";
 import ViewShot from "react-native-view-shot";
+
+// Card's
 import Card1 from "./Cards/Card1";
 import Card10 from "./Cards/Card10";
 import Card11 from "./Cards/Card11";

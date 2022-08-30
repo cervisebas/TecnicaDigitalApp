@@ -107,7 +107,10 @@ export default class Page1 extends Component<IProps, IState> {
                     .then(async(v)=>{
                         messaging().subscribeToTopic("directives");
                         if (this._isMount) {
-                            this.setState({ dataGroups: await this.filterData(v), listGroups: groups, isLoading: false, isRefresh: false });
+                            const dataGroups = await this.filterData(v);
+                            const noConfirm = dataGroups.filter((value)=>value.status !== '1').length;
+                            this.setState({ dataGroups, listGroups: groups, isLoading: false, isRefresh: false });
+                            DeviceEventEmitter.emit('update-regist-count', noConfirm);
                             if (code) this.reloadData(code, v);
                         }
                     })

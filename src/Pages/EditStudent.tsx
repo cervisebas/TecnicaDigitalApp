@@ -5,7 +5,7 @@ import React, { Component, createRef } from "react";
 import { View, Image, ImageSourcePropType, TouchableHighlight, Dimensions, StyleSheet, ScrollView, ToastAndroid, DeviceEventEmitter, Pressable } from "react-native";
 import DatePicker from "react-native-date-picker";
 import ImageCropPicker, { Options, Image as TypeImageCrop } from "react-native-image-crop-picker";
-import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider } from "react-native-paper";
+import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider, Checkbox, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
@@ -28,6 +28,7 @@ type IState = {
     actualDatePicker: Date;
     actualDate: string;
     isLoading: boolean;
+    disableCursePicker: boolean;
 
     // Interfaz
     loadData: boolean;
@@ -69,6 +70,7 @@ export default class EditStudent extends Component<IProps, IState> {
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
             isLoading: false,
+            disableCursePicker: false,
             // Interfaz
             loadData: false,
             // Form
@@ -91,8 +93,9 @@ export default class EditStudent extends Component<IProps, IState> {
         this.changeImage2 = this.changeImage2.bind(this);
         this.sendData = this.sendData.bind(this);
         this.errorImagePicker = this.errorImagePicker.bind(this);
+        this.changeTeacherStudent = this.changeTeacherStudent.bind(this);
     }
-    private listCourses: string[] = ['- Seleccionar -', 'Archivados', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
+    private listCourses: string[] = ['- Seleccionar -', 'Archivados', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private defaultOptions: Options = {
         cropping: true,
@@ -121,7 +124,8 @@ export default class EditStudent extends Component<IProps, IState> {
                 imageShow: { uri: `${urlBase}/image/${ifDecodeBase64(this.state.data.picture)}` },
                 actualDatePicker: moment(decode(this.state.data.date), 'DD/MM/YYYY').toDate(),
                 actualDate: decode(this.state.data.date),
-                loadData: true
+                loadData: true,
+                disableCursePicker: ifDecodeBase64(this.state.data.curse).indexOf('Docente') !== -1
             });
         }
     }
@@ -134,6 +138,7 @@ export default class EditStudent extends Component<IProps, IState> {
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
             isLoading: false,
+            disableCursePicker: false,
             // Form
             formName: '',
             formCourse: '- Seleccionar -',
@@ -228,6 +233,7 @@ export default class EditStudent extends Component<IProps, IState> {
                 form.append('date', encode(this.state.formDate));
                 (this.state.formImage.uri?.length !== 0)&&form.append('image', this.state.formImage);
                 (this.isRemovePicture())&&form.append('isRemoveImage', true);
+                console.log(this.state.formCourse);
                 var verify = this.verifyInputs();
                 if (!verify) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open('Por favor revise los datos ingresados.'));
                 Student.modify(form).then(()=>{
@@ -235,7 +241,7 @@ export default class EditStudent extends Component<IProps, IState> {
                     this.setState({
                         isLoading: false,
                         formName: '',
-                        formCourse: '1°1',
+                        formCourse: '- Seleccionar -',
                         formTel: '',
                         formEmail: '',
                         formDNI: '',
@@ -243,7 +249,8 @@ export default class EditStudent extends Component<IProps, IState> {
                         formImage: { uri: '', type: '', name: '' },
                         imageShow: ImageProfile,
                         actualDatePicker: new Date(),
-                        actualDate: moment(new Date()).format('DD/MM/YYYY')
+                        actualDate: moment(new Date()).format('DD/MM/YYYY'),
+                        disableCursePicker: false
                     }, ()=>{
                         DeviceEventEmitter.emit('reloadPage3', true);
                         this.closeAndClean();
@@ -278,6 +285,13 @@ export default class EditStudent extends Component<IProps, IState> {
         if (this.state.formImage.uri == undefined && !isOnlyImage) return true;
         if (this.state.formImage.uri!.length == 0 && !isOnlyImage) return true;
         return false;
+    }
+    changeTeacherStudent() {
+        if (this.state.disableCursePicker) return this.setState({
+            disableCursePicker: false,
+            formCourse: this.listCourses[0]
+        });
+        this.setState({ disableCursePicker: true, formCourse: 'Docente' });
     }
 
     // Controller
@@ -341,9 +355,13 @@ export default class EditStudent extends Component<IProps, IState> {
                                 onChangeText={(text)=>this.setState({ formDNI: text.replace(/\ /gi, '').replace(/\./gi, '').replace(/\,/gi, '').replace(/\-/gi, ''), errorFormDNI: false })}
                                 mode={'outlined'}
                             />
-                            <CustomPicker2 title={"Curso:"} value={this.state.formCourse} error={this.state.errorFormCourse} disabled={this.state.isLoading} onChange={(v)=>this.setState({ formCourse: v, errorFormCourse: false })} style={styles.textInput}>
+                            <CustomPicker2 title={"Curso:"} value={this.state.formCourse} error={this.state.errorFormCourse} disabled={this.state.isLoading || this.state.disableCursePicker} onChange={(v)=>(!this.state.disableCursePicker)&&this.setState({ formCourse: v, errorFormCourse: false })} style={styles.textInput}>
                                 {this.listCourses.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
                             </CustomPicker2>
+                            <Pressable style={styles.checkbox_teachers} onPress={this.changeTeacherStudent}>
+                                <Checkbox status={(this.state.disableCursePicker)? 'checked': 'unchecked'} onPress={this.changeTeacherStudent} />
+                                <Text>¿Es Profesor?</Text>
+                            </Pressable>
                             <TextInput
                                 label={'Teléfono'}
                                 keyboardType={'phone-pad'}
@@ -417,5 +435,11 @@ const styles = StyleSheet.create({
         marginRight: 16,
         marginTop: 8,
         marginBottom: 0
+    },
+    checkbox_teachers: {
+        marginLeft: 16,
+        marginTop: 8,
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 });

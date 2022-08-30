@@ -13,14 +13,14 @@ export default class CustomCard3 extends PureComponent<IProps, IState> {
         super(props);
     }
     render(): ReactNode {
-        return(<Card style={styles.card} elevation={3}>
+        return(<Card style={styles.card} elevation={3} onPress={this.props.onPress}>
             <Card.Actions style={styles.cardAction}>
                 <Text style={styles.text}>{this.props.title}</Text>
                 <Button
                     icon={'arrow-right'}
-                    onPress={(this.props.onPress)&&this.props.onPress}
                     contentStyle={styles.button}
-                >Ver</Button>
+                    children={'Ver'}
+                />
             </Card.Actions>
         </Card>);
     }
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     text: {
         position: 'absolute',
         left: 16,
-        fontSize: 18
+        fontSize: 17
     },
     button: {
         flexDirection: 'row-reverse'

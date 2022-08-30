@@ -46,6 +46,8 @@
 # react-native-device-info
 -keep class com.learnium.RNDeviceInfo.** { *; }
 -dontwarn com.learnium.RNDeviceInfo.**
+-keep class com.google.android.gms.common.** { *; }
+-keepclassmembers class com.android.installreferrer.api.** { *; }
 
 # react-native-extra-dimensions-android
 -keep class ca.jaysoo.extradimensions.** { *; }

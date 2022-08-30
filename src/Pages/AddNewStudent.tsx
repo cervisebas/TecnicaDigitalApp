@@ -5,7 +5,7 @@ import React, { Component, createRef } from "react";
 import { View, Image, ImageSourcePropType, TouchableHighlight, Dimensions, StyleSheet, ScrollView, ToastAndroid, DeviceEventEmitter, Pressable } from "react-native";
 import DatePicker from "react-native-date-picker";
 import ImageCropPicker, { Options, Image as TypeImageCrop } from "react-native-image-crop-picker";
-import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider } from "react-native-paper";
+import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider, Checkbox, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
@@ -25,6 +25,7 @@ type IState = {
     actualDatePicker: Date;
     actualDate: string;
     isLoading: boolean;
+    disableCursePicker: boolean;
 
     // Form
     formName: string;
@@ -61,6 +62,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
             isLoading: false,
+            disableCursePicker: false,
             // Form
             formName: '',
             formCourse: '- Seleccionar -',
@@ -81,8 +83,9 @@ export default class AddNewStudent extends Component<IProps, IState> {
         this.close = this.close.bind(this);
         this.changeImage2 = this.changeImage2.bind(this);
         this.errorImagePicker = this.errorImagePicker.bind(this);
+        this.changeTeacherStudent = this.changeTeacherStudent.bind(this);
     }
-    private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
+    private listCourses: string[] = ['- Seleccionar -', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private defaultOptions: Options = {
         cropping: true,
@@ -106,6 +109,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
             actualDatePicker: new Date(),
             actualDate: moment(new Date()).format('DD/MM/YYYY'),
             isLoading: false,
+            disableCursePicker: false,
             // Form
             formName: '',
             formCourse: '- Seleccionar -',
@@ -210,7 +214,8 @@ export default class AddNewStudent extends Component<IProps, IState> {
                         formImage: { uri: '', type: '', name: '' },
                         imageShow: ImageProfile,
                         actualDatePicker: new Date(),
-                        actualDate: moment(new Date()).format('DD/MM/YYYY')
+                        actualDate: moment(new Date()).format('DD/MM/YYYY'),
+                        disableCursePicker: false
                     }, ()=>DeviceEventEmitter.emit('reloadPage3', true))
                 })
                 .catch((error)=>{
@@ -224,6 +229,13 @@ export default class AddNewStudent extends Component<IProps, IState> {
         const ErrorString = String(error);
         if (ErrorString.indexOf('User cancelled image selection') != -1) return this.refCustomSnackbar.current?.open('Acción cancelada por el usuario.');
         if (ErrorString.indexOf('User did not grant camera permission') != -1) return this.refCustomSnackbar.current?.open('No se proporcionó acceso a la cámara.');
+    }
+    changeTeacherStudent() {
+        if (this.state.disableCursePicker) return this.setState({
+            disableCursePicker: false,
+            formCourse: this.listCourses[0]
+        });
+        this.setState({ disableCursePicker: true, formCourse: 'Docente' });
     }
 
     // Controller
@@ -280,9 +292,13 @@ export default class AddNewStudent extends Component<IProps, IState> {
                                 onChangeText={(text)=>this.setState({ formDNI: text.replace(/\ /gi, '').replace(/\./gi, '').replace(/\,/gi, '').replace(/\-/gi, ''), errorFormDNI: false })}
                                 mode={'outlined'}
                             />
-                            <CustomPicker2 title={"Curso:"} value={this.state.formCourse} error={this.state.errorFormCourse} disabled={this.state.isLoading} onChange={(v)=>this.setState({ formCourse: v, errorFormCourse: false })} style={styles.textInput}>
+                            <CustomPicker2 title={"Curso:"} value={this.state.formCourse} error={this.state.errorFormCourse} disabled={this.state.isLoading || this.state.disableCursePicker} onChange={(v)=>(!this.state.disableCursePicker)&&this.setState({ formCourse: v, errorFormCourse: false })} style={styles.textInput}>
                                 {this.listCourses.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
                             </CustomPicker2>
+                            <Pressable style={styles.checkbox_teachers} onPress={this.changeTeacherStudent}>
+                                <Checkbox status={(this.state.disableCursePicker)? 'checked': 'unchecked'} onPress={this.changeTeacherStudent} />
+                                <Text>¿Es Profesor?</Text>
+                            </Pressable>
                             <TextInput
                                 label={'Teléfono'}
                                 keyboardType={'phone-pad'}
@@ -369,5 +385,11 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         elevation: 2,
         backgroundColor: '#FFFFFF'
+    },
+    checkbox_teachers: {
+        marginLeft: 16,
+        marginTop: 8,
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 });

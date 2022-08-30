@@ -94,8 +94,6 @@ export default class Page3 extends PureComponent<IProps, IState> {
     componentWillUnmount() {
         this.event?.remove();
         this.event2?.remove();
-        this.event = null;
-        this.event2 = null;
     }
     deleteStudent() {
         this.refLoadingComponent.current?.open('Espere por favor...');
@@ -165,7 +163,17 @@ export default class Page3 extends PureComponent<IProps, IState> {
         };
     }
     _renderItem1({ item, index }: ListRenderItemInfo<OrderCurses>) {
-        return(<CustomList id={index + 1} key={`p3-list-${item.label}`} style={styles.cardsLists} title={(item.label.indexOf('Profesor') !== -1 || item.label.indexOf('Archivado') !== -1)? item.label: `Curso ${item.label}`} leght={item.students.length}>
+        return(<CustomList
+            id={index + 1}
+            key={`p3-list-${item.label}`}
+            style={styles.cardsLists}
+            title={(item.label.indexOf('Archivado') !== -1)?
+                item.label:
+                (item.label.indexOf('Docente') !== -1 || item.label.indexOf('Profesor') !== -1)?
+                    'Docentes':
+                    `Curso ${item.label}`
+            }
+            leght={item.students.length}>
             <FlatList
                 data={item.students}
                 style={{ paddingBottom: 8 }}

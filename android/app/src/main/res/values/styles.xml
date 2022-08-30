@@ -14,6 +14,9 @@
         
         <item name="android:navigationBarColor">@color/status_bar_color</item>
         <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogTheme</item>
+        <item name="android:timePickerDialogTheme">@style/MyTimePickerDialogTheme</item>
     </style>
 
     <style name="SplashScreenTheme" parent="SplashScreen_SplashTheme">
@@ -29,6 +32,37 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <!-- DatetimePicker and TimePicker -->
+    <style name="MyDatePickerDialogTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="colorPrimary">@color/foreground</item>
+        <item name="colorPrimaryDark">@color/foreground</item>
+        <item name="android:colorAccent">@color/highlight</item>
+        <item name="android:datePickerStyle">@style/MyDatePickerStyle</item>
+    </style>
+    <style name="MyTimePickerDialogTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="colorPrimary">@color/foreground</item>
+        <item name="colorPrimaryDark">@color/foreground</item>
+        <item name="android:colorAccent">@color/highlight</item>
+        <item name="android:timePickerStyle">@style/MyTimePicker</item>
+    </style>
+    <style name="MyDatePickerStyle" parent="@android:style/Widget.Material.Light.DatePicker">
+        <item name="android:headerBackground">@color/highlight</item>
+        <item name="android:dayOfWeekBackground">@color/highlight</item>
+        <item name="android:dayOfWeekTextAppearance">@color/highlight</item>
+        <item name="android:headerMonthTextAppearance">@color/highlight</item>
+        <item name="android:headerDayOfMonthTextAppearance">@color/highlight</item>
+        <item name="android:headerYearTextAppearance">@color/highlight</item>
+        <item name="android:yearListItemTextAppearance">@color/highlight</item>
+        <item name="android:yearListSelectorColor">@color/highlight</item>
+        <item name="android:calendarTextColor">@color/highlight</item>
+    </style>
+    <style name="MyTimePicker" parent="@android:style/Widget.Material.Light.TimePicker">
+        <item name="android:headerBackground">@color/highlight</item>
+        <item name="android:numbersSelectorColor">@color/highlight</item>
+        <item name="android:numbersBackgroundColor">@color/background</item>
+    </style>
+    <!-- ############################# -->
 
     <style name="Widget.TecnicaDigital.AppWidget.Container" parent="android:Widget">
         <item name="android:id">@android:id/background</item>

@@ -172,7 +172,7 @@ export default class Page4 extends Component<IProps, IState> {
                 <Appbar>
                     <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Directivos'}  />
-                    <Appbar.Action icon={'account-plus-outline'} onPress={this._openAddDirective} />
+                    <Appbar.Action icon={'account-plus-outline'} disabled={this.state.isLoading || this.state.isError} onPress={this._openAddDirective} />
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
                     {(!this.state.isLoading && !this.state.isError)? <FlatList

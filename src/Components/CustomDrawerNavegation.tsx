@@ -103,6 +103,11 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                     <ScrollView>
                         {this.props.state.routes.map(({ key, name }, index)=>{
                             const { title, drawerLabel, drawerIcon } = this.props.descriptors[key].options;
+                            if (drawerLabel == 'Registros') return(<ItemRegist
+                                key={index}
+                                active={index == this.props.state.index}
+                                onPress={()=>this.props.navigation.dispatch({ ...(index == this.props.state.index)? DrawerActions.closeDrawer(): CommonActions.navigate(name), target: this.props.state.key })}
+                            />);
                             return(<Drawer.Item
                                 key={index}
                                 label={(drawerLabel !== undefined)? drawerLabel as string: (title !== undefined)? title: name}
@@ -127,6 +132,50 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         </View>);
     }
 };
+
+type IProps3 = {
+    active: boolean;
+    onPress: ()=>any;
+};
+type IState3 = {
+    count: string;
+};
+
+class ItemRegist extends PureComponent<IProps3, IState3> {
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            count: '...'
+        };
+        this._right = this._right.bind(this);
+        this.updateBadge = this.updateBadge.bind(this);
+    }
+    private event: EmitterSubscription | undefined = undefined;
+    private isMount: boolean = false;
+    componentDidMount(): void {
+        this.isMount = true;
+        this.event = DeviceEventEmitter.addListener('update-regist-count', this.updateBadge);
+    }
+    componentWillUnmount(): void {
+        this.isMount = false;
+        this.event?.remove();
+    }
+    updateBadge(count: string) {
+        if (this.isMount) this.setState({ count });
+    }
+    _right(props: { color: string; }) {
+        return(<Badge {...props} style={(this.state.count == '0')? { display: 'none' }: undefined}>{this.state.count}</Badge>);
+    }
+    render(): React.ReactNode {
+        return(<Drawer.Item
+            label={'Registros'}
+            icon={'account-box-multiple'}
+            right={this._right}
+            active={this.props.active}
+            onPress={this.props.onPress}
+        />);
+    }
+}
 
 type IProps2 = {
     onPress: ()=>any;

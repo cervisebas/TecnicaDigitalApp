@@ -142,7 +142,7 @@ export default class AppFamily extends Component<IProps, IState> {
             AsyncStorage.getItem('show-popover-design').then((verify)=>{
                 if (verify == null) {
                     AsyncStorage.setItem('show-popover-design', '1');
-                    setTimeout(()=>DeviceEventEmitter.emit('OpenDesignsPopover'), 256);
+                    DeviceEventEmitter.emit('OpenDesignsPopover');
                 }
             });
         });

@@ -49,14 +49,16 @@ export default class AppAdmin extends Component<IProps, IState> {
     componentWillUnmount() {
         this.event?.remove();
         this.event2?.remove();
-        this.event = null;
-        this.event2 = null;
+    }
+    wait(time: number) {
+        return new Promise((resolve)=>setTimeout(resolve, time));
     }
     closeSession() {
-        this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: true }, async()=>{
+        this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: false }, async()=>{
             await Directive.closeSession();
             await messaging().unsubscribeFromTopic("directives");
             await MainWidget.init();
+            await this.wait(1500);
             this.setState({ showLoading: false, viewLogOut: false });
             DeviceEventEmitter.emit('reVerifySession');
         });

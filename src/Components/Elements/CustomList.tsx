@@ -24,8 +24,8 @@ export default class CustomList extends PureComponent<IProps, IState> {
             count: `${this.props.leght} ${
                 (this.props.title.indexOf('Archivado') !== -1)?
                     'en lista':
-                    (this.props.title.indexOf('Profesor') !== -1)?
-                        'profesores':
+                    (this.props.title.indexOf('Profesor') !== -1 || this.props.title.indexOf('Docente') !== -1)?
+                        (this.props.leght == 1)? 'docente': 'docentes':
                         'estudiantes'
                 }`
         });

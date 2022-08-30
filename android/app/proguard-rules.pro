@@ -35,10 +35,6 @@
 -keep class com.reactnativecommunity.picker.** { *; }
 -dontwarn com.reactnativecommunity.picker.**
 
-# react-native-android-navbar-height
--keep class com.reactnativeandroidnavbarheight.** { *; }
--dontwarn com.reactnativeandroidnavbarheight.**
-
 # react-native-date-picker
 -keep class com.henninghall.date_picker.** { *; }
 -dontwarn com.henninghall.date_picker.**

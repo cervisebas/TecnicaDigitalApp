@@ -1,10 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { decode, encode } from "base-64";
 import moment from "moment";
-import { DirectiveData, PreferencesAssist } from "./types";
+import qs from "qs";
+import { DirectiveData, PreferencesAssist, TypicalRes } from "./types";
 
 export default class PreferencesSystem {
-    constructor() {}
+    private urlBase: string = '';
+    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
+    constructor(setUrl: string, setHeaderAccess: string) {
+        this.urlBase = setUrl;
+        this.header_access.headers.Authorization = setHeaderAccess;
+    }
     async getAssist() {
         try {
             var data = await AsyncStorage.getItem('PreferencesAssist');
@@ -20,10 +27,11 @@ export default class PreferencesSystem {
             const time = moment();
             await AsyncStorage.setItem('PreferencesAssist', encode(JSON.stringify({
                 idDirective: local.id,
-                date: time.format('DD/MM/YYYY'),
-                time: time.format('HH:mm'),
+                date: time.format('YYYY/MM/DD'),
+                time: time.format('HH:mm:ss'),
                 curses: curses
             })));
+            this.syncData();
         } catch {
             throw "Ocurrió un error inesperado.";
         }
@@ -60,6 +68,68 @@ export default class PreferencesSystem {
                     reject({ ok: false, cause: 'Ocurrió un error inesperado.' });
                 }
             }).catch(()=>reject({ ok: false, cause: 'Error al acceder a los datos almacenados' }));
+        });
+    }
+
+    // Online
+    private syncLocalData(username: string, password: string) {
+        return new Promise((resolve, reject)=>{
+            AsyncStorage.getItem('PreferencesAssist').then((value)=>{
+                if (value == null) return resolve('');
+                const local: PreferencesAssist = JSON.parse(decode(value));
+                const postData = {
+                    updatePreferencesDirective: true,
+                    username,
+                    password,
+                    date: encode(`${local.date} ${local.time}`),
+                    datas: encode(JSON.stringify(local.curses))
+                };
+                axios.post(`${this.urlBase}/index.php`, qs.stringify(postData), this.header_access).then((value)=>{
+                    const result: TypicalRes = value.data;
+                    return (result.ok)? resolve(null): reject((result.cause)? result.cause: 'Ocurrio un error inesperado al sincronizar.');
+                }).catch(()=>reject('Error al sincronizar las preferencias locales.'));
+            }).catch(()=>reject('Error al obtener las preferencias locales.'));
+        });
+    }
+    private downloadData(username: string, password: string) {
+        return new Promise((resolve, reject)=>{
+            const postData = {
+                getPreferencesDirective: true,
+                username,
+                password
+            };
+            axios.post(`${this.urlBase}/index.php`, qs.stringify(postData), this.header_access).then(async(value)=>{
+                try {
+                    const result: TypicalRes = value.data;
+                    if (result.ok) {
+                        const driveData = JSON.parse(decode(result.datas));
+                        await AsyncStorage.setItem('PreferencesAssist', encode(JSON.stringify({
+                            idDirective: driveData.idDirective,
+                            date: driveData.date,
+                            time: driveData.time,
+                            curses: JSON.parse(decode(driveData.curses))
+                        })));
+                        return resolve(null);
+                    }
+                    reject((result.cause)? result.cause: 'Ocurrio un error inesperado al sincronizar.');
+                } catch {
+                    reject('Ocurrio un error inesperado al sincronizar.');
+                }
+            }).catch(()=>reject('Error al sincronizar las preferencias locales.'));
+        });
+    }
+    syncData(): Promise<string> {
+        return new Promise((resolve)=>{
+            AsyncStorage.getItem('PreferencesAssist').then((local)=>{
+                this.getDataLocal().then((data)=>{
+                    if (local == null) return this.downloadData(data.username, data.password)
+                        .then(()=>resolve('Se sincronizo las preferencias locales.'))
+                        .catch((error)=>resolve(error));
+                    this.syncLocalData(data.username, data.password)
+                        .then(()=>resolve('Se sincronizo las preferencias locales.'))
+                        .catch((error)=>resolve(error));
+                }).catch(()=>resolve('none'));
+            });
         });
     }
 }

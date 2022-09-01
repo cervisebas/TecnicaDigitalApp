@@ -135,3 +135,8 @@
 # react-native-version-check
 -keep class io.xogus.reactnative.versioncheck.** { *; }
 -dontwarn io.xogus.reactnative.versioncheck.**
+
+# com.github.zjupure:webpdecoder
+-keep public class com.bumptech.glide.integration.webp.WebpImage { *; }
+-keep public class com.bumptech.glide.integration.webp.WebpFrame { *; }
+-keep public class com.bumptech.glide.integration.webp.WebpBitmapFactory { *; }

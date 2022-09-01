@@ -217,7 +217,7 @@ export default class EditStudent extends Component<IProps, IState> {
                 }
             }
         }
-        if (this.state.formTel.length > 10 && this.state.formTel.length < 17) {
+        if (this.state.formTel.length < 10 || this.state.formTel.length == 0 || this.state.formTel.length > 13) {
             errors += 1;
             this.setState({ errorFormTel: true });
         }

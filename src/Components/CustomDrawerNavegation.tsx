@@ -11,10 +11,10 @@ import Theme from "../Themes";
 import ImageLazyLoad from "./Elements/ImageLazyLoad";
 import RNFS from "react-native-fs";
 // Images
-import AnimationTop from "../Assets/animation-top.gif";
-import AnimationTop1 from "../Assets/animation-top-1.gif";
-import AnimationTop2 from "../Assets/animation-top-2.gif";
-import AnimationTop3 from "../Assets/animation-top-3.gif";
+import AnimationTop from "../Assets/DrawerAnims/anim1.webp";
+import AnimationTop1 from "../Assets/DrawerAnims/anim2.webp";
+import AnimationTop2 from "../Assets/DrawerAnims/anim3.webp";
+import AnimationTop3 from "../Assets/DrawerAnims/anim4.webp";
 import ProfilePicture from "../Assets/profile.png";
 
 type IState = {
@@ -66,8 +66,8 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         if (Directive.openSession) if (!this.state.loadingUser) this.loadData();
     }
     changeBackgroundImage() {
-        var random = Math.floor(Math.random() * (7 - 0) + 0);
-        if (random == 2 || random == 4) return this.setState({ backgroundImage: AnimationTop2 });
+        var random = Math.floor(Math.random() * (10 - 0) + 0);
+        if (random == 2) return this.setState({ backgroundImage: AnimationTop2 });
         if (random == 3 || random == 6) return this.setState({ backgroundImage: AnimationTop3 });
         if (random == 5) return this.setState({ backgroundImage: AnimationTop1 });
         this.setState({ backgroundImage: AnimationTop });

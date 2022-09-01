@@ -7,9 +7,10 @@ import Background from "../Assets/background-session.webp";
 import Theme from "../Themes";
 
 type IProps = {
-    visible: boolean;
+    reVerifySession: ()=>any;
 };
 type IState = {
+    visible: boolean;
     // Form
     formUserName: string;
     formPassword: string;
@@ -35,6 +36,7 @@ export default class Session extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: false,
             // Forms
             formUserName: '',
             formPassword: '',
@@ -67,15 +69,22 @@ export default class Session extends Component<IProps, IState> {
         this.setState({ isLoading: true }, ()=>
             Directive.open(this.state.formUserName, this.state.formPassword)
                 .then(()=>this.setState({ isLoading: false }, async()=>{
-                    DeviceEventEmitter.emit('ChangeIndexNavigation', 'Admin');
+                    /*DeviceEventEmitter.emit('ChangeIndexNavigation', 'Admin');
                     DeviceEventEmitter.emit('textScreenLoading', null);
-                    DeviceEventEmitter.emit('turnScreenLoading', true);
-                    setTimeout(()=>{
+                    DeviceEventEmitter.emit('turnScreenLoading', true);*/
+                    this.props.reVerifySession();
+                    setTimeout(()=>this.setState({
+                        formUserName: '',
+                        formPassword: '',
+                        isDirective: false,
+                        visible: false
+                    }), 16);
+                    /*setTimeout(()=>{
                         this.setState({ formUserName: '', formPassword: '', isDirective: false });
                         DeviceEventEmitter.emit('turnSessionView', false);
                         DeviceEventEmitter.emit('loadNowAll');
                         setTimeout(()=>DeviceEventEmitter.emit('turnScreenLoading', false), 1500);
-                    }, 10);
+                    }, 10);*/
                 }))
                 .catch((value)=>this.setState({
                     isLoading: false,
@@ -96,7 +105,7 @@ export default class Session extends Component<IProps, IState> {
         });
     }
     componentDidUpdate() {
-        if (!this.props.visible) {
+        if (!this.state.visible) {
             if (this.state.formPassword.length !== 0 || this.state.formUserName.length !== 0) {
                 this.setState({
                     formUserName: '',
@@ -144,26 +153,39 @@ export default class Session extends Component<IProps, IState> {
         this.setState({ isLoading: true }, ()=>
             Family.open(this.state.formDNI)
                 .then(()=>this.setState({ isLoading: false }, async()=>{
-                    DeviceEventEmitter.emit('ChangeIndexNavigation', 'Family');
+                    /*DeviceEventEmitter.emit('ChangeIndexNavigation', 'Family');
                     DeviceEventEmitter.emit('textScreenLoading', null);
-                    DeviceEventEmitter.emit('turnScreenLoading', true);
-                    setTimeout(()=>{
+                    DeviceEventEmitter.emit('turnScreenLoading', true);*/
+                    this.props.reVerifySession();
+                    setTimeout(()=>this.setState({
+                        formDNI: '',
+                        visible: false
+                    }), 16);
+                    /*setTimeout(()=>{
                         this.setState({ formDNI: '' });
                         DeviceEventEmitter.emit('turnSessionView', false);
                         DeviceEventEmitter.emit('loadNowAll');
                         setTimeout(()=>DeviceEventEmitter.emit('turnScreenLoading', false), 1500);
-                    }, 10);
+                    }, 10);*/
                 }))
                 .catch((error)=>this.setState({ isLoading: false, snackbarShow: true, snackbarText: error.cause }))
         );
     }
     /* ############ */
 
+    // Controller
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} animationInTiming={0} animationOutTiming={0} animationIn={'fadeIn'} animationOut={'fadeOut'}>
+        return(<CustomModal visible={this.state.visible} animationInTiming={0} animationOutTiming={0} animationIn={'fadeIn'} animationOut={'fadeOut'}>
             <PaperProvider theme={Theme}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                    {(this.props.visible)? <ImageBackground source={Background} resizeMode="cover" style={{ flex: 2, backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
+                    {(this.state.visible)? <ImageBackground source={Background} resizeMode="cover" style={{ flex: 2, backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
                         <View style={{ width: '100%', alignItems: 'center' }}>
                             <CustomTitle />
                             {(this.state.isDirective)? <View style={{ marginTop: 16, width: '90%' }}>

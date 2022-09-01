@@ -137,9 +137,10 @@ export default class AppFamily extends Component<IProps, IState> {
     checkWelcomeAndData() {
         AsyncStorage.getItem('firts-open').then((firts)=>{
             if (firts == null) {
-                AsyncStorage.setItem('firts-open', '1');
-                return this.refTutorial.current?.open();
+                this.refTutorial.current?.open();
+                return AsyncStorage.setItem('firts-open', '1');
             }
+            if (this.refTutorial.current?.state.visible) return;
             AsyncStorage.getItem('show-popover-design').then((verify)=>{
                 if (verify == null) {
                     AsyncStorage.setItem('show-popover-design', '1');
@@ -168,6 +169,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this.setState({ viewLogOut: false }, async()=>{
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
             await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData', 'card-design-election-student', 'is-now-visible-banner-family']);
+            if (__DEV__) await AsyncStorage.multiRemove(['firts-open', 'show-popover-design']);
             await MainWidget.init();
             this.refLoadingComponent.current?.close();
             DeviceEventEmitter.emit('reVerifySession');

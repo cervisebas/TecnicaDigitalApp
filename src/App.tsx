@@ -59,7 +59,7 @@ export default class AppAdmin extends Component<IProps, IState> {
             await messaging().unsubscribeFromTopic("directives");
             await MainWidget.init();
             await this.wait(1500);
-            this.setState({ showLoading: false, viewLogOut: false });
+            this.setState({ showLoading: false });
             DeviceEventEmitter.emit('reVerifySession');
         });
     }

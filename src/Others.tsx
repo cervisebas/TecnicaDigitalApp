@@ -1,41 +1,38 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import { DeviceEventEmitter, EmitterSubscription } from "react-native";
 import ScreenLoading from "./Screens/ScreenLoading";
 import Session from "./Screens/Session";
-import { Actions, Directive, Family } from "./Scripts/ApiTecnica";
+import { Actions, Directive, Family, Prefences } from "./Scripts/ApiTecnica";
 
 type IProps = {
     goCheckUpdate: ()=>any;
+    changeScreen: (screen: string)=>any;
 };
-type IState = {
-    showScreenLoading: boolean;
-    showMessageLoading: boolean | undefined;
-    messageLoading: string | undefined;
-    showSessionView: boolean;
-};
+type IState = {};
 
 export default class Others extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
-        this.state = {
-            showScreenLoading: true,
-            showMessageLoading: undefined,
-            messageLoading: undefined,
-            showSessionView: false
-        };
         this._goTipical = this._goTipical.bind(this);
         this._setTimeoutScreenLoading = this._setTimeoutScreenLoading.bind(this);
+        this._reVerifySession = this._reVerifySession.bind(this);
+        this._catchVerify = this._catchVerify.bind(this);
     }
+    private timeout_screenloading: number = 0;
+    // Events
     private event1: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     private event3: EmitterSubscription | null = null;
     private event4: EmitterSubscription | null = null;
-    private timeout_screenloading: number = 0;
+    // Components
+    private refSession = createRef<Session>();
+    private refScreenLoading = createRef<ScreenLoading>();
+    
     componentDidMount() {
-        this.event1 = DeviceEventEmitter.addListener('turnScreenLoading', (data: boolean)=>this.setState({ showScreenLoading: data }));
-        this.event2 = DeviceEventEmitter.addListener('turnSessionView', (data: boolean)=>this.setState({ showSessionView: data }));
-        this.event3 = DeviceEventEmitter.addListener('textScreenLoading', (data: any)=>this.setState({ messageLoading: (data == null)? undefined: data, showMessageLoading: !(data == null) }));
-        this.event4 = DeviceEventEmitter.addListener('reVerifySession', ()=>this.setState({ showScreenLoading: true, messageLoading: undefined, showMessageLoading: false }, ()=>this.verify()));
+        this.event1 = DeviceEventEmitter.addListener('turnScreenLoading', (visible: boolean)=>(visible)? this.refScreenLoading.current?.open(): this.refScreenLoading.current?.close());
+        this.event2 = DeviceEventEmitter.addListener('turnSessionView', (visible: boolean)=>(visible)? this.refSession.current?.open(): this.refSession.current?.close());
+        this.event3 = DeviceEventEmitter.addListener('textScreenLoading', (message: any)=>(message !== null)? this.refScreenLoading.current?.updateMessage(message): this.refScreenLoading.current?.hideMessage());
+        this.event4 = DeviceEventEmitter.addListener('reVerifySession', this._reVerifySession);
         this.verify();
     }
     componentWillUnmount() {
@@ -44,54 +41,64 @@ export default class Others extends Component<IProps, IState> {
         this.event3?.remove();
         this.event4?.remove();
     }
+    _reVerifySession() {
+        this.refScreenLoading.current?.open();
+        this.refScreenLoading.current?.hideMessage();
+        this.verify();
+    }
     _goTipical() {
         DeviceEventEmitter.emit('loadNowAll');
         this.props.goCheckUpdate();
     }
+    _catchVerify(action: any) {
+        if (!!action.relogin) this.refSession.current?.open(); else this.refSession.current?.close();
+        if (!action.relogin) this.refScreenLoading.current?.open(); else this.refScreenLoading.current?.close();
+        this.refScreenLoading.current?.updateMessage(action.cause);
+    }
+    wait(time: number) {
+        return new Promise((resolve)=>setTimeout(resolve, time));
+    }
+    syncPreferences() {
+        return new Promise((resolve)=>{
+            this.refScreenLoading.current?.updateMessage('Sincronizando preferencias...', false);
+            Prefences.syncData()
+                .then(async(message)=>{
+                    if (message !== 'none') {
+                        this.refScreenLoading.current?.updateMessage(message, false);
+                        await this.wait(1000);
+                    }
+                    resolve(null);
+                })
+                .catch(()=>resolve(null));
+        });
+    }
     verify() {
         Actions.verifySession().then((opt: number)=>{
             if (opt == 0) {
-                DeviceEventEmitter.emit('ChangeIndexNavigation', 'Admin');
+                this.props.changeScreen('Admin');
                 Directive.verify()
-                    //.then(()=>this.setState({ showScreenLoading: false }, this._goTipical))
-                    .then(()=>{
+                    .then(async()=>{
+                        await this.syncPreferences();
                         this._goTipical();
-                        setTimeout(()=>{
-                            this.setState({ showScreenLoading: false });
-                            this.timeout_screenloading = 0;
-                        }, this.timeout_screenloading)
+                        await this.wait(this.timeout_screenloading);
+                        this.refScreenLoading.current?.close();
                     })
-                    .catch((action)=>this.setState({
-                        showSessionView: !!action.relogin,
-                        showScreenLoading: !action.relogin,
-                        showMessageLoading: true,
-                        messageLoading: action.cause
-                    }));
+                    .catch(this._catchVerify);
             } else if (opt == 1) {
-                DeviceEventEmitter.emit('ChangeIndexNavigation', 'Family');
+                this.props.changeScreen('Family');
                 Family.verify()
-                    .then(()=>{
+                    .then(async()=>{
                         this._goTipical();
-                        setTimeout(()=>{
-                            this.setState({ showScreenLoading: false });
-                            this.timeout_screenloading = 0;
-                        }, this.timeout_screenloading);
+                        await this.wait(this.timeout_screenloading);
+                        this.refScreenLoading.current?.close();
                     })
-                    .catch((action)=>this.setState({
-                        showSessionView: !!action.relogin,
-                        showScreenLoading: !action.relogin,
-                        showMessageLoading: true,
-                        messageLoading: action.cause
-                    }));
+                    .catch(this._catchVerify);
             }
         }).catch(()=>{
-            DeviceEventEmitter.emit('ChangeIndexNavigation', 'Default');
-            this.setState({
-                showScreenLoading: false,
-                showMessageLoading: undefined,
-                messageLoading: undefined,
-                showSessionView: true
-            })
+            this.props.changeScreen('Default');
+            this.refScreenLoading.current?.close();
+            this.refScreenLoading.current?.hideMessage();
+            this.refSession.current?.open();
         });
     }
 
@@ -102,13 +109,8 @@ export default class Others extends Component<IProps, IState> {
 
     render(): React.ReactNode {
         return(<>
-            <Session visible={this.state.showSessionView} />
-            <ScreenLoading
-                visible={this.state.showScreenLoading}
-                showMessage={this.state.showMessageLoading}
-                message={this.state.messageLoading}
-                setTimeout={this._setTimeoutScreenLoading}
-            />
+            <Session ref={this.refSession} reVerifySession={this._reVerifySession} />
+            <ScreenLoading ref={this.refScreenLoading} setTimeout={this._setTimeoutScreenLoading} />
         </>);
     }
 }

@@ -45,6 +45,7 @@ export default class SearchGroupsResult extends Component<IProps, IState> {
             date={`${decode(item.date)} (${decode(item.hour)}hs)`}
             state={(item.status == '0')? false: true}
             openConfirm={()=>this.props.openConfirm(item.id, item.curse, item.date)}
+            annotations={item.annotations}
             openView={()=>this.props.openView(item.id, item.curse, item.date, item.hour, item.annotations)}
         />);
     }

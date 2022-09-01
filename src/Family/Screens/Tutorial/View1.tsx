@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import { Dimensions, ImageBackground, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Button, Colors, Text } from "react-native-paper";
-import LogoSweep from "../../../Assets/Tutorial/logo_sweep.gif";
+import LogoSweep from "../../../Assets/Tutorial/logo_sweep.webp";
 import BackgroundSession from "../../../Assets/background-session.webp";
 
 type IProps = {

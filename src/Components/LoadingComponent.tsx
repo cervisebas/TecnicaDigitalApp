@@ -16,11 +16,18 @@ export default class LoadingComponent extends PureComponent<IProps, IState> {
             text: 'Cargando...'
         };
     }
+    private isMount: boolean = false;
+    componentDidMount(): void {
+        this.isMount = true;
+    }
+    componentWillUnmount(): void {
+        this.isMount = false;
+    }
     open(text: string) {
-        this.setState({ visible: true, text });
+        (this.isMount)&&this.setState({ visible: true, text });
     }
     close() {
-        this.setState({ visible: false });
+        (this.isMount)&&this.setState({ visible: false });
     }
     render(): React.ReactNode {
         return(<LoadingController

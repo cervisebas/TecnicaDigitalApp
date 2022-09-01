@@ -21,6 +21,7 @@ import ImageViewerText from "../Pages/ImageViewerText";
 import LoadingComponent from "../Components/LoadingComponent";
 import SetGroup from "../Pages/SetGroup";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import FastImage from "react-native-fast-image";
 
 type IProps = {
     navigation: any;

@@ -94,7 +94,7 @@ export default class Index extends Component<IProps, IState> {
                     </Stack.Navigator>
                 </NavigationContainer>
                 <UpdateCheck ref={this.refUpdateCheck} />
-                <Others goCheckUpdate={this._goCheckUpdate} />
+                <Others goCheckUpdate={this._goCheckUpdate} changeScreen={this.changePage} />
             </PaperProvider>
         </View>);
     }

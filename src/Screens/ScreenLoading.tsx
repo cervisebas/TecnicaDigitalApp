@@ -12,12 +12,14 @@ import logoAnim1 from '../Assets/logoanim1.gif';
 import logoAnim2 from '../Assets/logoanim2.gif';
 
 type IProps = {
-    visible: boolean;
-    showMessage: boolean | undefined;
-    message: string | undefined;
     setTimeout?: (time: number)=>any;
 };
 type IState = {
+    visible: boolean;
+    showMessage: boolean;
+    hideLoadinginMessage: boolean;
+    message: string;
+    
     logo: ImageSourcePropType | undefined;
 };
 
@@ -25,6 +27,10 @@ export default class ScreenLoading extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
+            visible: true,
+            showMessage: false,
+            hideLoadinginMessage: true,
+            message: '',
             logo: logo
         };
     }
@@ -32,7 +38,7 @@ export default class ScreenLoading extends Component<IProps, IState> {
         this.setLogo();
     }
     componentDidUpdate() {
-        if (this.props.visible) {
+        if (this.state.visible) {
             if (this.state.logo == undefined) this.setLogo();
         } else {
             if (this.state.logo !== undefined) this.setState({ logo: undefined });
@@ -57,8 +63,59 @@ export default class ScreenLoading extends Component<IProps, IState> {
         };
         this.setState({ logo: showLogo() });
     }
+
+    // Controller
+    open(message?: string, hideLoadinginMessage?: boolean) {
+        if (message) {
+            if (hideLoadinginMessage !== undefined) {
+                return this.setState({
+                    visible: true,
+                    showMessage: false,
+                    message,
+                    hideLoadinginMessage
+                });
+            }
+            return this.setState({
+                visible: true,
+                showMessage: false,
+                message
+            });
+        }
+        this.setState({
+            visible: true,
+            showMessage: false,
+            message: ''
+        });
+    }
+    updateMessage(message: string, hideLoadinginMessage?: boolean) {
+        if (hideLoadinginMessage !== undefined) return this.setState({
+            showMessage: true,
+            message,
+            hideLoadinginMessage
+        });
+        this.setState({
+            showMessage: true,
+            message
+        });
+    }
+    hideMessage() {
+        this.setState({
+            showMessage: false,
+            hideLoadinginMessage: true,
+            message: ''
+        });
+    }
+    close() {
+        this.setState({
+            visible: false,
+            hideLoadinginMessage: true,
+            showMessage: false,
+            message: ''
+        });
+    }
+
     render(): React.ReactNode {
-        return(<CustomModal visible={this.props.visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>
+        return(<CustomModal visible={this.state.visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>
             <PaperProvider theme={Theme}>
                 <ImageBackground source={backgroundImage} style={styles.background}>
                     {(this.state.logo)&&<FastImage
@@ -66,8 +123,14 @@ export default class ScreenLoading extends Component<IProps, IState> {
                         style={styles.logo}
                     />}
                     <View style={styles.contentLoading}>
-                        {(!this.props.showMessage)&&<ActivityIndicator size={'large'} animating={true} />}
-                        {(this.props.showMessage)&&<Text style={styles.text}>{this.props.message}</Text>}
+                        {(!this.state.showMessage || !this.state.hideLoadinginMessage)&&<ActivityIndicator size={'large'} animating={true} />}
+                        {(this.state.showMessage)&&<Text
+                            style={[styles.text, (!this.state.hideLoadinginMessage)&&{
+                                fontSize: 14,
+                                marginTop: 16
+                            }]}>
+                            {this.state.message}
+                        </Text>}
                     </View>
                 </ImageBackground>
             </PaperProvider>

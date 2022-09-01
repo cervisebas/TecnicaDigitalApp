@@ -5,7 +5,7 @@ import DirectiveSystem from "./ApiTecnica/directives";
 import FamilySystem from "./ApiTecnica/family";
 import GenerateRegister from "./ApiTecnica/generate-register";
 import CursesGroupSystem from "./ApiTecnica/groups";
-import PreferencesSystem from "./ApiTecnica/Preferences";
+import PreferencesSystem from "./ApiTecnica/preferences";
 import { RecordSystem } from "./ApiTecnica/records";
 import StudentSystem from "./ApiTecnica/student";
 import { keyCodeAdmin } from "./SecurityKeyCodes";
@@ -23,7 +23,7 @@ const Family = new FamilySystem(urlBase, keyCodeAdmin);
 const Records = new RecordSystem(urlBase, keyCodeAdmin);
 const GeneratePDF = new GenerateRegister();
 const Actions = new ApiActions();
-const Prefences = new PreferencesSystem();
+const Prefences = new PreferencesSystem(urlBase, keyCodeAdmin);
 const Groups = new CursesGroupSystem(urlBase, keyCodeAdmin);
 
 export {

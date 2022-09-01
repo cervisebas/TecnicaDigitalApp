@@ -17,7 +17,6 @@ type IState = {
     visible: boolean;
     isLoading: boolean;
     curses: Curses[];
-    showBanner: boolean;
 };
 
 const { width } = Dimensions.get("window");
@@ -28,8 +27,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
         this.state = {
             visible: false,
             isLoading: false,
-            curses: this.default,
-            showBanner: true
+            curses: this.default
         };
         this.clear = this.clear.bind(this);
         this.save = this.save.bind(this);
@@ -146,9 +144,6 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
                     <Appbar.Content title={'Preferencias de registros'} />
                     <Appbar.Action icon={'autorenew'} onPress={this.clear} />
                 </Appbar.Header>
-                <Banner visible={this.state.showBanner} actions={[{ label: 'Aceptar', onPress: ()=>this.setState({ showBanner: false }) }]} icon={({ size })=><Icon name={"information-outline"} size={size} />}>
-                    Momentáneamente las preferencias se guardarán de manera local, próximamente se sincronizará en la nube a través de su cuenta.
-                </Banner>
                 <FlatList
                     data={this.state.curses}
                     extraData={this.state}

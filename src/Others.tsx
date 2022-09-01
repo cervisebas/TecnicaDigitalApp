@@ -63,7 +63,7 @@ export default class Others extends Component<IProps, IState> {
             this.refScreenLoading.current?.updateMessage('Sincronizando preferencias...', false);
             Prefences.syncData()
                 .then(async(message)=>{
-                    if (message !== 'none') {
+                    if (message !== 'none' && message !== 'empty') {
                         this.refScreenLoading.current?.updateMessage(message, false);
                         await this.wait(1000);
                     }

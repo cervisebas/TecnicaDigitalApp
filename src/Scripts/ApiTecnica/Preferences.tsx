@@ -127,7 +127,12 @@ export default class PreferencesSystem {
                         .catch((error)=>resolve(error));
                     this.syncLocalData(data.username, data.password)
                         .then(()=>resolve('Se sincronizo las preferencias locales.'))
-                        .catch((error)=>resolve(error));
+                        .catch((error)=>{
+                            if (error == 'noupdate') return this.downloadData(data.username, data.password)
+                                .then(()=>resolve('Se sincronizo las preferencias locales.'))
+                                .catch((error)=>resolve(error));
+                            resolve(error);
+                        });
                 }).catch(()=>resolve('none'));
             });
         });

@@ -23,6 +23,7 @@ type IProps = {
 type IState = {
     scaleImage: number;
     showPopover: boolean;
+    showCustomization: boolean;
 };
 
 export default class CardCredential extends PureComponent<IProps, IState> {
@@ -30,7 +31,8 @@ export default class CardCredential extends PureComponent<IProps, IState> {
         super(props);
         this.state = {
             scaleImage: 0,
-            showPopover: false
+            showPopover: false,
+            showCustomization: true
         };
         this._buttonRightTitle = this._buttonRightTitle.bind(this);
         this._viewImageTarget = this._viewImageTarget.bind(this);
@@ -44,7 +46,10 @@ export default class CardCredential extends PureComponent<IProps, IState> {
         var scaleImage = 1;
         while (!isFind) {
             if (((1200 * scaleImage) < (width - 56)) && this.state.scaleImage == 0) {
-                this.setState({ scaleImage });
+                this.setState({
+                    scaleImage,
+                    showCustomization: decode(this.props.studentData.curse).toLowerCase().indexOf('docente') == -1 && decode(this.props.studentData.curse).toLowerCase().indexOf('profesor') == -1
+                });
                 isFind = true;
             } else {
                 scaleImage -= 0.001;
@@ -115,7 +120,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
             <Card style={styles.card} elevation={3}>
                 <Card.Title
                     title={'Tarjeta de ingreso'}
-                    right={this._buttonRightTitle}
+                    right={(this.state.showCustomization)? this._buttonRightTitle: undefined}
                 />
                 <Card.Content>
                     <CustomCredential

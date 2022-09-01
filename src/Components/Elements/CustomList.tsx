@@ -19,16 +19,21 @@ export default class CustomList extends PureComponent<IProps, IState> {
             count: 'Cargando...'
         };
     }
+    getCountString() {
+        return `${this.props.leght} ${
+            (this.props.title.indexOf('Archivado') !== -1)?
+                'en lista':
+                (this.props.title.indexOf('Profesor') !== -1 || this.props.title.indexOf('Docente') !== -1)?
+                    (this.props.leght == 1)? 'docente': 'docentes':
+                    'estudiantes'
+        }`;
+    }
     componentDidMount(): void {
-        this.setState({
-            count: `${this.props.leght} ${
-                (this.props.title.indexOf('Archivado') !== -1)?
-                    'en lista':
-                    (this.props.title.indexOf('Profesor') !== -1 || this.props.title.indexOf('Docente') !== -1)?
-                        (this.props.leght == 1)? 'docente': 'docentes':
-                        'estudiantes'
-                }`
-        });
+        this.setState({ count: this.getCountString() });
+    }
+    componentDidUpdate(prevProps: Readonly<IProps>): void {
+        if (this.props.leght !== prevProps.leght)
+            this.setState({ count: this.getCountString() });
     }
     render(): ReactNode {
         return(<List.Accordion

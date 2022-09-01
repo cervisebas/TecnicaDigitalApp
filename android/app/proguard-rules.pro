@@ -42,16 +42,14 @@
 # react-native-date-picker
 -keep class com.henninghall.date_picker.** { *; }
 -dontwarn com.henninghall.date_picker.**
+-keep public class net.time4j.android.ApplicationStarter
+-keep public class net.time4j.PrettyTime
 
 # react-native-device-info
 -keep class com.learnium.RNDeviceInfo.** { *; }
 -dontwarn com.learnium.RNDeviceInfo.**
 -keep class com.google.android.gms.common.** { *; }
 -keepclassmembers class com.android.installreferrer.api.** { *; }
-
-# react-native-extra-dimensions-android
--keep class ca.jaysoo.extradimensions.** { *; }
--dontwarn ca.jaysoo.extradimensions.**
 
 # react-native-file-viewer
 -keep class com.vinzscam.reactnativefileviewer.** { *; }

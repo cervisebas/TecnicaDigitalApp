@@ -176,6 +176,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
             leght={item.students.length}>
             <FlatList
                 data={item.students}
+                extraData={item}
                 style={{ paddingBottom: 8 }}
                 keyExtractor={this._keyExtractor2}
                 ItemSeparatorComponent={this._ItemSeparatorComponent2}

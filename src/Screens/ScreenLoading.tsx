@@ -45,8 +45,8 @@ export default class ScreenLoading extends Component<IProps, IState> {
                 case 666:
                     return logoTroll;
                 case 100 || 200 || 300:
-                    (this.props.setTimeout)&&this.props.setTimeout(9000);
-                    setTimeout(()=>this.setState({ logo: logo }), 8000);
+                    (this.props.setTimeout)&&this.props.setTimeout(4000);
+                    setTimeout(()=>this.setState({ logo: logo }), 3000);
                     return logoAnim1;
                 case 400 || 500 || 600:
                     (this.props.setTimeout)&&this.props.setTimeout(6000);

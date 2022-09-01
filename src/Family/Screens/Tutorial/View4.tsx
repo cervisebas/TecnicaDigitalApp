@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     },
     button: {
         position: 'absolute',
-        bottom: 80
+        bottom: 60
     },
     buttonContent: {
         flexDirection: 'row-reverse'

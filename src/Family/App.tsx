@@ -20,6 +20,7 @@ import AssistCard from "./Components/AssistCard";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import CardCredential from "./Components/CardCredential";
 import ScreenTutorial from "./Screens/Tutorial";
+import { decode } from "base-64";
 
 type IProps = {};
 type IState = {
@@ -148,6 +149,7 @@ export default class AppFamily extends Component<IProps, IState> {
         });
         AsyncStorage.getItem('card-design-election-student').then((election)=>{
             try {
+                if (decode(this.state.studentData!.curse).toLowerCase().indexOf('docente') !== -1 || decode(this.state.studentData!.curse).toLowerCase().indexOf('profesor') !== -1) return this.setState({ designCardElection: 4 });
                 if (election !== null) this.setState({
                     designCardElection: (election == '0')? undefined: parseInt(election)
                 });
@@ -165,7 +167,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this.refLoadingComponent.current?.open('Cerrando sesión...');
         this.setState({ viewLogOut: false }, async()=>{
             await messaging().unsubscribeFromTopic(`student-${this.state.studentData!.id}`);
-            await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData']);
+            await AsyncStorage.multiRemove(['FamilySession', 'FamilyOptionSuscribe', 'AssistData', 'card-design-election-student', 'is-now-visible-banner-family']);
             await MainWidget.init();
             this.refLoadingComponent.current?.close();
             DeviceEventEmitter.emit('reVerifySession');

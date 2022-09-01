@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     },
     button: {
         position: 'absolute',
-        bottom: 80
+        bottom: 60
     },
     buttonRestart: {
         position: 'absolute',

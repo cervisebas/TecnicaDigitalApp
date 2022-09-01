@@ -12,6 +12,8 @@ import FastImage from "react-native-fast-image";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 // Images
 import HatImage from "../Assets/hat_student.webp";
+import BlackBoard from "../Assets/blackboard.webp";
+import IndicatorTeacher from "../Assets/indicator-teacher.webp";
 
 type IProps = {
     data: StudentsData | undefined;
@@ -22,6 +24,7 @@ type IProps = {
 type IState = {
     visible: boolean;
     idStudent: string;
+    isStudent: boolean;
     switchNotifications: boolean;
 };
 
@@ -31,6 +34,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
         this.state = {
             visible: false,
             idStudent: '#00000',
+            isStudent: true,
             switchNotifications: false
         };
         this.loadData = this.loadData.bind(this);
@@ -46,7 +50,10 @@ export default class FamilyOptions extends Component<IProps, IState> {
         if (!s) {
             var id = '';
             for (let i = 0; i < 5 - this.props.data!.id.length; i++) { id += '0'; }
-            this.setState({ idStudent: `#${id}${this.props.data!.id}` });
+            this.setState({
+                idStudent: `#${id}${this.props.data!.id}`,
+                isStudent: decode(this.props.data!.curse).toLowerCase().indexOf('docente') == -1 && decode(this.props.data!.curse).toLowerCase().indexOf('profesor') == -1
+            });
         }
         Family.getSubscribeData()
             .then((v)=>this.setState({ switchNotifications: v }))
@@ -86,6 +93,10 @@ export default class FamilyOptions extends Component<IProps, IState> {
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
             {(this.props.data)? <View style={styles.content}>
                 <View style={styles.contentImage}>
+                    {(!this.state.isStudent)&&<>
+                        <FastImage source={BlackBoard} style={styles.blackboardImage} />
+                        <FastImage source={IndicatorTeacher} style={styles.indicatorImage} />
+                    </>}
                     <TouchableHighlight onPress={this._openImage} style={styles.touchImage}>
                         <ImageLazyLoad
                             source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }}
@@ -93,7 +104,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                             style={{ width: '100%', height: '100%' }}
                         />
                     </TouchableHighlight>
-                    <FastImage source={HatImage} style={styles.crownImage} />
+                    {(this.state.isStudent)&&<FastImage source={HatImage} style={styles.crownImage} />}
                 </View>
                 <IconButton
                     icon={'arrow-left'}
@@ -110,21 +121,21 @@ export default class FamilyOptions extends Component<IProps, IState> {
                     <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
                     <View style={{ marginTop: 16, width: '100%' }}>
                         <TextView title={'ID Estudiante'} text={this.state.idStudent} />
-                        <TextView title={'Curso'} text={decode(this.props.data.curse)} />
+                        {(this.state.isStudent)&&<TextView title={'Curso'} text={decode(this.props.data.curse)} />}
                         <TextView title={'DNI'} text={decode(this.props.data.dni)} />
                         <TextView title={'Nacimiento'} text={decode(this.props.data.date)} />
                         <TextView title={'Teléfono'} text={decode(this.props.data.tel)} />
                         {(this.props.data.email.length !== 0)&&<TextView title={'E-Mail'} text={decode(this.props.data.email)} />}
                     </View>
                     <View style={{ marginTop: 12, flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                        <List.Item
+                        {(this.state.isStudent)&&<List.Item
                             title={"Subscribirse a las notificaciones"}
-                            description={"Al activar esta opción, recibirá una notificación cada vez que se actualicé el registro del alumno."}
+                            description={"Al activar esta opción, recibirá una notificación cada vez que se actualicé el registro del estudiante."}
                             onPress={()=>this.setSwitchSubscription(!this.state.switchNotifications)}
                             descriptionNumberOfLines={4}
                             style={{ width: '95%' }}
                             right={()=><Switch value={this.state.switchNotifications} onValueChange={this.setSwitchSubscription} />}
-                        />
+                        />}
                         <Button
                             mode={'contained'}
                             style={{ marginTop: 12 }}
@@ -188,6 +199,21 @@ const styles = StyleSheet.create({
         height: 61.51,
         top: -24,
         left: -11
+    },
+    blackboardImage: {
+        position: 'absolute',
+        width: 149.83,
+        height: 100,
+        top: -20,
+        left: -60
+    },
+    indicatorImage: {
+        position: 'absolute',
+        width: 13.33,
+        height: 80,
+        top: 34,
+        left: 128,
+        transform: [{ rotate: "20deg" }]
     },
     textBrand: {
         color: '#FF2E2E',

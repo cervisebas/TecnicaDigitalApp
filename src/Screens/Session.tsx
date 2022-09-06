@@ -1,5 +1,5 @@
 import React, { Component, createRef, PureComponent } from "react";
-import { DeviceEventEmitter, ImageBackground, Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput } from "react-native";
+import { ImageBackground, Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet } from "react-native";
 import { Text, Provider as PaperProvider, TextInput, Button, Colors, Snackbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Directive, Family } from "../Scripts/ApiTecnica";
@@ -69,9 +69,6 @@ export default class Session extends Component<IProps, IState> {
         this.setState({ isLoading: true }, ()=>
             Directive.open(this.state.formUserName, this.state.formPassword)
                 .then(()=>this.setState({ isLoading: false }, async()=>{
-                    /*DeviceEventEmitter.emit('ChangeIndexNavigation', 'Admin');
-                    DeviceEventEmitter.emit('textScreenLoading', null);
-                    DeviceEventEmitter.emit('turnScreenLoading', true);*/
                     this.props.reVerifySession();
                     setTimeout(()=>this.setState({
                         formUserName: '',
@@ -79,12 +76,6 @@ export default class Session extends Component<IProps, IState> {
                         isDirective: false,
                         visible: false
                     }), 16);
-                    /*setTimeout(()=>{
-                        this.setState({ formUserName: '', formPassword: '', isDirective: false });
-                        DeviceEventEmitter.emit('turnSessionView', false);
-                        DeviceEventEmitter.emit('loadNowAll');
-                        setTimeout(()=>DeviceEventEmitter.emit('turnScreenLoading', false), 1500);
-                    }, 10);*/
                 }))
                 .catch((value)=>this.setState({
                     isLoading: false,
@@ -92,17 +83,6 @@ export default class Session extends Component<IProps, IState> {
                     snackbarText: value.cause
                 }))
         );
-    }
-    componentWillUnmount() {
-        this.setState({
-            formUserName: '',
-            formPassword: '',
-            formErrorUserName: false,
-            formErrorPassword: false,
-            isLoading: false,
-            snackbarShow: false,
-            snackbarText: ''
-        });
     }
     componentDidUpdate() {
         if (!this.state.visible) {
@@ -153,20 +133,8 @@ export default class Session extends Component<IProps, IState> {
         this.setState({ isLoading: true }, ()=>
             Family.open(this.state.formDNI)
                 .then(()=>this.setState({ isLoading: false }, async()=>{
-                    /*DeviceEventEmitter.emit('ChangeIndexNavigation', 'Family');
-                    DeviceEventEmitter.emit('textScreenLoading', null);
-                    DeviceEventEmitter.emit('turnScreenLoading', true);*/
                     this.props.reVerifySession();
-                    setTimeout(()=>this.setState({
-                        formDNI: '',
-                        visible: false
-                    }), 16);
-                    /*setTimeout(()=>{
-                        this.setState({ formDNI: '' });
-                        DeviceEventEmitter.emit('turnSessionView', false);
-                        DeviceEventEmitter.emit('loadNowAll');
-                        setTimeout(()=>DeviceEventEmitter.emit('turnScreenLoading', false), 1500);
-                    }, 10);*/
+                    setTimeout(()=>this.setState({ formDNI: '', visible: false }), 16);
                 }))
                 .catch((error)=>this.setState({ isLoading: false, snackbarShow: true, snackbarText: error.cause }))
         );
@@ -185,7 +153,7 @@ export default class Session extends Component<IProps, IState> {
         return(<CustomModal visible={this.state.visible} animationInTiming={0} animationOutTiming={0} animationIn={'fadeIn'} animationOut={'fadeOut'}>
             <PaperProvider theme={Theme}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                    {(this.state.visible)? <ImageBackground source={Background} resizeMode="cover" style={{ flex: 2, backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
+                    <ImageBackground source={Background} resizeMode={"cover"} style={styles.content}>
                         <View style={{ width: '100%', alignItems: 'center' }}>
                             <CustomTitle />
                             {(this.state.isDirective)? <View style={{ marginTop: 16, width: '90%' }}>
@@ -286,7 +254,7 @@ export default class Session extends Component<IProps, IState> {
                                 </View>
                             </View>}
                         </View>
-                    </ImageBackground>: <View></View>}
+                    </ImageBackground>
                 </TouchableWithoutFeedback>
                 <Snackbar
                     visible={this.state.snackbarShow}
@@ -306,16 +274,36 @@ class CustomTitle extends PureComponent<IProps2> {
     constructor(props: IProps2) {
         super(props);
     }
-    private fontSize: number = 24;
-    private fontSize2: number = 36;
-    private fontWeight: "bold" | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | undefined = 'bold';
     render(): React.ReactNode {
         return(<View style={[this.props.style, { alignItems: 'center' }]}>
-            <Text style={{ fontWeight: this.fontWeight, fontSize: this.fontSize }}>Bienvenid@ a</Text>
+            <Text style={styles.titleContent}>Bienvenid@ a</Text>
             <Text>
-                <Text style={{ fontSize: this.fontSize2, fontWeight: this.fontWeight, color: Colors.red500 }}>Tecnica</Text>
-                <Text style={{ fontSize: this.fontSize2, fontWeight: this.fontWeight, color: Colors.blue800 }}>Digital</Text>
+                <Text style={styles.title1}>Tecnica</Text>
+                <Text style={styles.title2}>Digital</Text>
             </Text>
         </View>);
     }
 }
+
+const styles = StyleSheet.create({
+    titleContent: {
+        fontSize: 24,
+        fontWeight: 'bold'
+    },
+    title1: {
+        fontSize: 36,
+        fontWeight: 'bold',
+        color: Colors.red500
+    },
+    title2: {
+        fontSize: 36,
+        fontWeight: 'bold',
+        color: Colors.blue800
+    },
+    content: {
+        flex: 2,
+        backgroundColor: Theme.colors.background,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
+});

@@ -204,8 +204,8 @@ export default class Page3 extends PureComponent<IProps, IState> {
     _openViewDetails(data: StudentsData) {
         this.refViewDetails.current?.open(data, this.designCardElection);
     }
-    _openChangeCardDesign() {
-        this.refChangeCardDesign.current?.open();
+    _openChangeCardDesign(isVip?: boolean) {
+        this.refChangeCardDesign.current?.open(isVip);
     }
     _onChangeCardDesign(election: number | undefined) {
         if (this.refOpenGenerateMultipleCards.current?.state.visible) return this.designCardElection2 = election;

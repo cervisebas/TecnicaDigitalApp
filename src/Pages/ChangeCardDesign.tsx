@@ -86,6 +86,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         { id: 22, source: Design22, option: 21 },
         { id: 23, source: Design23, option: 22 }
     ];
+    private backupList = this.list;
 
     componentDidMount(): void {
         if (this.props.isFamily)
@@ -120,9 +121,21 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         this.setState({ bannerVisible: false });
         AsyncStorage.setItem('is-now-visible-banner-family', '1');
     }
+    checkVip(isVip: boolean) {
+        if (!isVip) {
+            if (this.list.find((v)=>v.option == 5) == undefined) return;
+            this.list = this.list.filter((v)=>v.option !== 5);
+            return this.forceUpdate();
+        }
+        if (this.list.find((v)=>v.option == 5) == undefined) {
+            this.list = this.backupList;
+            return this.forceUpdate();
+        }
+    }
 
     // Controller
-    open() {
+    open(isVip?: boolean) {
+        this.checkVip(!!isVip);
         this.setState({ visible: true });
     }
     close() {

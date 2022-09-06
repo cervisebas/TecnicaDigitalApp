@@ -16,7 +16,7 @@ import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 type IProps = {
     openImage: (data: { uri: string })=>any;
     openDetailsAssist: (data: AssistIndividualData[])=>any;
-    changeDesign: ()=>any;
+    changeDesign: (isVip?: boolean)=>any;
     goLoading: (v: boolean, t: string, a?: ()=>any)=>any;
     editNow: (data: StudentsData)=>any;
 };
@@ -65,6 +65,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.shareImageTarget = this.shareImageTarget.bind(this);
         this.closeAndClear = this.closeAndClear.bind(this);
         this.editNow = this.editNow.bind(this);
+        this.openChangeDesign = this.openChangeDesign.bind(this);
     }
     private defaultData: StudentsData = {
         id: '-1',
@@ -194,6 +195,10 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.closeAndClear();
         this.props.editNow(this.state.data);
     }
+    openChangeDesign() {
+        const isVip = (decode(this.state.data.curse).indexOf("7°") !== -1) && (moment().format("YYYY") == "2022");
+        this.props.changeDesign(isVip);
+    }
 
     // Controller
     open(data: StudentsData, designCard: number | undefined) {
@@ -237,7 +242,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                             </View>
                         </View>
                         <Card style={{ marginLeft: 8, marginRight: 8, marginBottom: 12 }} elevation={3}>
-                            <Card.Title title={'información:'} />
+                            <Card.Title title={'Información:'} />
                             <Card.Content>
                                 <PointItemList title="ID" data={this.state.idStudent} />
                                 <PointItemList title="Fecha de nacimiento" data={decode(this.state.data.date)} />
@@ -258,7 +263,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                             />
                             <Card.Content>
                                 <PointItemList title="Presentes" data={this.state.numAssist} />
-                                <PointItemList title="Aunsentes" data={this.state.numNotAssist} />
+                                <PointItemList title="Ausentes" data={this.state.numNotAssist} />
                             </Card.Content>
                             <Card.Actions style={{ justifyContent: 'flex-end' }}>
                                 <Button disabled={this.state.isLoadAssist || !this.state.existAssist} icon={'account-details'} onPress={this.openListStudent}>Ver detalles</Button>
@@ -283,7 +288,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                                     disabled={this.state.isLoadAssist}
                                     icon={'pencil-ruler'}
                                     color={Theme.colors.accent}
-                                    onPress={()=>this.props.changeDesign()}
+                                    onPress={this.openChangeDesign}
                                 />}
                             />
                             <Card.Content>

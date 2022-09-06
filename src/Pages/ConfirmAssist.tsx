@@ -119,7 +119,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         return(<List.Item
             key={`conf-assist-${item.id}`}
             title={decode(item.name)}
-            description={(item.exist)? 'Ingreso con credencial': undefined}
+            description={(item.exist)? `${decode(item.time)} • Ingreso con credencial`: undefined}
             disabled={this.state.isLoading}
             onPress={()=>this.checkAction(item.id, index)}
             style={styles.items}

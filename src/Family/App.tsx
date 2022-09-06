@@ -21,6 +21,7 @@ import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import CardCredential from "./Components/CardCredential";
 import ScreenTutorial from "./Screens/Tutorial";
 import { decode } from "base-64";
+import moment from "moment";
 
 type IProps = {};
 type IState = {
@@ -178,7 +179,8 @@ export default class AppFamily extends Component<IProps, IState> {
 
     // New's
     _openChangeDesign() {
-        this.refChangeCardDesign.current?.open();
+        const isVip = (decode(this.state.studentData!.curse).indexOf('7°') !== -1) && (moment().format("YYYY") == "2022");
+        this.refChangeCardDesign.current?.open(isVip);
     }
     _openImageViewer(src: string) {
         this.refImageViewer.current?.open(src);

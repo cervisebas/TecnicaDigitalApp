@@ -243,7 +243,6 @@ export default class EditStudent extends Component<IProps, IState> {
                 form.append('date', encode(this.state.formDate));
                 (this.state.formImage.uri?.length !== 0)&&form.append('image', this.state.formImage);
                 (this.isRemovePicture())&&form.append('isRemoveImage', true);
-                console.log(this.state.formCourse);
                 var verify = this.verifyInputs();
                 if (!verify) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open('Por favor revise los datos ingresados.'));
                 Student.modify(form).then(()=>{

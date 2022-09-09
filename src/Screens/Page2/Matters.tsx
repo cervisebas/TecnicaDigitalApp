@@ -56,6 +56,7 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
             key={`matter-item-${item.id}-teacher-${item.teacher.id}`}
             title={decode(item.name)}
             description={(item.teacher.id == '-1')? "Sin profesor": decode(item.teacher.name)}
+            style={styles.item}
             left={(props)=><List.Icon {...props} icon={'folder-account-outline'} />}
         />);
     }
@@ -64,6 +65,13 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
     }
     _ItemSeparatorComponent() {
         return(<Divider />);
+    }
+    _getItemLayout(_data: Matter[] | null | undefined, index: number) {
+        return {
+            length: 64,
+            offset: 64 * index,
+            index
+        };
     }
     /* #################### */
 
@@ -75,7 +83,7 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
                     data={this.state.datas}
                     extraData={this.state}
                     keyExtractor={this._keyExtractor}
-                    //getItemLayout={this._getItemLayout}
+                    getItemLayout={this._getItemLayout}
                     refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={this._refreshNow} />}
                     contentContainerStyle={{ flex: (this.state.datas.length == 0)? 2: undefined, paddingTop: 8 }}
                     ListEmptyComponent={()=><View style={styles.emptyContent}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ninguna materia</Text></View>}
@@ -105,5 +113,8 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    item: {
+        height: 64
     }
 });

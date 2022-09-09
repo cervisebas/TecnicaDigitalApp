@@ -88,32 +88,32 @@ export default class AppAdmin extends Component<IProps, IState> {
             <Drawer.Navigator initialRouteName="Registros" screenOptions={{ headerShown: false }} drawerContent={(props)=><CustomDrawerNavegation {...props} />}>
                 <Drawer.Screen
                     name={"Registros"}
-                    component={Page1}
+                    component={Page1 as any}
                     options={{ drawerLabel: 'Registros', drawerIcon: 'account-box-multiple' as any }}
                 />
                 <Drawer.Screen
                     name={"Grupos"}
-                    component={Page6}
+                    component={Page6 as any}
                     options={{ drawerLabel: 'Grupos', drawerIcon: 'account-group-outline' as any }}
                 />
                 <Drawer.Screen
                     name={"Horarios"}
-                    component={Page2}
+                    component={Page2 as any}
                     options={{ drawerLabel: 'Horarios', drawerIcon: 'clock-time-eight-outline' as any }}
                 />
                 <Drawer.Screen
                     name={"Lista de alumnos"}
-                    component={Page3}
+                    component={Page3 as any}
                     options={{ drawerLabel: 'Lista de alumnos', drawerIcon: 'format-list-bulleted' as any }}
                 />
                 <Drawer.Screen
                     name={"Directivos"}
-                    component={Page4}
+                    component={Page4 as any}
                     options={{ drawerLabel: 'Directivos', drawerIcon: 'shield-crown-outline' as any }}
                 />
                 <Drawer.Screen
                     name={"Registros de actividad"}
-                    component={Page5}
+                    component={Page5 as any}
                     options={{ drawerLabel: 'Registros de actividad', drawerIcon: 'folder-text-outline' as any }}
                 />
             </Drawer.Navigator>

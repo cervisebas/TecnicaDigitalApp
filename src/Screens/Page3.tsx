@@ -193,12 +193,12 @@ export default class Page3 extends PureComponent<IProps, IState> {
     _openEditStudent(data: StudentsData) {
         this.refEditStudent.current?.open(data);
     }
-    _goLoading(visible: boolean, text: string, after?: ()=>any) {
+    _goLoading(visible: boolean, text?: string, after?: ()=>any) {
         if (!visible) {
             this.refLoadingComponent.current?.close();
             return (after)&&after();
         }
-        this.refLoadingComponent.current?.open(text);
+        this.refLoadingComponent.current?.open(text!);
         (after)&&after();
     }
     _openViewDetails(data: StudentsData) {

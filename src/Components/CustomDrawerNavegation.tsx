@@ -16,6 +16,7 @@ import AnimationTop1 from "../Assets/DrawerAnims/anim2.webp";
 import AnimationTop2 from "../Assets/DrawerAnims/anim3.webp";
 import AnimationTop3 from "../Assets/DrawerAnims/anim4.webp";
 import ProfilePicture from "../Assets/profile.png";
+import ParticleBackground from "./ParticleBackground";
 
 type IState = {
     nameUser: any;
@@ -100,6 +101,14 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                     </View>
                 </View>
                 <View style={styles.contentScrollView}>
+                    <ParticleBackground
+                        particleNumber={20}
+                        particleSize={8}
+                        particleDispersion={32}
+                        particleColor={Theme.colors.accent}
+                        backgroundColor={"rgba(0, 0, 0, 0)"}
+                        containerStyle={styles.backgroundParticles}                        
+                    />
                     <ScrollView>
                         {this.props.state.routes.map(({ key, name }, index)=>{
                             const { title, drawerLabel, drawerIcon } = this.props.descriptors[key].options;
@@ -274,16 +283,26 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         color: '#000000'
     },
+    backgroundParticles: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        flex: 2
+    },
     contentScrollView: {
+        position: 'relative',
+        overflow: 'hidden',
         flex: 3,
-        paddingBottom: 80
+        paddingBottom: 80,
+        paddingTop: 8
     },
     headerImage: {
         width: '100%',
         height: 150,
         backgroundColor: Theme.colors.background,
         position: 'relative',
-        marginBottom: 8,
         marginTop: -4,
         overflow: 'hidden',
         shadowColor: "#000000",

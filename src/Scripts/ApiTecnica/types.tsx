@@ -160,6 +160,13 @@ type Groups = {
     students: string[];
 };
 
+// Matters
+type Matter = {
+    id: string;
+    name: string;
+    teacher: StudentsData;
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -178,5 +185,6 @@ export type {
     FamilyDataAssist,
     RecordData,
     PreferencesAssist,
-    Groups
+    Groups,
+    Matter
 };

@@ -1,6 +1,6 @@
 import { decode, encode } from "base-64";
 import moment from "moment";
-import React, { Component, PureComponent } from "react";
+import React, { Component, createRef, PureComponent } from "react";
 import { Dimensions, Linking, PermissionsAndroid, ScrollView, StyleSheet, ToastAndroid, TouchableHighlight, View } from "react-native";
 import { Appbar, Button, Card, IconButton, ProgressBar, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
 import ViewShot, { captureRef } from "react-native-view-shot";
@@ -12,23 +12,20 @@ import Share from "react-native-share";
 import RNFS from "react-native-fs";
 import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
+import CardCredential from "../Components/Elements/CardCredential";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 
 type IProps = {
     openImage: (data: { uri: string })=>any;
     openDetailsAssist: (data: AssistIndividualData[])=>any;
     changeDesign: (isVip?: boolean)=>any;
-    goLoading: (v: boolean, t: string, a?: ()=>any)=>any;
+    goLoading: (v: boolean, t?: string, a?: ()=>any)=>any;
     editNow: (data: StudentsData)=>any;
 };
 type IState = {
     visible: boolean;
     data: StudentsData;
     designCard: number | undefined;
-    // SnackBar
-    snackBarView: boolean;
-    snackBarText: string;
-    // Card
-    scaleImage: number;
     // Extra Data
     idStudent: string;
     // Assist
@@ -48,9 +45,6 @@ export default class ViewDetails extends Component<IProps, IState> {
             visible: false,
             data: this.defaultData,
             designCard: undefined,
-            snackBarView: false,
-            snackBarText: '',
-            scaleImage: 0.3,
             idStudent: '',
             isLoadAssist: false,
             existAssist: false,
@@ -60,12 +54,10 @@ export default class ViewDetails extends Component<IProps, IState> {
         };
         this.loadAssist = this.loadAssist.bind(this);
         this.openListStudent = this.openListStudent.bind(this);
-        this.viewImageTarget = this.viewImageTarget.bind(this);
-        this.downloadImageTarget = this.downloadImageTarget.bind(this);
-        this.shareImageTarget = this.shareImageTarget.bind(this);
         this.closeAndClear = this.closeAndClear.bind(this);
         this.editNow = this.editNow.bind(this);
         this.openChangeDesign = this.openChangeDesign.bind(this);
+        this._showSnackbar = this._showSnackbar.bind(this);
     }
     private defaultData: StudentsData = {
         id: '-1',
@@ -77,14 +69,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         date: encode('none'),
         picture: encode('default.png')
     };
-    private refTarget: ViewShot | null | any = null;
-    componentDidMount() {
-        var scales: number[] = [];
-        for (let i = 1; i > 0; i -= 0.001) { scales.push(i); }
-        var scaleUse: number = 0;
-        scales.forEach((val)=>(((1200 * val) < (width - 48)) && scaleUse == 0) && (scaleUse = val));
-        this.setState({ scaleImage: scaleUse });
-    }
+    private refCustomSnackbar = createRef<CustomSnackbar>();
     calcYears(date: string): string {
         var dateNow = new Date();
         var processDate = moment(date, 'DD-MM-YYYY').toDate();
@@ -92,62 +77,6 @@ export default class ViewDetails extends Component<IProps, IState> {
         var months = dateNow.getMonth() - processDate.getMonth();
         if (months < 0 || (months === 0 && dateNow.getDate() < processDate.getDate())) years--;
         return String(years);
-    }
-    generateImage(result?: "tmpfile" | "base64" | "data-uri" | "zip-base64" | undefined): Promise<string> {
-        return new Promise((resolve, reject)=>{
-            captureRef(this.refTarget, { quality: 1, format: 'png', result: (result)? result: 'tmpfile' })
-                .then((uri)=>resolve(uri))
-                .catch(()=>reject());
-        });
-    }
-    viewImageTarget() {
-        this.generateImage()
-            .then((uri)=>this.props.openImage({ uri }))
-            .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
-    }
-    async downloadImageTarget() {
-        const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-            title: "Atención",
-            message: "Para guardar la imagen se necesita acceder al almacenamiento de su dispositivo, por favor acepte los permisos que se requieren.",
-            buttonNegative: "Cancelar",
-            buttonPositive: "Aceptar"
-        });
-        if (permission == PermissionsAndroid.RESULTS.DENIED) return this.setState({ snackBarView: true, snackBarText: 'Se denegó el acceso al almacenamiento.' });
-        await this.verifyFolder();
-        this.generateImage()
-            .then((uri)=>{
-                var codeName: number = Math.floor(Math.random() * (99999 - 10000)) + 10000;
-                var nameFile: string = (this.state.data)? `student-${this.state.data.id}`: '';
-                nameFile += `-credential-${codeName}`;
-                RNFS.copyFile(uri, `${RNFS.DownloadDirectoryPath}/tecnica-digital/${(this.state.data)? decode(this.state.data.curse): ''}/${nameFile}.png`)
-                    .then(()=>this.setState({ snackBarView: true, snackBarText: 'Imagen guardada con éxito' }))
-                    .catch((e)=>this.setState({ snackBarView: true, snackBarText: 'Error al guardar la imagen' }));
-            })
-            .catch(()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' }));
-    }
-    shareImageTarget() {
-        this.props.goLoading(true, 'Espere por favor...', ()=>
-            this.generateImage('base64')
-                .then((base64)=>{
-                    var nameFile: string = `student-${this.state.data!.id}-credential-${Math.floor(Math.random() * (99999 - 10000)) + 10000}.png`;
-                    this.props.goLoading(false, 'Espere por favor...', ()=>
-                        Share.open({
-                            url: `data:image/png;base64,${base64}`,
-                            filename: nameFile,
-                            type: 'png',
-                            showAppsToView: false,
-                            isNewTask: true
-                        }).catch(()=>this.props.goLoading(false, 'Espere por favor...', ()=>this.setState({ snackBarView: true, snackBarText: 'Acción cancelada por el usuario.' })))
-                    );
-                })
-                .catch(()=>this.props.goLoading(false, 'Espere por favor...', ()=>this.setState({ snackBarView: true, snackBarText: 'Error al generar la imagen.' })))
-        );
-    }
-    async verifyFolder() {
-        if (this.state.data) {
-            if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`)) RNFS.mkdir(`${RNFS.DownloadDirectoryPath}/tecnica-digital/`);
-            if (!await RNFS.exists(`${RNFS.DownloadDirectoryPath}/tecnica-digital/${decode(this.state.data.curse)}/`)) RNFS.mkdir(`${RNFS.DownloadDirectoryPath}/tecnica-digital/${decode(this.state.data.curse)}/`);
-        }
     }
     loadAssist() {
         var id = '';
@@ -166,28 +95,25 @@ export default class ViewDetails extends Component<IProps, IState> {
                         numNotAssist: notAssists.toString()
                     });
                 })
-                .catch((err)=>this.setState({
-                    isLoadAssist: false,
-                    snackBarView: true,
-                    snackBarText: err.cause
-                }))
+                .catch((err)=>{
+                    this.setState({ isLoadAssist: false });
+                    this.refCustomSnackbar.current?.open(err.cause);
+                })
         );
     }
     openListStudent() {
-        if (this.state.dataAssist.length !== 0) return this.props.openDetailsAssist(this.state.dataAssist);;
-        this.setState({ snackBarView: true, snackBarText: 'La lista de asistencia está vacía.' });
+        if (this.state.dataAssist.length !== 0) return this.props.openDetailsAssist(this.state.dataAssist);
+        this.refCustomSnackbar.current?.open('La lista de asistencia está vacía.');
     }
     closeAndClear() {
         if (this.state.isLoadAssist) return ToastAndroid.show('No se puede cerrar esta ventana en este momento.', ToastAndroid.SHORT);
         this.setState({
-            snackBarView: false,
-            snackBarText: '',
             isLoadAssist: false,
             dataAssist: [],
             numAssist: 'Cargando...',
             numNotAssist: 'Cargando...'
         });
-        this.refTarget = null;
+        this.refCustomSnackbar.current?.close();
         this.close();
     }
     editNow() {
@@ -198,6 +124,9 @@ export default class ViewDetails extends Component<IProps, IState> {
     openChangeDesign() {
         const isVip = (decode(this.state.data.curse).indexOf("7°") !== -1) && (moment().format("YYYY") == "2022");
         this.props.changeDesign(isVip);
+    }
+    _showSnackbar(text: string) {
+        this.refCustomSnackbar.current?.open(text);
     }
 
     // Controller
@@ -251,7 +180,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                             </Card.Content>
                         </Card>
                         <Card style={{ marginLeft: 8, marginRight: 8, marginBottom: 12, overflow: 'hidden' }} elevation={3}>
-                            {(this.state.isLoadAssist)&&<ProgressBar indeterminate />}
+                            <ProgressBar indeterminate={true} style={{ display: (this.state.isLoadAssist)? 'flex': 'none' }} />
                             <Card.Title
                                 title={'Asistencia:'}
                                 right={(props)=><IconButton
@@ -280,43 +209,17 @@ export default class ViewDetails extends Component<IProps, IState> {
                                 </View>
                             </Card.Content>
                         </Card>
-                        <Card style={{ marginLeft: 8, marginRight: 8, marginBottom: 12 }} elevation={3}>
-                            <Card.Title
-                                title={'Tarjeta de ingreso'}
-                                right={(props)=><IconButton
-                                    {...props}
-                                    disabled={this.state.isLoadAssist}
-                                    icon={'pencil-ruler'}
-                                    color={Theme.colors.accent}
-                                    onPress={this.openChangeDesign}
-                                />}
-                            />
-                            <Card.Content>
-                                <CustomCredential
-                                    scale={this.state.scaleImage}
-                                    image={`${urlBase}/image/${decode(this.state.data.picture)}`}
-                                    name={decode(this.state.data.name)}
-                                    dni={decode(this.state.data.dni)}
-                                    refTarget={(ref)=>this.refTarget = ref}
-                                    onPress={this.viewImageTarget}
-                                    style={styles.target}
-                                    type={this.state.designCard}
-                                />
-                            </Card.Content>
-                            <Card.Actions style={{ justifyContent: 'flex-end' }}>
-                                <Button icon={'cloud-download-outline'} onPress={this.downloadImageTarget}>Dercargar</Button>
-                                <Button icon={'share-variant-outline'} onPress={this.shareImageTarget}>Compartir</Button>
-                            </Card.Actions>
-                        </Card>
+                        <CardCredential
+                            studentData={this.state.data}
+                            designCardElection={this.state.designCard}
+                            openChangeDesign={this.openChangeDesign}
+                            openImageViewer={this.props.openImage}
+                            showLoading={this.props.goLoading}
+                            showSnackbar={this._showSnackbar}
+                        />
                     </ScrollView>
                 </View>
-                <Snackbar
-                    visible={this.state.snackBarView}
-                    onDismiss={()=>this.setState({ snackBarView: false })}
-                    duration={3000}
-                    action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackBarView: false }) }}>
-                    <Text>{this.state.snackBarText}</Text>
-                </Snackbar>
+                <CustomSnackbar ref={this.refCustomSnackbar} />
             </PaperProvider>
         </CustomModal>);
     }

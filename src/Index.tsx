@@ -18,12 +18,7 @@ import MainWidget from "./Scripts/MainWidget";
 import UpdateCheck from "./UpdateCheck";
 
 type IProps = {};
-type IState = {
-    /*marginAndroid: {
-        marginTop: number;
-        marginBottom: number;
-    };*/
-};
+type IState = {};
 
 const Stack = createNativeStackNavigator();
 
@@ -42,7 +37,6 @@ export default class Index extends Component<IProps, IState> {
         if (Platform.OS == 'android') {
             SplashScreen.hide();
             SystemNavigationBar.setNavigationColor('#FF3232', 'light', 'navigation');
-            //DeviceInfo.getApiLevel().then(async(level)=>(level <= 26)&&this.setState({ marginAndroid: { marginTop: StatusBar.currentHeight || 24, marginBottom: await getNavigationBarHeight() } }));
             this.verifyFolder();
         }
         this.startNotifications();

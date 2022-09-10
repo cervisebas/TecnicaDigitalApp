@@ -14,7 +14,7 @@ export default class StudentSystem {
         this.header_access2.headers.Authorization = setHeaderAccess;
     }
     private cursesOrder = [
-        { l: 'Profesor', v: 0},
+        { l: 'Docente', v: 0},
         { l: '1°1', v: 11 },
         { l: '1°2', v: 12 },
         { l: '1°3', v: 13 },
@@ -91,6 +91,23 @@ export default class StudentSystem {
                             curses.sort((a, b)=>a.level - b.level);
                             return resolve({ curses, students: data });
                         };
+                        return reject({ ok: false, cause: (result.cause)? result.cause: 'Ocurrio un error inesperado.' });
+                    } catch (error) {
+                        reject({ ok: false, cause: 'Ocurrio un error inesperado.', relogin: true, error });
+                    }
+                }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+            }).catch((error)=>reject({ ok: true, cause: error.cause }));
+        });
+    }
+    getAllTeachers(): Promise<StudentsData[]> {
+        return new Promise((resolve, reject)=>{
+            var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            Directives.getDataLocal().then((value)=>{
+                var postData = { getAllTeachers: true, username: value.username, password: value.password };
+                axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{
+                    try {
+                        var result: TypicalRes = value.data;
+                        if (result.ok) return resolve(result.datas);
                         return reject({ ok: false, cause: (result.cause)? result.cause: 'Ocurrio un error inesperado.' });
                     } catch (error) {
                         reject({ ok: false, cause: 'Ocurrio un error inesperado.', relogin: true, error });

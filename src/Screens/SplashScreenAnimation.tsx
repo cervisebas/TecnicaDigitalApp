@@ -20,7 +20,7 @@ function SplashScreenAnimation(props: IProps, ref: React.Ref<{ open: ()=>any; cl
     const animatedTextStyles = useAnimatedStyle(()=>({ transform: [{ scale: withTiming(scale.value, { duration: 250 }) }], opacity: withTiming(opacity.value, { duration: 250 }) }));
     const wait = (time: number)=>new Promise((res)=>setTimeout(res, time));
     const _goAnimation = async()=>{
-        await wait(200);
+        await wait(1000);
         await RNBootSplash.hide({ fade: false });
         translateY.value = -50;
         await wait(500);

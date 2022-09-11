@@ -1,8 +1,8 @@
 import React, { Component, PureComponent } from "react";
-import { FlatList, ImageSourcePropType, LayoutChangeEvent, ListRenderItemInfo, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from "react-native";
+import { FlatList, ImageSourcePropType, LayoutChangeEvent, ListRenderItemInfo, NativeScrollEvent, NativeSyntheticEvent, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FastImage from "react-native-fast-image";
-import { Appbar, Banner, Paragraph, Provider as PaperProvider } from "react-native-paper";
+import { Appbar, Banner, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
 // Images
@@ -59,6 +59,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         this._onLayout = this._onLayout.bind(this);
         this._showBanner = this._showBanner.bind(this);
         this._hideBanner = this._hideBanner.bind(this);
+        this._onScroll = this._onScroll.bind(this);
         this.close = this.close.bind(this);
     }
     private list: Item[] = [
@@ -87,6 +88,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         { id: 23, source: Design23, option: 22 }
     ];
     private backupList = this.list;
+    private bannerCloseOnEvent: boolean = false;
 
     componentDidMount(): void {
         if (this.props.isFamily)
@@ -132,6 +134,17 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
             return this.forceUpdate();
         }
     }
+    _onScroll({ nativeEvent: { contentOffset } }: NativeSyntheticEvent<NativeScrollEvent>) {
+        if (this.props.isFamily) {
+            if (this.state.bannerVisible && contentOffset.y > 150) {
+                this.bannerCloseOnEvent = true;
+                this.setState({ bannerVisible: false });
+            } else if (this.bannerCloseOnEvent && contentOffset.y < 20) {
+                this.bannerCloseOnEvent = false;
+                this.setState({ bannerVisible: true });
+            }
+        }
+    }
 
     // Controller
     open(isVip?: boolean) {
@@ -153,14 +166,15 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
                     </Appbar.Header>
                     <Banner
                         visible={this.state.bannerVisible}
-                        actions={[{ label: 'OCULTAR', onPress: this._hideBanner }]}
+                        actions={[{ label: 'ENTENDIDO', onPress: this._hideBanner }]}
                         icon={({ size })=><Icon name={"information-outline"} size={size} />}
-                        children={'Ahora el diseño que elijas se mantendrá colocado, aunque reinicies la aplicación.'}
+                        children={'El diseño que elijas se mantendrá colocado, aunque reinicies o cierres la aplicación.'}
                     />
                     <View style={{ flex: 2 }}>
                         {(this.state.width !== 0)&&<FlatList
                             data={this.list}
                             contentContainerStyle={{ paddingTop: 12 }}
+                            onScroll={this._onScroll}
                             keyExtractor={this._keyExtractor}
                             renderItem={this._renderItem}
                         />}

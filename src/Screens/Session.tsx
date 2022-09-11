@@ -295,12 +295,24 @@ const styles = StyleSheet.create({
     title1: {
         fontSize: 36,
         fontWeight: 'bold',
-        color: Colors.red500
+        color: Colors.red500,
+        textShadowColor: 'rgba(244, 67, 54, 0.4)',
+        textShadowOffset: {
+            width: -1,
+            height: 1
+        },
+        textShadowRadius: 2
     },
     title2: {
         fontSize: 36,
         fontWeight: 'bold',
-        color: Colors.blue800
+        color: Colors.blue800,
+        textShadowColor: 'rgba(21, 101, 192, 0.4)',
+        textShadowOffset: {
+            width: -1,
+            height: 1
+        },
+        textShadowRadius: 2
     },
     content: {
         flex: 2,

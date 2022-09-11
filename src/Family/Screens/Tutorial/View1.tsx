@@ -62,7 +62,9 @@ const styles = StyleSheet.create({
         marginLeft: 12
     },
     content1: {
-        marginTop: -64
+        marginTop: -64,
+        width: '100%',
+        alignItems: 'center'
     },
     contentTitle: {
         alignItems: 'center',

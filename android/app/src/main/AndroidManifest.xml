@@ -27,7 +27,7 @@
         android:requestLegacyExternalStorage="true"
         android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppTheme"
+        android:theme="@style/BootTheme"
         android:usesCleartextTraffic="true">
         <receiver
             android:name=".MainWidget"

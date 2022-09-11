@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Provider as PaperProvider } from "react-native-paper";
 import SystemNavigationBar from "react-native-system-navigation-bar";
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-import SplashScreen from 'react-native-splash-screen';
+import RNBootSplash from "react-native-bootsplash";
 import notifee from '@notifee/react-native';
 import RNFS from "react-native-fs";
 import Theme from "./Themes";
@@ -35,7 +35,7 @@ export default class Index extends Component<IProps, IState> {
     componentDidMount(): void {
         this.event1 = DeviceEventEmitter.addListener('ChangeIndexNavigation', this.changePage);
         if (Platform.OS == 'android') {
-            SplashScreen.hide();
+            //RNBootSplash.hide();
             SystemNavigationBar.setNavigationColor('#FF3232', 'light', 'navigation');
             this.verifyFolder();
         }

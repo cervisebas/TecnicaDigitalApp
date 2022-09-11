@@ -1,10 +1,11 @@
 import React, { Component, createRef, PureComponent } from "react";
-import { ImageBackground, Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet } from "react-native";
+import { ImageBackground, Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet, BackHandler } from "react-native";
 import { Text, Provider as PaperProvider, TextInput, Button, Colors, Snackbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Directive, Family } from "../Scripts/ApiTecnica";
 import Background from "../Assets/background-session.webp";
 import Theme from "../Themes";
+import CustomBackgroundSession from "../Components/CustomBackgroundSession";
 
 type IProps = {
     reVerifySession: ()=>any;
@@ -150,10 +151,11 @@ export default class Session extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
-        return(<CustomModal visible={this.state.visible} animationInTiming={0} animationOutTiming={0} animationIn={'fadeIn'} animationOut={'fadeOut'}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={BackHandler.exitApp} animationInTiming={0} animationOutTiming={0} animationIn={'fadeIn'} animationOut={'fadeOut'}>
             <PaperProvider theme={Theme}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                    <ImageBackground source={Background} resizeMode={"cover"} style={styles.content}>
+                    <View style={styles.content}>
+                        <CustomBackgroundSession style={styles.imageBackground} />
                         <View style={{ width: '100%', alignItems: 'center' }}>
                             <CustomTitle />
                             {(this.state.isDirective)? <View style={{ marginTop: 16, width: '90%' }}>
@@ -254,7 +256,7 @@ export default class Session extends Component<IProps, IState> {
                                 </View>
                             </View>}
                         </View>
-                    </ImageBackground>
+                    </View>
                 </TouchableWithoutFeedback>
                 <Snackbar
                     visible={this.state.snackbarShow}
@@ -305,5 +307,13 @@ const styles = StyleSheet.create({
         backgroundColor: Theme.colors.background,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    imageBackground: {
+        flex: 1,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0
     }
 });

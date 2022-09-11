@@ -2,6 +2,7 @@ import React, { Component, createRef } from "react";
 import { DeviceEventEmitter, EmitterSubscription } from "react-native";
 import ScreenLoading from "./Screens/ScreenLoading";
 import Session from "./Screens/Session";
+import SplashScreenAnimation from "./Screens/SplashScreenAnimation";
 import { Actions, Directive, Family, Prefences } from "./Scripts/ApiTecnica";
 
 type IProps = {
@@ -17,6 +18,7 @@ export default class Others extends Component<IProps, IState> {
         this._setTimeoutScreenLoading = this._setTimeoutScreenLoading.bind(this);
         this._reVerifySession = this._reVerifySession.bind(this);
         this._catchVerify = this._catchVerify.bind(this);
+        this.verify = this.verify.bind(this);
     }
     private timeout_screenloading: number = 0;
     // Events
@@ -33,7 +35,7 @@ export default class Others extends Component<IProps, IState> {
         this.event2 = DeviceEventEmitter.addListener('turnSessionView', (visible: boolean)=>(visible)? this.refSession.current?.open(): this.refSession.current?.close());
         this.event3 = DeviceEventEmitter.addListener('textScreenLoading', (message: any)=>(message !== null)? this.refScreenLoading.current?.updateMessage(message): this.refScreenLoading.current?.hideMessage());
         this.event4 = DeviceEventEmitter.addListener('reVerifySession', this._reVerifySession);
-        this.verify();
+        //this.verify();
     }
     componentWillUnmount() {
         this.event1?.remove();
@@ -111,6 +113,7 @@ export default class Others extends Component<IProps, IState> {
         return(<>
             <Session ref={this.refSession} reVerifySession={this._reVerifySession} />
             <ScreenLoading ref={this.refScreenLoading} setTimeout={this._setTimeoutScreenLoading} />
+            <SplashScreenAnimation onFinish={this.verify} />
         </>);
     }
 }

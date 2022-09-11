@@ -103,7 +103,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                 <View style={styles.contentScrollView}>
                     <ParticleBackground
                         particleNumber={20}
-                        particleSize={8}
+                        particleSize={12}
                         particleDispersion={32}
                         particleColor={Theme.colors.accent}
                         backgroundColor={"rgba(0, 0, 0, 0)"}

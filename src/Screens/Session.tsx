@@ -1,9 +1,8 @@
 import React, { Component, createRef, PureComponent } from "react";
-import { ImageBackground, Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet, BackHandler } from "react-native";
+import { Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet, BackHandler } from "react-native";
 import { Text, Provider as PaperProvider, TextInput, Button, Colors, Snackbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Directive, Family } from "../Scripts/ApiTecnica";
-import Background from "../Assets/background-session.webp";
 import Theme from "../Themes";
 import CustomBackgroundSession from "../Components/CustomBackgroundSession";
 

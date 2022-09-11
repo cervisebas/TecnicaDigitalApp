@@ -7,6 +7,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Theme from "../../Themes";
 import { Matters } from "../../Scripts/ApiTecnica";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
+import EditMatter from "./EditMatter";
 
 type IProps = {
     handlerLoad: (status: boolean)=>any;
@@ -34,9 +35,11 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
         this.goDelete = this.goDelete.bind(this);
         this._refreshNow = this._refreshNow.bind(this);
         this._renderItem = this._renderItem.bind(this);
+        this._goSnackbar = this._goSnackbar.bind(this);
     }
     private refDialogDelete = createRef<DialogDeleteMatter>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
+    private refEditMatter = createRef<EditMatter>();
     private event: EmitterSubscription | undefined = undefined;
     private idDelete: string = '-1';
 
@@ -78,9 +81,15 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
         this.refDialogDelete.current?.open();
         this.idDelete = id;
     }
+    onEdit(item: Matter) {
+        this.refEditMatter.current?.open(item);
+    }
 
     _refreshNow() {
         this.setState({ isRefresh: true }, this.loadData);
+    }
+    _goSnackbar(message: string) {
+        this.refCustomSnackbar.current?.open(message);
     }
     /* ##### Flatlist ##### */
     _renderItem({ item }: ListRenderItemInfo<Matter>) {
@@ -91,11 +100,18 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
             style={styles.item}
             descriptionStyle={styles.itemDescription}
             left={(props)=><List.Icon {...props} icon={'folder-account-outline'} />}
-            right={(props)=><IconButton
-                {...props}
-                icon={'delete-outline'}
-                onPress={()=>this.onDelete(item.id)}
-            />}
+            right={(props)=><>
+                <IconButton
+                    {...props}
+                    icon={'pencil-outline'}
+                    onPress={()=>this.onEdit(item)}
+                />
+                <IconButton
+                    {...props}
+                    icon={'delete-outline'}
+                    onPress={()=>this.onDelete(item.id)}
+                />
+            </>}
         />);
     }
     _keyExtractor(item: Matter) {
@@ -139,6 +155,9 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
             </View>
             <CustomSnackbar style={styles.snackbar} ref={this.refCustomSnackbar} />
             <DialogDeleteMatter ref={this.refDialogDelete} onConfirm={this.goDelete} />
+
+            {/* Modal's */}
+            <EditMatter ref={this.refEditMatter} snackbar={this._goSnackbar} />
         </View>);
     }
 }

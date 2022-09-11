@@ -7,9 +7,12 @@ import CustomModal from "../../Components/CustomModal";
 import { CustomPicker2 } from "../../Components/Elements/CustomInput";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
 import { Matters, Student } from "../../Scripts/ApiTecnica";
+import { Matter } from "../../Scripts/ApiTecnica/types";
 import Theme from "../../Themes";
 
-type IProps = {};
+type IProps = {
+    snackbar: (message: string)=>any;
+};
 type IState = {
     visible: boolean;
     isLoading: boolean;
@@ -18,6 +21,9 @@ type IState = {
         id: string;
         name: string;
     }[];
+
+    // Info
+    idMatter: string;
 
     // Form
     formName: string;
@@ -28,7 +34,7 @@ type IState = {
     errorFormTeacher: boolean;
 };
 
-export default class AddNewMatter extends PureComponent<IProps, IState> {
+export default class EditMatter extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -36,6 +42,8 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
             isLoading: false,
             isLoadingTeachers: true,
             listTeachers: [{ id: '-1', name: encode('Cargando...') }],
+            // Info
+            idMatter: '-1',
             // Form
             formName: '',
             formTeacher: '-1',
@@ -55,6 +63,8 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
         this.setState({
             isLoading: false,
             listTeachers: [{ id: '-1', name: encode('Cargando...') }],
+            // Info
+            idMatter: '-1',
             // Form
             formName: '',
             formTeacher: '-1'
@@ -76,16 +86,10 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
     sendData() {
         this.setState({ isLoading: true }, ()=>{
             if (!this.verifyInputs()) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open("Por favor revise los datos ingresados."));
-            Matters.create(this.state.formTeacher, encode(this.state.formName.trimStart().trimEnd()))
+            Matters.modify(this.state.idMatter, this.state.formTeacher, encode(this.state.formName.trimStart().trimEnd()))
                 .then(()=>{
-                    this.setState({
-                        formName: '',
-                        formTeacher: '-1',
-                        errorFormName: false,
-                        errorFormTeacher: false,
-                        isLoading: false
-                    });
-                    this.refCustomSnackbar.current?.open('Materia añadida con éxito.');
+                    this.setState({ isLoading: false }, this.closeAndClean);
+                    this.props.snackbar('Materia editada con éxito.');
                     DeviceEventEmitter.emit('p2-matters-reload', true);
                 })
                 .catch((error)=>{
@@ -109,8 +113,13 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
     }
 
     // Controller
-    open() {
-        this.setState({ visible: true });
+    open(data: Matter) {
+        this.setState({
+            visible: true,
+            idMatter: data.id,
+            formName: decode(data.name),
+            formTeacher: data.teacher.id
+        });
     }
     close() {
         this.setState({ visible: false });
@@ -123,7 +132,7 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
                     <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                         <Appbar.Header>
                             <Appbar.BackAction onPress={this.closeAndClean} />
-                            <Appbar.Content title={'Añadir nueva materia'} />
+                            <Appbar.Content title={`Editar materia: #${this.state.idMatter}`} />
                         </Appbar.Header>
                         <ProgressBar indeterminate color={Theme.colors.accent} style={[styles.progressBar, { opacity: (this.state.isLoadingTeachers)? 1: 0 }]} />
                         <View style={{ flex: 2 }}>

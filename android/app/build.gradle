@@ -148,8 +148,8 @@ android {
         applicationId "com.tecnicadigital"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18
-        versionName "2.6.0"
+        versionCode 19
+        versionName "3.0.0"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         vectorDrawables {

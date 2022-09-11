@@ -22,6 +22,18 @@ export default class MatterScheduleSystem {
             });
         });
     }
+    modify(idMatter: string, idTeacher: string, name: string): Promise<boolean> {
+        return new Promise((resolve, reject)=>{
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            Directives.getDataLocal().then((value)=>{
+                const postData = { editMatter: true, username: value.username, password: value.password, idMatter, idTeacher, name };
+                axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
+                    var res: TypicalRes = result.data;
+                    if (res.ok) resolve(true); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+            });
+        });
+    }
     delete(idMatter: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);

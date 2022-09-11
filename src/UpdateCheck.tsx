@@ -68,7 +68,7 @@ export default class UpdateCheck extends PureComponent<IProps, IState> {
                     <Button onPress={this.goUpdate}>Actualizar</Button>
                 </Dialog.Actions>
             </Dialog>
-            <Dialog visible={this.state.visible2} onDismiss={this._close}>
+            <Dialog visible={this.state.visible2} onDismiss={this._close2}>
                 <Dialog.Title>¡Dispositivo incompatible!</Dialog.Title>
                 <Dialog.Content>
                     <Paragraph>El dispositivo cuenta con hardware limitado, esto puedo provocar ciertos inconvenientes o presentar lentitud en ciertos sectores de la aplicación. Si decide proseguir tenga en cuenta lo que se mencionó.</Paragraph>

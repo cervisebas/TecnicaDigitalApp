@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Provider as PaperProvider } from "react-native-paper";
 import SystemNavigationBar from "react-native-system-navigation-bar";
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-import RNBootSplash from "react-native-bootsplash";
 import notifee from '@notifee/react-native';
 import RNFS from "react-native-fs";
 import Theme from "./Themes";

@@ -83,13 +83,8 @@
 -keep class com.swmansion.rnscreens.** { *; }
 -dontwarn com.swmansion.rnscreens.**
 
-# react-native-splash-screen
--keep class org.devio.rn.splashscreen.** { *; }
--dontwarn org.devio.rn.splashscreen.**
-
 # react-native-svg
 -keep class com.horcrux.svg.** { *; }
--dontwarn com.horcrux.svg.**
 
 # react-native-system-navigation-bar
 -keep class com.reactnativesystemnavigationbar.** { *; }

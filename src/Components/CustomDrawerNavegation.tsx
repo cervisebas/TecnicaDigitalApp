@@ -101,14 +101,14 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                     </View>
                 </View>
                 <View style={styles.contentScrollView}>
-                    <ParticleBackground
+                    {/*<ParticleBackground
                         particleNumber={20}
                         particleSize={12}
                         particleDispersion={32}
                         particleColor={Theme.colors.accent}
                         backgroundColor={"rgba(0, 0, 0, 0)"}
                         containerStyle={styles.backgroundParticles}                        
-                    />
+                    />*/}
                     <ScrollView>
                         {this.props.state.routes.map(({ key, name }, index)=>{
                             const { title, drawerLabel, drawerIcon } = this.props.descriptors[key].options;

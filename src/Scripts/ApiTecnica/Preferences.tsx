@@ -4,6 +4,7 @@ import { decode, encode } from "base-64";
 import moment from "moment";
 import qs from "qs";
 import { DirectiveData, PreferencesAssist, TypicalRes } from "./types";
+import notifee, { AndroidImportance, AndroidVisibility } from "@notifee/react-native";
 
 export default class PreferencesSystem {
     private urlBase: string = '';
@@ -12,6 +13,8 @@ export default class PreferencesSystem {
         this.urlBase = setUrl;
         this.header_access.headers.Authorization = setHeaderAccess;
     }
+    private isSyncInProgress: boolean = false;
+    private isOtherSync: boolean = false;
     async getAssist() {
         try {
             var data = await AsyncStorage.getItem('PreferencesAssist');
@@ -25,13 +28,15 @@ export default class PreferencesSystem {
         try {
             const local = await this.getDataLocal();
             const time = moment();
-            await AsyncStorage.setItem('PreferencesAssist', encode(JSON.stringify({
+            const value = encode(JSON.stringify({
                 idDirective: local.id,
                 date: time.format('YYYY/MM/DD'),
                 time: time.format('HH:mm:ss'),
                 curses: curses
-            })));
-            this.syncData();
+            }));
+            await AsyncStorage.setItem('PreferencesAssist', value);
+            //this.syncData();
+            this.SyncInForeground();
         } catch {
             throw "Ocurrió un error inesperado.";
         }
@@ -69,6 +74,48 @@ export default class PreferencesSystem {
                 }
             }).catch(()=>reject({ ok: false, cause: 'Error al acceder a los datos almacenados' }));
         });
+    }
+
+    private async SyncInForeground() {
+        if (this.isSyncInProgress) return this.isOtherSync = true;
+        this.isSyncInProgress = true;
+        const channelId = await notifee.createChannel({
+            id: 'AsyncPreferencesForeground',
+            name: 'Sincronización de preferencias en primer plano.',
+            vibration: false,
+            importance: AndroidImportance.MIN,
+            lights: false,
+            visibility: AndroidVisibility.PUBLIC
+        });
+        await notifee.displayNotification({
+            id: 'sync',
+            title: 'Sincronizando preferencias.',
+            android: {
+                channelId,
+                smallIcon: 'small_icon_notify',
+                color: '#FF3232',
+                onlyAlertOnce: true,
+                progress: {
+                    max: 1,
+                    current: 0,
+                    indeterminate: true
+                }
+            },
+        });
+        await this.syncData();
+        await this.wait(1000);
+        await notifee.cancelNotification('sync');
+        this.isSyncInProgress = false;
+        this.checkOtherSync();
+    }
+    private checkOtherSync() {
+        if (this.isOtherSync) {
+            this.isOtherSync = false;
+            this.SyncInForeground();
+        }
+    }
+    private wait(time: number) {
+        return new Promise((resolve)=>setTimeout(resolve, time));
     }
 
     // Online

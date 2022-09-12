@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Dimensions, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import Modal from "react-native-modal";
+import ExtraDimensions from "react-native-extra-dimensions-android";
 
 type ExtractProps<TComponentOrTProps> = TComponentOrTProps extends React.Component<infer TProps, any> ? TProps : TComponentOrTProps;
 type IProps = {
@@ -17,7 +18,8 @@ type IProps = {
 };
 type IState = {};
 
-const { width, height } = Dimensions.get('window');
+const width = Dimensions.get('window').width;
+const height = ExtraDimensions.get('REAL_WINDOW_HEIGHT');
 
 export default class CustomModal extends Component<IProps, IState> {
     constructor(props: IProps) {
@@ -55,6 +57,7 @@ export default class CustomModal extends Component<IProps, IState> {
             onModalWillShow={this.onShow}
             onModalHide={this.onClose}
             useNativeDriver={true}
+            useNativeDriverForBackdrop={true}
             deviceWidth={width}
             deviceHeight={height}
             style={[this.props.style, styles.modal]}>

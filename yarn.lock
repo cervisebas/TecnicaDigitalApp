@@ -2084,6 +2084,11 @@
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.7.tgz#63bb7d067db107cc1e457c303bc25d511febf6cb"
   integrity sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==
 
+"@types/react-native-extra-dimensions-android@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@types/react-native-extra-dimensions-android/-/react-native-extra-dimensions-android-1.2.0.tgz#50c7e9b252f04ce0c3bc0945ac687a403fe8ec4f"
+  integrity sha512-9lUeO0P/yXBPlR8KjIKttqLXy/zRS0a6tofiCooDRcT2YXWkhVAoXZv7y/5opzUdCORk6eSMkfMRLbRjs8v5Uw==
+
 "@types/react-native-html-to-pdf@^0.8.1":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@types/react-native-html-to-pdf/-/react-native-html-to-pdf-0.8.1.tgz#bc07abc31f29f84b227125a6e4e19bb2c23a1664"
@@ -6955,10 +6960,15 @@ react-native-date-picker@^4.2.5:
   dependencies:
     prop-types "^15.8.1"
 
-react-native-device-info@^10.0.2:
-  version "10.0.2"
-  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.0.2.tgz#17cd96df277cca5a22fb80409527c181a08d4ed1"
-  integrity sha512-6XY8EctYqNEX6EHDoHxz3yONOYxCHKrgEdStP7HZDYzFXb1JB5BFt7UbXDWrmihXUZDv06sBsjN26+Tp0EajXw==
+react-native-device-info@^10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.1.1.tgz#ef9795638e4e1427b8e92b37e1ff85dda5a2192f"
+  integrity sha512-yvFzqDXGgDx+9sU098iF4dKBge1z3sDULmemL3na32pz41uQhvqSCMdRa6WlH7WFM8RFBSPq5IMnn9EBKtiAFg==
+
+react-native-extra-dimensions-android@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/react-native-extra-dimensions-android/-/react-native-extra-dimensions-android-1.2.5.tgz#8ade91029aaac7519bf305116d39019e618a60f0"
+  integrity sha512-eorFo9X1vEqAWUkgcZ300yKBG1wtgNeE7tdWAH2CE+P50FGTniJg5Sr6l1iPWG8ZskQOuF+KeiSTFlDa4vLfMw==
 
 react-native-fast-image@^8.6.1:
   version "8.6.1"
@@ -7118,6 +7128,11 @@ react-native-tab-view@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-3.1.1.tgz#1f8d7a835ab4f5b1b1407ec8dddc1053b53fa3c6"
   integrity sha512-M5pRN6utQfytKWoKlKVzg5NbkYu308qNoW1khGTtEOTs1k14p2dHJ/BWOJoJYHKbPVUyZldbG9MFT7gUl4YHnw==
+
+react-native-table-component@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/react-native-table-component/-/react-native-table-component-1.2.2.tgz#1c9bdcd8f1fd7edf10d1e93ebc3b7877ecd74def"
+  integrity sha512-7bbsi5431iWcjj3toASh8lFHGi6AG/+MTd4M7GuksXKxx/CFs/Qwv1Ys7D2wgyuYKe3hxWNfSVrteFj0tOYXYw==
 
 react-native-vector-icons@^9.2.0:
   version "9.2.0"

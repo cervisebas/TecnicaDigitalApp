@@ -75,7 +75,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
             } catch (err) {
                 return ToastAndroid.show(err as any, ToastAndroid.SHORT);
             }
-            setTimeout(this.finishLoad, 1500);
+            setTimeout(this.finishLoad, 1000);
         });
     }
     finishLoad() {
@@ -107,6 +107,9 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
     _ItemSeparatorComponent() {
         return <Divider />;
     }
+    _leftIcon(props: { color: string; style: { marginLeft: number; marginRight: number; marginVertical?: number | undefined; }; }) {
+        return(<List.Icon {...props} icon={'google-classroom'} />);
+    }
     _renderItem({ item }: ListRenderItemInfo<Curses>) {
         return(<List.Item
             title={`Curso ${item.label}`}
@@ -118,6 +121,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
                 status={item.check}
                 onPress={()=>this.set(item.id)}
             />}
+            left={this._leftIcon}
         />);
     }
     _getItemLayout(_data: Curses[] | null | undefined, index: number) {

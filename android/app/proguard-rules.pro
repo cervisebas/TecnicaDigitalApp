@@ -38,10 +38,6 @@
 # react-native-date-picker
 -keep class com.henninghall.date_picker.** { *; }
 -dontwarn com.henninghall.date_picker.**
-
-# react-native-date-picker
--keep class com.henninghall.date_picker.** { *; }
--dontwarn com.henninghall.date_picker.**
 -keep public class net.time4j.android.ApplicationStarter
 -keep public class net.time4j.PrettyTime
 

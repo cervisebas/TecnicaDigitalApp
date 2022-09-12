@@ -35,6 +35,7 @@ export default class Page2Lists extends PureComponent<IProps, IState> {
                     title={'Curso 4°2'}
                     subtitle={'Lunes: 9:40hs'}
                     position={(index%2 == 0)? 'left': 'right'}
+                    onPress={()=>undefined}
                 />}
             />
         </View>);

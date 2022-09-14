@@ -119,7 +119,7 @@ export default class Page1 extends Component<IProps, IState> {
         );
     }
     async filterData(data: DataGroup[]) {
-        var prefences = await  Prefences.getAssist();
+        var prefences = await Prefences.getAssist();
         if (prefences.length == 0) return data;
         return data.filter((v)=>!!prefences.find((v2)=>v2 == decode(v.curse)));
     }

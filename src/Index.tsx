@@ -11,10 +11,11 @@ import Theme from "./Themes";
 import Others from "./Others";
 import AppAdmin from "./App";
 import AppFamily from "./Family/App";
-import 'react-native-gesture-handler';
-import 'moment/min/locales';
 import MainWidget from "./Scripts/MainWidget";
 import UpdateCheck from "./UpdateCheck";
+import 'react-native-gesture-handler';
+import 'moment/min/locales';
+
 
 type IProps = {};
 type IState = {};

@@ -261,7 +261,7 @@ class CustomMenu extends PureComponent<IProps3, IState3> {
             <Divider />
             <Menu.Item title={"Limpiar filtros"} icon={'filter-off-outline'} onPress={this._filterNormal} />
             <Divider />
-            <Menu.Item title={'Cancelar'} icon={'close'} onPress={this._close} />
+            <Menu.Item title={'Cerrar'} icon={'close'} onPress={this._close} />
         </Menu>);
     }
 }

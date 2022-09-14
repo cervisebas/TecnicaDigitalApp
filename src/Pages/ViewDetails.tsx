@@ -1,15 +1,11 @@
 import { decode, encode } from "base-64";
 import moment from "moment";
 import React, { Component, createRef, PureComponent } from "react";
-import { Dimensions, Linking, PermissionsAndroid, ScrollView, StyleSheet, ToastAndroid, TouchableHighlight, View } from "react-native";
-import { Appbar, Button, Card, IconButton, ProgressBar, Provider as PaperProvider, Snackbar, Text } from "react-native-paper";
-import ViewShot, { captureRef } from "react-native-view-shot";
-import CustomCredential from "../Components/CustomCredential";
+import { Dimensions, Linking, ScrollView, StyleSheet, ToastAndroid, TouchableHighlight, View } from "react-native";
+import { Appbar, Button, Card, IconButton, ProgressBar, Provider as PaperProvider, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Assist, urlBase } from "../Scripts/ApiTecnica";
 import { AssistIndividualData, StudentsData } from "../Scripts/ApiTecnica/types";
-import Share from "react-native-share";
-import RNFS from "react-native-fs";
 import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import CardCredential from "../Components/Elements/CardCredential";
@@ -136,6 +132,7 @@ export default class ViewDetails extends Component<IProps, IState> {
             data,
             designCard
         });
+        if (decode(data.curse).toLowerCase().indexOf('docente') !== -1) this.setState({ designCard: 4 });
     }
     close() {
         this.setState({

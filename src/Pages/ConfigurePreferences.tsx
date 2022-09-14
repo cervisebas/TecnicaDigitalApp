@@ -68,8 +68,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
     }
     save() {
         this.setState({ isLoading: true }, async()=>{
-            var newSaves: string[] = [];
-            this.state.curses.forEach((v)=>(v.check == 'checked')&&(newSaves.push(v.label)));
+            var newSaves: string[] = this.state.curses.map((v)=>(v.check == 'checked')? v.label: undefined).filter((v)=>!!v) as string[];
             try {
                 await Prefences.setAssist(newSaves);                
             } catch (err) {

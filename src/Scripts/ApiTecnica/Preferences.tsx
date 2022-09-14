@@ -17,8 +17,11 @@ export default class PreferencesSystem {
     private isOtherSync: boolean = false;
     async getAssist() {
         try {
-            var data = await AsyncStorage.getItem('PreferencesAssist');
-            if (data) return (JSON.parse(decode(data)) as PreferencesAssist).curses;
+            const data = await AsyncStorage.getItem('PreferencesAssist');
+            if (data) {
+                const process: PreferencesAssist = JSON.parse(decode(data));
+                return process.curses;
+            }
             return [];
         } catch {
             return [];
@@ -30,10 +33,11 @@ export default class PreferencesSystem {
             const time = moment();
             const value = encode(JSON.stringify({
                 idDirective: local.id,
-                date: time.format('YYYY/MM/DD'),
+                date: time.format('DD/MM/YYYY'),
                 time: time.format('HH:mm:ss'),
                 curses: curses
             }));
+            if (await AsyncStorage.getItem('PreferencesAssist') !== null) await AsyncStorage.removeItem('PreferencesAssist');
             await AsyncStorage.setItem('PreferencesAssist', value);
             //this.syncData();
             this.SyncInForeground();
@@ -41,6 +45,7 @@ export default class PreferencesSystem {
             throw "Ocurrió un error inesperado.";
         }
     }
+
     isIntoSyncHours() {
         var SyncHours = [
             { hour: 7, minMinutes: 0, maxMinutes: 45, result: '7:15' },

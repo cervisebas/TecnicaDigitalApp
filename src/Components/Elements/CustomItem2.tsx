@@ -1,18 +1,21 @@
 import React, { PureComponent } from "react";
-import { StyleProp, ViewStyle, View, Text, StyleSheet } from "react-native";
+import { StyleProp, ViewStyle, View, Text, StyleSheet, Image } from "react-native";
 import { List, Menu, IconButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageLazyLoad from "./ImageLazyLoad";
+import pattern from "../../Assets/pattern3.webp";
 
 type IProps2 = {
     source: { uri: string; },
     title: string;
     position: string;
     permission: number;
+    isCreator?: boolean;
     onPress?: ()=>any;
     noLine?: boolean;
     onEdit?: ()=>any;
     onDelete?: ()=>any;
+    onNotDelete?: ()=>any;
     style?: StyleProp<ViewStyle>;
 };
 type IState2 = {
@@ -38,12 +41,13 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         this.hideMenu = this.hideMenu.bind(this);
         this.onEdit = this.onEdit.bind(this);
         this.onDelete = this.onDelete.bind(this);
+        this.onNotDelete = this.onNotDelete.bind(this);
         this.leftImage = this.leftImage.bind(this);
     }
     _description() {
         return(<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {(this.props.permission >= 3)&&<Icon name={'shield-crown-outline'} size={20} />}
-            <Text style={{ marginLeft: 4 }}>{this.props.position}</Text>
+            {(this.props.permission >= 3)&&<Icon name={(this.props.isCreator)? 'crown': 'shield-crown-outline'} size={20} />}
+            <Text style={[{ marginLeft: 4 }, (this.props.isCreator)&&{ fontWeight: '700' }]}>{this.props.position}</Text>
         </View>);
     }
     showMenu() {
@@ -58,6 +62,9 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
     onDelete() {
         this.setState({ menuVisible: false }, (this.props.onDelete)&&this.props.onDelete);
     }
+    onNotDelete() {
+        this.setState({ menuVisible: false }, (this.props.onNotDelete)&&this.props.onNotDelete);
+    }
     leftImage(props: leftProps) {
         return(<ImageLazyLoad
             {...props}
@@ -67,25 +74,46 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         />);
     }
     render(): React.ReactNode {
-        return(<List.Item
-            title={this.props.title}
-            description={this._description}
-            style={styles.items}
-            onPress={(this.props.onPress)&&this.props.onPress}
-            onLongPress={this.showMenu}
-            left={this.leftImage}
-            right={()=><Menu
-                visible={this.state.menuVisible}
-                onDismiss={this.hideMenu}
-                anchor={<IconButton icon={'dots-vertical'} onPress={this.showMenu} />}>
-                <Menu.Item onPress={this.onEdit} title="Editar" />
-                <Menu.Item onPress={this.onDelete} style={{ backgroundColor: '#FF0000' }} title={<Text style={{ color: '#FFFFFF' }}>Eliminar</Text>} />
-            </Menu>}
-        />);
+        return(<View style={styles.background}>
+            {(this.props.isCreator)&&<Image
+                source={pattern}
+                style={styles.image}
+                resizeMode={'repeat'}
+                resizeMethod={'resize'}
+            />}
+            <List.Item
+                title={this.props.title}
+                titleStyle={(this.props.isCreator)&&{ fontWeight: '700' }}
+                description={this._description}
+                style={styles.items}
+                onPress={(this.props.onPress)&&this.props.onPress}
+                onLongPress={this.showMenu}
+                left={this.leftImage}
+                right={()=><Menu
+                    visible={this.state.menuVisible}
+                    onDismiss={this.hideMenu}
+                    anchor={<IconButton icon={'dots-vertical'} onPress={this.showMenu} />}>
+                    <Menu.Item onPress={this.onEdit} title="Editar" />
+                    <Menu.Item onPress={(this.props.isCreator)? this.onNotDelete: this.onDelete} style={{ backgroundColor: '#FF0000' }} title={<Text style={{ color: '#FFFFFF' }}>Eliminar</Text>} />
+                </Menu>}
+            />
+        </View>);
     }
 }
 
 const styles = StyleSheet.create({
+    background: {
+        position: 'relative',
+        width: '100%',
+        height: 64
+    },
+    image: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%'
+    },
     items: {
         height: 64
     }

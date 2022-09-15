@@ -29,6 +29,7 @@ import Design20 from "../Assets/Examples/design20.webp";
 import Design21 from "../Assets/Examples/design21.webp";
 import Design22 from "../Assets/Examples/design22.webp";
 import Design23 from "../Assets/Examples/design23.webp";
+import Design24 from "../Assets/Examples/design24.webp";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type IProps = {
@@ -85,10 +86,12 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         { id: 20, source: Design20, option: 19 },
         { id: 21, source: Design21, option: 20 },
         { id: 22, source: Design22, option: 21 },
-        { id: 23, source: Design23, option: 22 }
+        { id: 23, source: Design23, option: 22 },
+        { id: 24, source: Design24, option: 23 }
     ];
     private backupList = this.list;
     private bannerCloseOnEvent: boolean = false;
+    private delimiters: number[] = [5, 23];
 
     componentDidMount(): void {
         if (this.props.isFamily)
@@ -126,7 +129,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
     checkVip(isVip: boolean) {
         if (!isVip) {
             if (this.list.find((v)=>v.option == 5) == undefined) return;
-            this.list = this.list.filter((v)=>v.option !== 5);
+            this.list = this.list.filter((v)=>!this.delimiters.find((d)=>d == v.option));
             return this.forceUpdate();
         }
         if (this.list.find((v)=>v.option == 5) == undefined) {

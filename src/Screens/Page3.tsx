@@ -21,6 +21,7 @@ import FABPage3 from "../Components/FAB_Page3";
 import LoadingComponent from "../Components/LoadingComponent";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import ActionSheet from "@alessiocancian/react-native-actionsheet";
+import moment from "moment";
 
 type IProps = {
     navigation: any;
@@ -71,6 +72,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
     private event2: EmitterSubscription | null = null;
     private designCardElection: number | undefined = undefined;
     private designCardElection2: number | undefined = undefined;
+    private delimitesVip: number[] = [5, 23];
     // Refs Components
     private refSearchStudents = createRef<SearchStudents>();
     private refOpenGenerateMultipleCards = createRef<OpenGenerateMultipleCards>();
@@ -202,7 +204,10 @@ export default class Page3 extends PureComponent<IProps, IState> {
         (after)&&after();
     }
     _openViewDetails(data: StudentsData) {
-        this.refViewDetails.current?.open(data, this.designCardElection);
+        const isVip = (decode(data.curse).indexOf('7°') !== -1) && (moment().format("YYYY") == "2022");
+        const designIsVip = !!this.delimitesVip.find((v)=>v == this.designCardElection);
+        const setDesign = (designIsVip)? (isVip)? this.designCardElection: undefined: this.designCardElection;
+        this.refViewDetails.current?.open(data, setDesign);
     }
     _openChangeCardDesign(isVip?: boolean) {
         this.refChangeCardDesign.current?.open(isVip);

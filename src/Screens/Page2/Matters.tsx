@@ -139,7 +139,7 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
                     keyExtractor={this._keyExtractor}
                     getItemLayout={this._getItemLayout}
                     refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={this._refreshNow} />}
-                    contentContainerStyle={{ flex: (this.state.datas.length == 0)? 2: undefined, paddingTop: 8 }}
+                    contentContainerStyle={{ flex: (this.state.datas.length == 0)? 2: undefined, paddingTop: 8, paddingBottom: 76 }}
                     ItemSeparatorComponent={this._ItemSeparatorComponent}
                     ListEmptyComponent={()=><View style={styles.emptyContent}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ninguna materia</Text></View>}
                     renderItem={this._renderItem}

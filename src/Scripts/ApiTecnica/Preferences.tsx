@@ -37,7 +37,6 @@ export default class PreferencesSystem {
                 time: time.format('HH:mm:ss'),
                 curses: curses
             }));
-            if (await AsyncStorage.getItem('PreferencesAssist') !== null) await AsyncStorage.removeItem('PreferencesAssist');
             await AsyncStorage.setItem('PreferencesAssist', value);
             //this.syncData();
             this.SyncInForeground();

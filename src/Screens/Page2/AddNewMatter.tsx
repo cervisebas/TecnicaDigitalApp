@@ -117,51 +117,56 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
     }
 
     render(): React.ReactNode {
-        return(<CustomModal visible={this.state.visible} onShow={this.loadingTeachers} onRequestClose={this.closeAndClean}>
-            <PaperProvider theme={Theme}>
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-                    <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
-                        <Appbar.Header>
-                            <Appbar.BackAction onPress={this.closeAndClean} />
-                            <Appbar.Content title={'Añadir nueva materia'} />
-                        </Appbar.Header>
-                        <ProgressBar indeterminate color={Theme.colors.accent} style={[styles.progressBar, { opacity: (this.state.isLoadingTeachers)? 1: 0 }]} />
-                        <View style={{ flex: 2 }}>
-                            <TextInput
-                                label={'Nombre de la materia'}
-                                mode={'outlined'}
-                                autoCapitalize={'words'}
-                                style={styles.textInput}
-                                value={this.state.formName}
+        return(<CustomModal visible={this.state.visible} onShow={this.loadingTeachers} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.content}>
+                    <Appbar.Header>
+                        <Appbar.BackAction onPress={this.closeAndClean} />
+                        <Appbar.Content title={'Añadir nueva materia'} />
+                    </Appbar.Header>
+                    <ProgressBar indeterminate color={Theme.colors.accent} style={[styles.progressBar, { opacity: (this.state.isLoadingTeachers)? 1: 0 }]} />
+                    <View>
+                        <TextInput
+                            label={'Nombre de la materia'}
+                            mode={'outlined'}
+                            autoCapitalize={'words'}
+                            style={styles.textInput}
+                            value={this.state.formName}
+                            disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                            error={this.state.errorFormName}
+                            onChangeText={(text)=>this.setState({ formName: text, errorFormName: false })}
+                        />
+                        <CustomPicker2 title={"Profesor:"} value={this.state.formTeacher} error={this.state.errorFormTeacher} disabled={this.state.isLoading || this.state.isLoadingTeachers} onChange={(v)=>(!this.state.isLoadingTeachers)&&this.setState({ formTeacher: v, errorFormTeacher: false })} style={styles.textInput}>
+                            {this.state.listTeachers.map((value)=><Picker.Item
+                                key={`item-teacher-${value.id}`}
+                                label={decode(value.name)}
+                                value={value.id}
+                            />)}
+                        </CustomPicker2>
+                        <View style={styles.buttonContent}>
+                            <Button
+                                mode={'contained'}
                                 disabled={this.state.isLoading || this.state.isLoadingTeachers}
-                                error={this.state.errorFormName}
-                                onChangeText={(text)=>this.setState({ formName: text, errorFormName: false })}
-                            />
-                            <CustomPicker2 title={"Profesor:"} value={this.state.formTeacher} error={this.state.errorFormTeacher} disabled={this.state.isLoading || this.state.isLoadingTeachers} onChange={(v)=>(!this.state.isLoadingTeachers)&&this.setState({ formTeacher: v, errorFormTeacher: false })} style={styles.textInput}>
-                                {this.state.listTeachers.map((value)=><Picker.Item
-                                    key={`item-teacher-${value.id}`}
-                                    label={decode(value.name)}
-                                    value={value.id}
-                                />)}
-                            </CustomPicker2>
-                            <View style={styles.buttonContent}>
-                                <Button
-                                    mode={'contained'}
-                                    disabled={this.state.isLoading || this.state.isLoadingTeachers}
-                                    loading={this.state.isLoading}
-                                    onPress={this.sendData}
-                                >Enviar</Button>
-                            </View>
+                                loading={this.state.isLoading}
+                                onPress={this.sendData}
+                            >Enviar</Button>
                         </View>
-                        <CustomSnackbar ref={this.refCustomSnackbar} />
                     </View>
-                </TouchableWithoutFeedback>
-            </PaperProvider>
+                    <CustomSnackbar ref={this.refCustomSnackbar} />
+                </View>
+            </TouchableWithoutFeedback>
         </CustomModal>);
     }
 }
 
 const styles = StyleSheet.create({
+    content: {
+        backgroundColor: Theme.colors.background,
+        overflow: 'hidden',
+        marginLeft: 8,
+        marginRight: 8,
+        borderRadius: 8
+    },
     textInput: {
         marginLeft: 16,
         marginRight: 16,

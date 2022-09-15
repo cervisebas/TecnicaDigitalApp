@@ -64,7 +64,7 @@ export default class UpdateCheck extends PureComponent<IProps, IState> {
                     </Paragraph>
                 </Dialog.Content>
                 <Dialog.Actions>
-                    <Button onPress={this._close}>Cancelar</Button>
+                    <Button onPress={this._close}>Más tarde</Button>
                     <Button onPress={this.goUpdate}>Actualizar</Button>
                 </Dialog.Actions>
             </Dialog>

@@ -1,4 +1,4 @@
-import React, { Component, createRef } from "react";
+import React, { Component, createRef, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
 import { Button, ActivityIndicator, Appbar, Dialog, Divider, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -61,6 +61,7 @@ export default class Page4 extends Component<IProps, IState> {
         'Cancelar'
     ];
     private idOptionSelect: string = '-1';
+    private creators: number[] = [1, 5, 10, 14, 23];
     // Refs    
     private actionSheet = createRef<ActionSheet>();
     private refViewDirective = createRef<ViewDirective>();
@@ -70,6 +71,7 @@ export default class Page4 extends Component<IProps, IState> {
     private refChangePasswordDirective = createRef<ChangePasswordDirective>();
     private refChangePermissionDirective = createRef<ChangePermissionDirective>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
+    private refYouNotDidDelete = createRef<YouNotDidDelete>();
 
 
     componentDidMount() {
@@ -110,11 +112,13 @@ export default class Page4 extends Component<IProps, IState> {
             position={decode(item.position)}
             permission={parseInt(item.permission)}
             source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
+            isCreator={!!this.creators.find((v)=>v.toString() == item.id)}
             onPress={()=>this.refViewDirective.current?.open(item)}
             onEdit={()=>{
                 this.idOptionSelect = item.id;
                 this.actionSheet.current?.show();
             }}
+            onNotDelete={()=>this.refYouNotDidDelete.current?.open()}
             onDelete={()=>{
                 this.idOptionSelect = item.id;
                 this.setState({ showConfirmDelete: true });
@@ -208,6 +212,7 @@ export default class Page4 extends Component<IProps, IState> {
                             <Button onPress={()=>this.setState({ showConfirmDelete: false }, this.deleteNow)}>Aceptar</Button>
                         </Dialog.Actions>
                     </Dialog>
+                    <YouNotDidDelete ref={this.refYouNotDidDelete} />
                 </Portal>
 
                 {/* Modals */}
@@ -229,6 +234,38 @@ export default class Page4 extends Component<IProps, IState> {
                 <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
             </PaperProvider>
         </View>);
+    }
+}
+
+type IProps2 = {};
+type IState2 = {
+    visible: boolean;
+};
+class YouNotDidDelete extends PureComponent<IProps2, IState2> {
+    constructor(props: IProps2) {
+        super(props);
+        this.state = {
+            visible: false
+        };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+    }
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+    render(): React.ReactNode {
+        return(<Dialog visible={this.state.visible} onDismiss={this.close}>
+            <Dialog.Title>No puedes borrar a un creador</Dialog.Title>
+            <Dialog.Content>
+                <Paragraph>Nosotros deseamos ver el futuro de este sitio así que deshabilitamos esta opción para nosotros, esperemos que lo entiendas.</Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+                <Button onPress={this.close}>Cerrar</Button>
+            </Dialog.Actions>
+        </Dialog>);
     }
 }
 

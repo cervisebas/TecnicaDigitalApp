@@ -17,6 +17,7 @@ import Card19 from "./Cards/Card19";
 import Card2 from "./Cards/Card2";
 import Card20 from "./Cards/Card20";
 import Card21 from "./Cards/Card21";
+import Card22 from "./Cards/Card22";
 import Card3 from "./Cards/Card3";
 import Card4 from "./Cards/Card4";
 import Card5 from "./Cards/Card5";
@@ -95,6 +96,7 @@ export default class CustomCredential extends PureComponent<IProps, IState> {
                         (this.props.type == 20)? <Card19 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
                         (this.props.type == 21)? <Card20 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
                         (this.props.type == 22)? <Card21 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
+                        (this.props.type == 23)? <Card22 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
                         <></>
                     : <DesingDefault scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />}
                 </ViewShot>

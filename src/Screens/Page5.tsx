@@ -8,6 +8,9 @@ import Theme from "../Themes";
 import { decode } from "base-64";
 import { decode as utf8decode } from "utf8";
 import ViewDetailsRecord from "../Pages/ViewDetailsRecord";
+import { createMaterialTopTabNavigator, MaterialTopTabNavigationOptions } from "@react-navigation/material-top-tabs";
+import { NavigationContainer } from "@react-navigation/native";
+import moment from "moment";
 
 const useUtf8 = (string: string)=>{
     try {
@@ -21,8 +24,7 @@ type IProps = {
     navigation: any;
 };
 type IState = {
-    datas: RecordData[];
-    actualDatas: RecordData[];
+    newDatas: DataFilters[];
     isLoading: boolean;
     isError: boolean;
     isRefresh: boolean;
@@ -37,13 +39,17 @@ type leftProps = {
         marginVertical?: number | undefined;
     };
 };
+type DataFilters = {
+    title: string;
+    date: Date;
+    data: RecordData[];
+};
 
 export default class Page5 extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            datas: [],
-            actualDatas: [],
+            newDatas: [],
             isLoading: true,
             isError: false,
             isRefresh: false,
@@ -51,10 +57,8 @@ export default class Page5 extends PureComponent<IProps, IState> {
             filterActive: 'normal'
         };
         this.loadData = this.loadData.bind(this);
-        this._renderItem = this._renderItem.bind(this);
-        this._filterAsc = this._filterAsc.bind(this);
-        this._filterDesc = this._filterDesc.bind(this);
-        this._filterNormal = this._filterNormal.bind(this);
+        this._onRefresh = this._onRefresh.bind(this);
+        this._openInfo = this._openInfo.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private refViewDetailsRecords = createRef<ViewDetailsRecord>();
@@ -64,65 +68,38 @@ export default class Page5 extends PureComponent<IProps, IState> {
     }
     componentWillUnmount() {
         this.event?.remove();
-        this.event = null;
     }
     loadData() {
-        var isLoading = !this.state.isRefresh;
-        (isLoading)&&this.setState({ datas: [] });
+        var isLoading = !this.state.isRefresh || this.state.isError;
+        (isLoading)&&this.setState({ newDatas: [] });
         this.setState({ isLoading, isError: false }, ()=>
             Records.getAll()
-                .then((value)=>this.setState({ datas: value, actualDatas: value, isLoading: false, isRefresh: false }))
+                .then((value)=>this.setState({
+                    newDatas: this.filterByDay(value),
+                    isLoading: false,
+                    isRefresh: false
+                }))
                 .catch(({ cause })=>this.setState({ isError: true, isLoading: false, messageError: cause  }))
         );
     }
-    _filterAsc() {
-        if (this.state.filterActive == 'upward') return ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT);
-        var data: RecordData[] = this.state.datas;
-        this.setState({ isRefresh: true, actualDatas: data }, ()=>{
-            var high = data.filter((value)=>parseInt(value.importance) == 1);
-            var medium = data.filter((value)=>parseInt(value.importance) == 2);
-            var normal = data.filter((value)=>parseInt(value.importance) == 3);
-            var low = data.filter((value)=>parseInt(value.importance) == 4);
-            var all = high.concat(medium, normal, low);
-            this.setState({ isRefresh: false, datas: all, filterActive: 'upward' });
+    filterByDay(datas: RecordData[]) {
+        var recolect: DataFilters[] = [];
+        datas.forEach((value)=>{
+            const findIndex = recolect.findIndex((f)=>f.title == decode(value.date));
+            if (findIndex !== -1) return recolect[findIndex].data.push(value);
+            recolect.push({
+                title: decode(value.date),
+                date: moment(decode(value.date), "DD/MM/YYYY").toDate(),
+                data: [value]
+            });
         });
+        return recolect;
     }
-    _filterDesc() {
-        if (this.state.filterActive == 'falling') return ToastAndroid.show("El filtro seleccionado ya está activo.", ToastAndroid.SHORT);
-        var data: RecordData[] = this.state.datas;
-        this.setState({ isRefresh: true }, ()=>{
-            var high = data.filter((value)=>parseInt(value.importance) == 1);
-            var medium = data.filter((value)=>parseInt(value.importance) == 2);
-            var normal = data.filter((value)=>parseInt(value.importance) == 3);
-            var low = data.filter((value)=>parseInt(value.importance) == 4);
-            var all = low.concat(normal, medium, high);
-            this.setState({ isRefresh: false, datas: all, filterActive: 'falling' });
-        });
+    _onRefresh() {
+        this.setState({ isRefresh: true }, this.loadData);
     }
-    _filterNormal() {
-        if (this.state.filterActive == 'normal') return ToastAndroid.show("No hay filtros establecidos.", ToastAndroid.SHORT);
-        this.setState({ datas: this.state.actualDatas, filterActive: 'normal' });
-    }
-    _ItemSeparatorComponent() {
-        return(<Divider />);
-    }
-    _keyExtractor({ id }: RecordData) {
-        return `page5-item${id}`;
-    }
-    _renderItem({ item }: ListRenderItemInfo<RecordData>) {
-        return(<RecordItem
-            title={item.type}
-            description={item.movent}
-            importance={parseInt(item.importance)}
-            onPress={()=>this.refViewDetailsRecords.current?.open(item)}
-        />);
-    }
-    _getItemLayout(_data: RecordData[] | null | undefined, index: number) {
-        return {
-            length: 72,
-            offset: 72 * index,
-            index
-        };
+    _openInfo(data: RecordData) {
+        this.refViewDetailsRecords.current?.open(data);
     }
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
@@ -130,23 +107,14 @@ export default class Page5 extends PureComponent<IProps, IState> {
                 <Appbar>
                     <Appbar.Action icon={"menu"} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros de actividad'} />
-                    <CustomMenu
-                        disable={this.state.isLoading || this.state.isError}
-                        filterAsc={this._filterAsc}
-                        filterDesc={this._filterDesc}
-                        filterNormal={this._filterNormal}
-                    />
                 </Appbar>
                 <View style={{ flex: 2, overflow: 'hidden' }}>
-                    {(!this.state.isLoading && !this.state.isError)? <FlatList
-                        data={this.state.datas}
-                        extraData={this.state}
-                        contentContainerStyle={{ paddingTop: 8 }}
-                        refreshControl={<RefreshControl refreshing={this.state.isRefresh} colors={[Theme.colors.primary]} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
-                        getItemLayout={this._getItemLayout}
-                        ItemSeparatorComponent={this._ItemSeparatorComponent}
-                        keyExtractor={this._keyExtractor}
-                        renderItem={this._renderItem}
+                    {(!this.state.isLoading && !this.state.isError)?
+                    <ViewRegistDay
+                        data={this.state.newDatas}
+                        isRefresh={this.state.isRefresh}
+                        onRefresh={this._onRefresh}
+                        openInfo={this._openInfo}
                     />:
                     <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
                         {(!this.state.isError)? <ActivityIndicator size={'large'} animating />:
@@ -162,6 +130,72 @@ export default class Page5 extends PureComponent<IProps, IState> {
                 <ViewDetailsRecord ref={this.refViewDetailsRecords}/>
             </PaperProvider>
         </View>);
+    }
+}
+
+type IProps4 = {
+    data: DataFilters[];
+    isRefresh: boolean;
+    onRefresh: ()=>any;
+    openInfo: (data: RecordData)=>any;
+};
+type IState4 = {};
+
+const Tab = createMaterialTopTabNavigator();
+
+class ViewRegistDay extends PureComponent<IProps4, IState4> {
+    constructor(props: IProps4) {
+        super(props);
+        this._renderItem = this._renderItem.bind(this);
+    }
+    private tabOptions: MaterialTopTabNavigationOptions = {
+        lazy: true,
+        lazyPreloadDistance: 1,
+        swipeEnabled: true,
+        tabBarScrollEnabled: true,
+        tabBarStyle: { backgroundColor: Theme.colors.primary },
+        tabBarIndicatorStyle: { backgroundColor: Theme.colors.accent, height: 4 }
+    };
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
+    _keyExtractor({ id }: RecordData) {
+        return `page5-item${id}`;
+    }
+    _renderItem({ item }: ListRenderItemInfo<RecordData>) {
+        return(<RecordItem
+            title={item.type}
+            description={item.movent}
+            importance={parseInt(item.importance)}
+            onPress={()=>this.props.openInfo(item)}
+        />);
+    }
+    _getItemLayout(_data: RecordData[] | null | undefined, index: number) {
+        return {
+            length: 72,
+            offset: 72 * index,
+            index
+        };
+    }
+    render(): React.ReactNode {
+        return(<NavigationContainer independent theme={{ ...Theme, colors: { ...Theme.colors, text: '#FFFFFF' } }}>
+            <Tab.Navigator screenOptions={this.tabOptions}>
+                {this.props.data.map((value)=><Tab.Screen
+                    key={value.title}
+                    name={value.title}
+                    children={()=><FlatList
+                        data={value.data}
+                        extraData={value}
+                        contentContainerStyle={styles.contentFlatlist}
+                        refreshControl={<RefreshControl refreshing={this.props.isRefresh} colors={[Theme.colors.primary]} onRefresh={this.props.onRefresh} />}
+                        getItemLayout={this._getItemLayout}
+                        ItemSeparatorComponent={this._ItemSeparatorComponent}
+                        keyExtractor={this._keyExtractor}
+                        renderItem={this._renderItem}
+                    />}
+                />)}
+            </Tab.Navigator>
+        </NavigationContainer>);
     }
 }
 
@@ -214,59 +248,10 @@ class RecordItem extends PureComponent<IProps2, IState2> {
     }
 }
 
-type IProps3 = {
-    disable: boolean;
-    filterAsc: ()=>any;
-    filterDesc: ()=>any;
-    filterNormal: ()=>any;
-};
-type IState3 = {
-    isOpen: boolean;
-};
-class CustomMenu extends PureComponent<IProps3, IState3> {
-    constructor(props: IProps3) {
-        super(props);
-        this.state = {
-            isOpen: false
-        };
-        this._close = this._close.bind(this);
-        this._open = this._open.bind(this);
-        this._filterAsc = this._filterAsc.bind(this);
-        this._filterDesc = this._filterDesc.bind(this);
-        this._filterNormal = this._filterNormal.bind(this);
-    }
-    _close() {
-        this.setState({ isOpen: false });
-    }
-    _open() {
-        this.setState({ isOpen: true });
-    }
-    _filterAsc() {
-        this.setState({ isOpen: false }, this.props.filterAsc);
-    }
-    _filterDesc() {
-        this.setState({ isOpen: false }, this.props.filterDesc);
-    }
-    _filterNormal() {
-        this.setState({ isOpen: false }, this.props.filterNormal);
-    }
-    render(): React.ReactNode {
-        return(<Menu
-            visible={this.state.isOpen}
-            onDismiss={this._close}
-            anchor={<Appbar.Action icon={'filter-variant'} color={'#FFFFFF'} onPress={this._open} disabled={this.props.disable} />}>
-            <Menu.Item title={"Ascendente"} icon={'sort-numeric-ascending'} onPress={this._filterAsc} />
-            <Divider />
-            <Menu.Item title={"Descendente"} icon={'sort-numeric-descending'} onPress={this._filterDesc} />
-            <Divider />
-            <Menu.Item title={"Limpiar filtros"} icon={'filter-off-outline'} onPress={this._filterNormal} />
-            <Divider />
-            <Menu.Item title={'Cerrar'} icon={'close'} onPress={this._close} />
-        </Menu>);
-    }
-}
-
 const styles = StyleSheet.create({
+    contentFlatlist: {
+        paddingTop: 8
+    },
     item: {
         height: 72
     }

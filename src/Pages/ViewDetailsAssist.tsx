@@ -61,6 +61,8 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
         });
     }
     private tabOptions: MaterialTopTabNavigationOptions = {
+        lazy: true,
+        lazyPreloadDistance: 2,
         tabBarScrollEnabled: true,
         tabBarLabelStyle: { color: '#FFFFFF' },
         tabBarStyle: { backgroundColor: Theme.colors.primary },

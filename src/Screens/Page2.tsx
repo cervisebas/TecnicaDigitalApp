@@ -57,7 +57,7 @@ export default class Page2 extends Component<IProps, IState> {
                 <PaperProvider theme={Theme}>
                     <Appbar>
                         <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
-                        <Appbar.Content title={'Horarios'}  />
+                        <Appbar.Content title={'Horarios'} />
                     </Appbar>
                     <View style={{ flex: 2 }}>
                         <Tab.Navigator initialRouteName={'Listas'} screenOptions={this.tabOptions} screenListeners={{ state: this._onChangeTab }}>

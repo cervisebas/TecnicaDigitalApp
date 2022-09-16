@@ -2,6 +2,7 @@ import React, { PureComponent } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import CustomCard4 from "../../Components/Elements/CustomCard4";
+import { InWorking } from "../../Components/InWorking";
 
 type IProps = {};
 type IState = {
@@ -26,7 +27,7 @@ export default class Page2Lists extends PureComponent<IProps, IState> {
     }
     render(): React.ReactNode {
         return(<View style={styles.content}>
-            <FlatList
+            {/*<FlatList
                 key={`Page2ListTimes${this.state.numColumns}`}
                 data={this.data}
                 numColumns={this.state.numColumns}
@@ -37,7 +38,8 @@ export default class Page2Lists extends PureComponent<IProps, IState> {
                     position={(index%2 == 0)? 'left': 'right'}
                     onPress={()=>undefined}
                 />}
-            />
+            />*/}
+            <InWorking />
         </View>);
     }
 }

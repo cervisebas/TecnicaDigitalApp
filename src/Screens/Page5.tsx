@@ -1,6 +1,6 @@
 import React, { createRef, PureComponent } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
-import { ActivityIndicator, Appbar, Colors, Divider, IconButton, List, Menu, Provider as PaperProvider, Text } from "react-native-paper";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Appbar, Colors, Divider, IconButton, List, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Records } from "../Scripts/ApiTecnica";
 import { RecordData } from "../Scripts/ApiTecnica/types";
@@ -10,7 +10,6 @@ import { decode as utf8decode } from "utf8";
 import ViewDetailsRecord from "../Pages/ViewDetailsRecord";
 import { createMaterialTopTabNavigator, MaterialTopTabNavigationOptions } from "@react-navigation/material-top-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import moment from "moment";
 
 const useUtf8 = (string: string)=>{
     try {
@@ -41,7 +40,6 @@ type leftProps = {
 };
 type DataFilters = {
     title: string;
-    date: Date;
     data: RecordData[];
 };
 
@@ -89,7 +87,6 @@ export default class Page5 extends PureComponent<IProps, IState> {
             if (findIndex !== -1) return recolect[findIndex].data.push(value);
             recolect.push({
                 title: decode(value.date),
-                date: moment(decode(value.date), "DD/MM/YYYY").toDate(),
                 data: [value]
             });
         });
@@ -182,7 +179,7 @@ class ViewRegistDay extends PureComponent<IProps4, IState4> {
             <Tab.Navigator screenOptions={this.tabOptions}>
                 {this.props.data.map((value)=><Tab.Screen
                     key={value.title}
-                    name={value.title}
+                    name={`${value.title} (${value.data.length})`}
                     children={()=><FlatList
                         data={value.data}
                         extraData={value}

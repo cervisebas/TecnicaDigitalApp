@@ -6,7 +6,6 @@ import CustomModal from '../Components/CustomModal';
 import Theme from '../Themes';
 // Images
 import logo from '../Assets/logo.webp';
-import logoTroll from '../Assets/logo-troll.webp';
 import logoAnim1 from '../Assets/logoanim1.gif';
 import logoAnim2 from '../Assets/logoanim2.gif';
 import LinearGradient from 'react-native-linear-gradient';
@@ -48,8 +47,6 @@ export default class ScreenLoading extends Component<IProps, IState> {
         var probability: number = Math.floor(Math.random() * (1000 - 0)) + 0;
         const showLogo = ()=>{
             switch (probability) {
-                case 666:
-                    return logoTroll;
                 case 100 || 200 || 300:
                     (this.props.setTimeout)&&this.props.setTimeout(4000);
                     setTimeout(()=>this.setState({ logo: logo }), 3000);

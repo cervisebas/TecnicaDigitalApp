@@ -52,7 +52,7 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
         this.closeAndClean = this.closeAndClean.bind(this);
         this.close = this.close.bind(this);
     }
-    private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
+    private listCourses: string[] = ['- Seleccionar -', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     closeAndClean() {
         this.close();
         var calcHour = Assist.getCalcHour();

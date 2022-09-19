@@ -21,7 +21,7 @@
         <item name="android:timePickerDialogTheme">@style/MyTimePickerDialogTheme</item>
     </style>
 
-    <style name="BootTheme" parent="Theme.SplashScreen">
+    <style name="BootTheme" parent="Theme.SplashScreen">        
         <item name="windowSplashScreenBackground">@color/bootsplash_background</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/bootsplash_logo</item>
         
@@ -29,6 +29,9 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/status_bar_color</item>
         <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="android:windowEnterTransition">@android:transition/no_transition</item>
+        <item name="android:windowExitTransition">@android:transition/no_transition</item>
 
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>

@@ -69,7 +69,7 @@ export default class AddDirective extends Component<IProps, IState> {
         this.onChangeTextDNI = this.onChangeTextDNI.bind(this);
         this.goClose = this.goClose.bind(this);
     }
-    private positions: string[] = ['- Seleccionar -', 'Docente', 'Preceptor/a', 'Secretario/a', 'Director/a', 'Vicedirector/a', 'Otro'];
+    private positions: string[] = ['- Seleccionar -', 'Invitado', 'Preceptor/a', 'Secretario/a', 'Director/a', 'Vicedirector/a', 'Otro'];
     private permissions: string[] = ['0', '1', '2', '3', '5', '4', '1'];
 
     verifyInputs() {

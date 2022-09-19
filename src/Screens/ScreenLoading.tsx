@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { View, ImageSourcePropType, StyleSheet } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import LinearGradient from 'react-native-linear-gradient';
 import { ActivityIndicator, Provider as PaperProvider, Text } from 'react-native-paper';
 import CustomModal from '../Components/CustomModal';
 import Theme from '../Themes';
 // Images
 import logo from '../Assets/logo.webp';
-import logoAnim1 from '../Assets/logoanim1.gif';
-import logoAnim2 from '../Assets/logoanim2.gif';
-import LinearGradient from 'react-native-linear-gradient';
+import newLogoAnim1 from '../Assets/ScreenAnims/animation1.webp';
+import newLogoAnim2 from '../Assets/ScreenAnims/animation2.webp';
 
 type IProps = {
     setTimeout?: (time: number)=>any;
@@ -50,11 +50,11 @@ export default class ScreenLoading extends Component<IProps, IState> {
                 case 100 || 200 || 300:
                     (this.props.setTimeout)&&this.props.setTimeout(4000);
                     setTimeout(()=>this.setState({ logo: logo }), 3000);
-                    return logoAnim1;
+                    return newLogoAnim1;
                 case 400 || 500 || 600:
                     (this.props.setTimeout)&&this.props.setTimeout(6000);
                     setTimeout(()=>this.setState({ logo: logo }), 5000);
-                    return logoAnim2;
+                    return newLogoAnim2;
             }
             return logo;
         };

@@ -109,12 +109,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                 <IconButton
                     icon={'arrow-left'}
                     onPress={this.close}
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        margin: 10
-                    }}
+                    style={styles.backButton}
                 />
                 <Text style={styles.textBrand}>SCAPPS</Text>
                 <View style={{ width: '100%', alignItems: 'center' }}>
@@ -158,15 +153,30 @@ class TextView extends PureComponent<IProps2> {
         super(props);
     }
     render(): React.ReactNode {
-        return(<View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            <Text style={{ marginLeft: 14 }}>⦿</Text>
-            <Text style={{ marginLeft: 4, fontWeight: 'bold' }}>{`${this.props.title}:`}</Text>
-            <Text style={{ marginLeft: 2 }}>{this.props.text}</Text>
+        return(<View style={styles.itemContent}>
+            <Text style={styles.item0}>⦿</Text>
+            <Text style={styles.item1}>{`${this.props.title}:`}</Text>
+            <Text style={styles.item2}>{this.props.text}</Text>
         </View>);
     }
 }
 
 const styles = StyleSheet.create({
+    itemContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4
+    },
+    item0: {
+        marginLeft: 14
+    },
+    item1: {
+        marginLeft: 4,
+        fontWeight: 'bold'
+    },
+    item2: {
+        marginLeft: 2
+    },
     content: {
         position: 'relative',
         borderRadius: 8,
@@ -223,5 +233,11 @@ const styles = StyleSheet.create({
         right: 0,
         top: 0,
         margin: 18
+    },
+    backButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        margin: 10
     }
 });

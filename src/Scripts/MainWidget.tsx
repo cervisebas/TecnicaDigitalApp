@@ -16,15 +16,19 @@ export default new class MainWidget {
         numTotal: 'Sin datos'
     });
     async init() {
-        var getData = await this.getOldData();
-        if (getData) return SharedStorage.set(JSON.stringify(getData));
-        return SharedStorage.set(this.errorData);
+        try {
+            const getData = await this.getOldData();
+            if (getData) return SharedStorage.set(JSON.stringify(getData));
+            return SharedStorage.set(this.errorData);
+        } catch {
+            return null;
+        }
     }
     async getOldData(): Promise<false | AssistData[]> {
         try {
-            var data = await AsyncStorage.getItem('AssistData');
+            const data = await AsyncStorage.getItem('AssistData');
             if (data == null) return false;
-            var jsonData = JSON.parse(data);
+            const jsonData = JSON.parse(data);
             return jsonData;
         } catch {
             return false;            
@@ -32,7 +36,7 @@ export default new class MainWidget {
     }
     async setNewData(assist: number, notAssist: number, numTotal: number): Promise<boolean> {
         try {
-            var process: AssistData = {
+            const process: AssistData = {
                 numAssist: assist.toString(),
                 numNotAssist: notAssist.toString(),
                 numTotal: numTotal.toString()

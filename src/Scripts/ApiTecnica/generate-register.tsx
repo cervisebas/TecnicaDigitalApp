@@ -11,7 +11,7 @@ type student = {
 export default class GenerateRegister {
     constructor() {}
     get(curse: string, date: string, hour: string, students: student[]) {
-        var tr = this.getTr(students);
+        const tr = this.getTr(students);
         return `<!DOCTYPE html>
             <html lang="es">
             <head>
@@ -129,12 +129,7 @@ export default class GenerateRegister {
         });
         return trs;
     }
-    async overWrite(path: string) {
-        if (await RNFS.exists(path)) {
-            await RNFS.unlink(path);
-        }
-    }
-    generatePdf(data: { curse: string; date: string; hour: string; students: student[]; }, showDone?: boolean): Promise<string> {
+    generatePdf(data: { curse: string; date: string; hour: string; students: student[]; }): Promise<string> {
         return new Promise((resolve, reject)=>{
             try {
                 var nameFile = `Registro ${data.curse.replace('°', '-')} - ${data.date.replace(/\//gi, '-')}`;

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import CustomDrawerNavegation from "./Components/CustomDrawerNavegation";
 import Page1 from "./Screens/Page1";
@@ -28,7 +28,7 @@ type IState = {
 
 const Drawer = createDrawerNavigator();
 
-export default class AppAdmin extends Component<IProps, IState> {
+export default class AppAdmin extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {

@@ -142,7 +142,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
             if (this.state.bannerVisible && contentOffset.y > 150) {
                 this.bannerCloseOnEvent = true;
                 this.setState({ bannerVisible: false });
-            } else if (this.bannerCloseOnEvent && contentOffset.y < 20) {
+            } else if (this.bannerCloseOnEvent && contentOffset.y < 100) {
                 this.bannerCloseOnEvent = false;
                 this.setState({ bannerVisible: true });
             }

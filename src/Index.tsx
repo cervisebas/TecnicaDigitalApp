@@ -1,4 +1,4 @@
-import React, { Component, createRef } from "react";
+import React, { createRef, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, Platform, StatusBar, View } from "react-native";
 import { NavigationContainer, NavigationContainerRef, StackActions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -22,7 +22,7 @@ type IState = {};
 
 const Stack = createNativeStackNavigator();
 
-export default class Index extends Component<IProps, IState> {
+export default class Index extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.changePage = this.changePage.bind(this);
@@ -94,7 +94,7 @@ export default class Index extends Component<IProps, IState> {
     }
 }
 
-class Default extends Component {
+class Default extends PureComponent {
     constructor(props: any) {
         super(props);
     }

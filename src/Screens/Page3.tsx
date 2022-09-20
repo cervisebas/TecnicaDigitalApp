@@ -67,6 +67,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
         this._openActionSheet1 = this._openActionSheet1.bind(this);
         this._setIndexActionSheet2 = this._setIndexActionSheet2.bind(this);
         this._openActionSheet2 = this._openActionSheet2.bind(this);
+        this._onChangeCurseInGenerateMultipleCredentials = this._onChangeCurseInGenerateMultipleCredentials.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -129,7 +130,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
         );
     }
     openListGeneratorCredential(curse: string) {
-        var index = this.state.datas.findIndex((v)=>v.label == curse);
+        const index = this.state.datas.findIndex((v)=>v.label.indexOf(curse) !== -1 || curse.indexOf(v.label) !== -1);
         if (index !== -1) return this.refGenerateMultipleCards.current?.open(this.state.datas[index].students, this.designCardElection2);
         this.refLoadingComponent.current?.close();
         this.refCustomSnackbar.current?.open('No se encontraron alumnos.');
@@ -241,6 +242,13 @@ export default class Page3 extends PureComponent<IProps, IState> {
     _setIndexActionSheet2(index: number) {
         this.refEditStudent.current?.actionSetPicture(index);
     }
+    // Others
+    _onChangeCurseInGenerateMultipleCredentials(curse: string) {
+        const isVip = (curse.indexOf('7°') !== -1) && (moment().format("YYYY") == "2022");
+        const designIsVip = !!this.delimitesVip.find((v)=>v == this.designCardElection2);
+        const setDesign = (designIsVip)? (isVip)? this.designCardElection: undefined: this.designCardElection;
+        this.designCardElection2 = setDesign;
+    }
 
     render(): React.ReactNode {
         return(<View style={{ flex: 1 }}>
@@ -335,6 +343,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
                     ref={this.refOpenGenerateMultipleCards}
                     openChangeDesing={this._openChangeCardDesign}
                     openListCrendentials={this.openListGeneratorCredential}
+                    onChangeCurse={this._onChangeCurseInGenerateMultipleCredentials}
                 />
                 <GenerateMultipleCards ref={this.refGenerateMultipleCards} />
                 <AddNewStudent

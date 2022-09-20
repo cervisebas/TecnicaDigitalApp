@@ -1,4 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
+import { decode } from "base-64";
+import moment from "moment";
 import React, { Component } from "react";
 import { StyleSheet, View } from "react-native";
 import { Appbar } from "react-native-paper";
@@ -7,8 +9,9 @@ import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import Theme from "../Themes";
 
 type IProps = {
-    openChangeDesing: ()=>any;
+    openChangeDesing: (isVip?: boolean)=>any;
     openListCrendentials: (curse: string)=>any;
+    onChangeCurse: (curse: string)=>any;
 };
 type IState = {
     visible: boolean;
@@ -27,14 +30,19 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
         this.closeClear = this.closeClear.bind(this);
         this.send = this.send.bind(this);
         this.verifyInput = this.verifyInput.bind(this);
+        this.openChangeDesign = this.openChangeDesign.bind(this);
         this.close = this.close.bind(this);
     }
-    private listCourses: string[] = ['- Seleccionar -', 'Profesor/a', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
+    private listCourses: string[] = ['- Seleccionar -', 'Docentes', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     componentWillUnmount() {
         this.setState({
             selectCurse: '',
             errorSelectCurse: false
         });
+    }
+    componentDidUpdate(_prevProps: Readonly<IProps>, prevState: Readonly<IState>): void {
+        if (this.state.selectCurse !== prevState.selectCurse)
+            this.props.onChangeCurse(this.state.selectCurse);
     }
     verifyInput() {
         if (this.state.selectCurse == '- Seleccionar -') {
@@ -55,6 +63,10 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
             errorSelectCurse: false
         });
     }
+    openChangeDesign() {
+        const isVip = (this.state.selectCurse.indexOf('7°') !== -1) && (moment().format("YYYY") == "2022");
+        this.props.openChangeDesing(isVip);
+    }
 
     // Controller
     open() {
@@ -70,7 +82,7 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={`Generar credenciales`} />
-                    <Appbar.Action icon={'pencil-ruler'} onPress={this.props.openChangeDesing} />
+                    <Appbar.Action icon={'pencil-ruler'} onPress={this.openChangeDesign} />
                     <Appbar.Action icon={'send-outline'} onPress={this.send} />
                 </Appbar.Header>
                 <View style={{ marginTop: 4, marginBottom: 8 }}>

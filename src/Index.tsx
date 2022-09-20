@@ -15,6 +15,7 @@ import MainWidget from "./Scripts/MainWidget";
 import UpdateCheck from "./UpdateCheck";
 import 'react-native-gesture-handler';
 import 'moment/min/locales';
+import moment from "moment";
 
 
 type IProps = {};
@@ -40,6 +41,7 @@ export default class Index extends PureComponent<IProps, IState> {
             this.verifyFolder();
         }
         this.startNotifications();
+        moment.locale('es');
     }
     componentDidUpdate() {
         MainWidget.init();

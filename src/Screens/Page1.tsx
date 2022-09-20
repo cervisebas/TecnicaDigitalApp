@@ -1,7 +1,7 @@
 import { decode, encode } from "base-64";
 import React, { Component, createRef, PureComponent } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, ToastAndroid, View } from "react-native";
-import { ActivityIndicator, Appbar, Button, Dialog, Divider, IconButton, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
+import { ActivityIndicator, Appbar, Button, Dialog, Divider, IconButton, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import messaging from '@react-native-firebase/messaging';
 import CustomCard from "../Components/Elements/CustomCard";
@@ -28,6 +28,7 @@ type IProps = {
 type IState = {
     //List
     dataGroups: DataGroup[];
+    dataGroups2: DataGroupForDate[];
     listGroups: GroupsTypes[];
     isLoading: boolean;
     isError: boolean;
@@ -36,12 +37,17 @@ type IState = {
     // Interfaz
     visibleAddNewGroup: boolean;
 };
+type DataGroupForDate = {
+    date: string;
+    list: DataGroup[];
+};
 
 export default class Page1 extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
             dataGroups: [],
+            dataGroups2: [],
             listGroups: [],
             isLoading: false,
             isError: false,
@@ -66,6 +72,7 @@ export default class Page1 extends Component<IProps, IState> {
         this._openAnnotations = this._openAnnotations.bind(this);
         this._openSetGroup = this._openSetGroup.bind(this);
         this._setFilterConfirm = this._setFilterConfirm.bind(this);
+        this._renderItem2 = this._renderItem2.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -109,7 +116,7 @@ export default class Page1 extends Component<IProps, IState> {
                         if (this._isMount) {
                             const dataGroups = await this.filterData(v);
                             const noConfirm = dataGroups.filter((value)=>value.status !== '1').length;
-                            this.setState({ dataGroups, listGroups: groups, isLoading: false, isRefresh: false });
+                            this.setState({ dataGroups, dataGroups2: this.filterListForDate(v), listGroups: groups, isLoading: false, isRefresh: false });
                             DeviceEventEmitter.emit('update-regist-count', noConfirm);
                             if (code) this.reloadData(code, v);
                         }
@@ -117,6 +124,18 @@ export default class Page1 extends Component<IProps, IState> {
                     .catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
             ).catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
         );
+    }
+    filterListForDate(actual: DataGroup[]) {
+        const newList: DataGroupForDate[] = [];
+        actual.forEach((v1)=>{
+            const findIndex = newList.findIndex((v0)=>v0.date == v1.date);
+            if (findIndex !== -1) return newList[findIndex].list.push(v1);
+            newList.push({
+                date: v1.date,
+                list: [v1]
+            });
+        });
+        return newList;
     }
     async filterData(data: DataGroup[]) {
         var prefences = await Prefences.getAssist();
@@ -182,17 +201,55 @@ export default class Page1 extends Component<IProps, IState> {
             });
     }
 
-    // Flatlist
-    _keyExtractor({ id }: DataGroup) {
-        return `p1-card-${id}`;
-    }
     _openConfirm(id: string, curse: string, date: string) {
         this.openConfirm(id, { id: id, curse: decode(curse), date: decode(date) });
     }
     _openView(id: string, curse: string, date: string, hour: string, annotations: number) {
         this.openView(id, { id: id, curse: decode(curse), date: decode(date), hour: decode(hour), annotations: annotations });
     }
-    _renderItem({ item }: ListRenderItemInfo<DataGroup>) {
+
+    // Flatlist
+    _keyExtractor({ date }: DataGroupForDate) {
+        return `p1-list-${date}`;
+    }
+    _ItemSeparatorComponent() {
+        return(<Divider />);
+    }
+    _getItemLayout(data: DataGroupForDate[] | null | undefined, index: number) {
+        const header = 62;
+        const itemsTotal = 125 * ((typeof data == "object" && data !== null)? data[index].list.length: 1);
+        const totalHeight = header + itemsTotal;
+        return {
+            length: totalHeight,
+            offset: totalHeight * index,
+            index
+        };
+    }
+    _renderItem({ item }: ListRenderItemInfo<DataGroupForDate>) {
+        const title = moment(decode(item.date), 'DD/MM/YYYY').format('dddd, DD [de] MMMM [del] YYYY');
+        const title_2 = title[0].toUpperCase()+title.substring(1);
+        return(<List.Section title={title_2} key={`p1-list-${item.date}`} titleStyle={styles.titleList}>
+            <FlatList
+                data={item.list}
+                extraData={item}
+                keyExtractor={this._keyExtractor2}
+                getItemLayout={this._getItemLayout2}
+                renderItem={this._renderItem2}
+            />
+        </List.Section>);
+    }
+    // Flatlist 2
+    _keyExtractor2({ id }: DataGroup) {
+        return `p1-card-${id}`;
+    }
+    _getItemLayout2(_data: DataGroup[] | null | undefined, index: number) {
+        return {
+            length: 125,
+            offset: 125 * index,
+            index
+        };
+    }
+    _renderItem2({ item }: ListRenderItemInfo<DataGroup>) {
         return(<CustomCard
             key={`p1-card-${item.id}`}
             title={`Registro ${decode(item.curse)}`}
@@ -203,13 +260,7 @@ export default class Page1 extends Component<IProps, IState> {
             openView={()=>this._openView(item.id, item.curse, item.date, item.hour, item.annotations)}
         />);
     }
-    _getItemLayout(_data: DataGroup[] | null | undefined, index: number) {
-        return {
-            length: 125,
-            offset: 125 * index,
-            index
-        };
-    }
+    // #######
 
     // Global Functions
     _showLoading(visible: boolean, text: string, after?: ()=>any){
@@ -283,12 +334,13 @@ export default class Page1 extends Component<IProps, IState> {
                 <View style={{ flex: 1, overflow: 'hidden' }}>
                     {(!this.state.isLoading)? (!this.state.isError)?
                     <FlatList
-                        data={this.state.dataGroups}
+                        data={this.state.dataGroups2}
                         extraData={this.state}
                         keyExtractor={this._keyExtractor}
                         getItemLayout={this._getItemLayout}
+                        ItemSeparatorComponent={this._ItemSeparatorComponent}
                         refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={()=>this.loadData(undefined, true)} />}
-                        contentContainerStyle={{ flex: (this.state.dataGroups.length == 0)? 2: undefined, paddingTop: 8 }}
+                        contentContainerStyle={(this.state.dataGroups.length == 0)? { flex: 2 }: undefined}
                         ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
                         renderItem={this._renderItem}
                     />:
@@ -405,3 +457,9 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
         </Menu>);
     }
 }
+
+const styles = StyleSheet.create({
+    titleList: {
+        fontSize: 14
+    }
+});

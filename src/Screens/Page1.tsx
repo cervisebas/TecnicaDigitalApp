@@ -116,7 +116,7 @@ export default class Page1 extends Component<IProps, IState> {
                         if (this._isMount) {
                             const dataGroups = await this.filterData(v);
                             const noConfirm = dataGroups.filter((value)=>value.status !== '1').length;
-                            this.setState({ dataGroups, dataGroups2: this.filterListForDate(v), listGroups: groups, isLoading: false, isRefresh: false });
+                            this.setState({ dataGroups, dataGroups2: this.filterListForDate(dataGroups), listGroups: groups, isLoading: false, isRefresh: false });
                             DeviceEventEmitter.emit('update-regist-count', noConfirm);
                             if (code) this.reloadData(code, v);
                         }

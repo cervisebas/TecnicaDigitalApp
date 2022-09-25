@@ -15,8 +15,8 @@ import AnimationTop from "../Assets/DrawerAnims/anim1.webp";
 import AnimationTop1 from "../Assets/DrawerAnims/anim2.webp";
 import AnimationTop2 from "../Assets/DrawerAnims/anim3.webp";
 import AnimationTop3 from "../Assets/DrawerAnims/anim4.webp";
-import ProfilePicture from "../Assets/profile.png";
-import ParticleBackground from "./ParticleBackground";
+import ProfilePicture from "../Assets/profile.webp";
+//import ParticleBackground from "./ParticleBackground";
 
 type IState = {
     nameUser: any;
@@ -68,9 +68,9 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     }
     changeBackgroundImage() {
         var random = Math.floor(Math.random() * (10 - 0) + 0);
-        if (random == 2) return this.setState({ backgroundImage: AnimationTop2 });
-        if (random == 3 || random == 6) return this.setState({ backgroundImage: AnimationTop3 });
-        if (random == 5) return this.setState({ backgroundImage: AnimationTop1 });
+        if (random == 3 || random == 4) return this.setState({ backgroundImage: AnimationTop2 });
+        if (random == 5 || random == 6) return this.setState({ backgroundImage: AnimationTop3 });
+        if (random == 2) return this.setState({ backgroundImage: AnimationTop1 });
         this.setState({ backgroundImage: AnimationTop });
     }
     async loadData() {

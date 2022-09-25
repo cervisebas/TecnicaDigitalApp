@@ -18,7 +18,7 @@ export default class PreferencesSystem {
     async getAssist() {
         try {
             const data = await AsyncStorage.getItem('PreferencesAssist');
-            if (data) {
+            if (data !== null) {
                 const process: PreferencesAssist = JSON.parse(decode(data));
                 return process.curses;
             }

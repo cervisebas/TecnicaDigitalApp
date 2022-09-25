@@ -1,5 +1,5 @@
-import { DefaultTheme as NavigationLightTheme } from '@react-navigation/native';
-import { DefaultTheme as PaperLightTheme } from 'react-native-paper';
+import { DefaultTheme as NavigationLightTheme/*, DarkTheme as NavigationDarkTheme*/ } from '@react-navigation/native';
+import { DefaultTheme as PaperLightTheme/*, DarkTheme as PaperDarkTheme*/ } from 'react-native-paper';
 
 const Theme = {
     ...PaperLightTheme,

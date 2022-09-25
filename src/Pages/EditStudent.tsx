@@ -13,7 +13,7 @@ import { Directive, Student, urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 // Images
-import ImageProfile from "../Assets/profile.png";
+import ImageProfile from "../Assets/profile.webp";
 
 type IProps = {
     goEditActionSheet: ()=>any;

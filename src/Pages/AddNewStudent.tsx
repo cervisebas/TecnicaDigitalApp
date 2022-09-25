@@ -12,7 +12,7 @@ import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { Directive, Student } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
 // Images
-import ImageProfile from "../Assets/profile.png";
+import ImageProfile from "../Assets/profile.webp";
 
 type IProps = {
     goEditActionSheet: ()=>any;

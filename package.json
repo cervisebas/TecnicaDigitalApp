@@ -65,6 +65,7 @@
     "react-native-screens": "^3.17.0",
     "react-native-share": "^7.9.0",
     "react-native-skeleton-placeholder": "^5.0.0",
+    "react-native-splash-screen": "^3.3.0",
     "react-native-svg": "^13.2.0",
     "react-native-swiper": "^1.6.0",
     "react-native-system-navigation-bar": "^2.0.0",

@@ -31,6 +31,7 @@ import Design22 from "../Assets/Examples/design22.webp";
 import Design23 from "../Assets/Examples/design23.webp";
 import Design24 from "../Assets/Examples/design24.webp";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     onChange: (option: number | undefined)=>any;
@@ -92,6 +93,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
     private backupList = this.list;
     private bannerCloseOnEvent: boolean = false;
     private delimiters: number[] = [5, 23];
+    static contextType = ThemeContext;
 
     componentDidMount(): void {
         if (this.props.isFamily)
@@ -159,31 +161,30 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ padding: 16 }} animationIn={'fadeInUp'} animationOut={'fadeOutDown'} onRequestClose={this.close}>
-            <PaperProvider theme={Theme}>
-                <View onLayout={this._onLayout} style={styles.contain}>
-                    <Appbar.Header>
-                        <Appbar.BackAction onPress={this.close} />
-                        <Appbar.Content title={'Ver más detalles'} />
-                        {(!this.state.bannerVisible && this.props.isFamily)&&<Appbar.Action icon={'information-outline'} onPress={this._showBanner} />}
-                    </Appbar.Header>
-                    <Banner
-                        visible={this.state.bannerVisible}
-                        actions={[{ label: 'ENTENDIDO', onPress: this._hideBanner }]}
-                        icon={({ size })=><Icon name={"information-outline"} size={size} />}
-                        children={'El diseño que elijas se mantendrá colocado, aunque reinicies o cierres la aplicación.'}
-                    />
-                    <View style={{ flex: 2 }}>
-                        {(this.state.width !== 0)&&<FlatList
-                            data={this.list}
-                            contentContainerStyle={{ paddingTop: 12 }}
-                            onScroll={this._onScroll}
-                            keyExtractor={this._keyExtractor}
-                            renderItem={this._renderItem}
-                        />}
-                    </View>
+            <View onLayout={this._onLayout} style={[styles.contain, { backgroundColor: theme.colors.surface }]}>
+                <Appbar.Header>
+                    <Appbar.BackAction onPress={this.close} />
+                    <Appbar.Content title={'Lista de diseños'} />
+                    {(!this.state.bannerVisible && this.props.isFamily)&&<Appbar.Action icon={'information-outline'} onPress={this._showBanner} />}
+                </Appbar.Header>
+                <Banner
+                    visible={this.state.bannerVisible}
+                    actions={[{ label: 'ENTENDIDO', onPress: this._hideBanner }]}
+                    icon={({ size })=><Icon name={"information-outline"} size={size} color={theme.colors.text} />}
+                    children={'El diseño que elijas se mantendrá colocado, aunque reinicies o cierres la aplicación.'}
+                />
+                <View style={{ flex: 2 }}>
+                    {(this.state.width !== 0)&&<FlatList
+                        data={this.list}
+                        contentContainerStyle={{ paddingTop: 12 }}
+                        onScroll={this._onScroll}
+                        keyExtractor={this._keyExtractor}
+                        renderItem={this._renderItem}
+                    />}
                 </View>
-            </PaperProvider>
+            </View>
         </CustomModal>);
     }
 }
@@ -206,6 +207,7 @@ class CardImages extends PureComponent<IProps2, IState2> {
             height: 0
         };
     }
+    static contextType = ThemeContext;
     componentDidMount() {
         var isFind = false;
         var useScale = 0.001;
@@ -219,13 +221,14 @@ class CardImages extends PureComponent<IProps2, IState2> {
         }
     }
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<TouchableHighlight
             style={[styles.imageContain, this.props.styles, { height: this.state.height, width: this.state.width }]}
             onPress={(this.props.onPress)&&this.props.onPress}>
             <FastImage
                 source={this.props.source as any}
                 resizeMode={'cover'}
-                style={styles.fastImageItem}
+                style={[styles.fastImageItem, { borderColor: theme.colors.text }]}
             />
         </TouchableHighlight>);
     }
@@ -261,7 +264,6 @@ const styles = StyleSheet.create({
         marginRight: 12
     },
     fastImageItem: {
-        borderColor: '#000000',
         borderWidth: 2,
         width: '100%',
         height: '100%',

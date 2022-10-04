@@ -5,17 +5,17 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Provider as PaperProvider } from "react-native-paper";
 import SystemNavigationBar from "react-native-system-navigation-bar";
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import { ThemeContext } from "./Components/ThemeProvider";
 import notifee from '@notifee/react-native';
 import RNFS from "react-native-fs";
-import Theme from "./Themes";
 import Others from "./Others";
 import AppAdmin from "./App";
 import AppFamily from "./Family/App";
 import MainWidget from "./Scripts/MainWidget";
 import UpdateCheck from "./UpdateCheck";
+import moment from "moment";
 import 'react-native-gesture-handler';
 import 'moment/min/locales';
-import moment from "moment";
 
 
 type IProps = {};
@@ -33,11 +33,11 @@ export default class Index extends PureComponent<IProps, IState> {
     private refNavigate = createRef<NavigationContainerRef<ReactNavigation.RootParamList>>();
     private refUpdateCheck = createRef<UpdateCheck>();
     private event1 : EmitterSubscription | null = null;
+    static contextType = ThemeContext;
     componentDidMount(): void {
         this.event1 = DeviceEventEmitter.addListener('ChangeIndexNavigation', this.changePage);
         if (Platform.OS == 'android') {
             //RNBootSplash.hide();
-            SystemNavigationBar.setNavigationColor('#FF3232', 'light', 'navigation');
             this.verifyFolder();
         }
         this.startNotifications();
@@ -79,10 +79,12 @@ export default class Index extends PureComponent<IProps, IState> {
         this.refUpdateCheck.current?.checkUpdateNow();
     }
     render(): React.ReactNode {
-        return(<View style={{ flex: 1 }}>
-            <StatusBar backgroundColor={'#FF3232'} barStyle={'light-content'} />
-            <PaperProvider theme={Theme}>
-                <NavigationContainer ref={this.refNavigate} theme={Theme}>
+        const { isDark, theme } = this.context;
+            SystemNavigationBar.setNavigationColor((isDark)? '#1D1D1D': '#FF3232', 'light', 'navigation');
+            return(<View style={{ flex: 1 }}>
+            <StatusBar backgroundColor={(isDark)? '#1D1D1D': '#FF3232'} barStyle={'light-content'} />
+            <PaperProvider theme={theme}>
+                <NavigationContainer ref={this.refNavigate} theme={theme}>
                     <Stack.Navigator initialRouteName={'Default'} screenOptions={{ headerShown: false }}>
                         <Stack.Screen name="Admin" component={AppAdmin} />
                         <Stack.Screen name="Family" component={AppFamily} />

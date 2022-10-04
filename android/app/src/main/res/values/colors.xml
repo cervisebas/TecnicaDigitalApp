@@ -16,6 +16,23 @@
     <color name="background">#FFFFFF</color>
     <color name="foreground">#000000</color>
     <color name="highlight">#FF3232</color>
+
+    <!-- Dark Colors -->
+
+    <color name="status_bar_color_dark">#000000</color>
+
+    <color name="colorPrimary_dark">#000000</color>
+    <color name="colorPrimaryDark_dark">#000000</color>
+
+    <color name="background_dark">#000000</color>
+    <color name="foreground_dark">#FFFFFF</color>
     
-    <color name="bootsplash_background">#FFFFFF</color>
+    <color name="splash_background">#FFFFFF</color>
+    <color name="splash_background_dark">#000000</color>
+
+    <!-- Picker -->
+    <color name="picker_text">#000000</color>
+    <color name="picker_background">#FFFFFF</color>
+    <color name="picker_text_dark">#FFFFFF</color>
+    <color name="picker_background_dark">#000000</color>
 </resources>

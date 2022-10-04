@@ -3,6 +3,8 @@ import { Dimensions, Image, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Title, Paragraph, Button } from "react-native-paper";
 import CardDesign from "../../../Assets/Tutorial/CardDesign.webp";
+import CardDesignDark from "../../../Assets/Tutorial/CardDesignDark.webp";
+import { ThemeContext } from "../../../Components/ThemeProvider";
 
 type IProps = {
     nextButton?: ()=>any;
@@ -26,6 +28,7 @@ export default class View4 extends PureComponent<IProps, IState> {
             }
         };
     }
+    static contextType = ThemeContext;
     componentDidMount(): void {
         const ImageSizes = Image.resolveAssetSource(CardDesign);
         const newWidth = width - 64;
@@ -37,9 +40,10 @@ export default class View4 extends PureComponent<IProps, IState> {
         });
     }
     render(): React.ReactNode {
+        const { isDark } = this.context;
         return(<View style={styles.contain}>
             <Title style={styles.title}>Lleva contigo tu credencial</Title>
-            <FastImage source={CardDesign} style={[styles.image, this.state.imageSize]} />
+            <FastImage source={(isDark)? CardDesignDark: CardDesign} style={[styles.image, this.state.imageSize]} />
             <Paragraph style={styles.paragraph}>Accede a tu credencial en cualquier momento, tambien podrás descargarla o compartirla para que te sea más cómodo acceder a ella.</Paragraph>
             <Button
                 children={'Siguiente'}

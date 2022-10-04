@@ -5,7 +5,9 @@ import React, { Component } from "react";
 import { FlatList, ListRenderItemInfo, View } from "react-native";
 import { ActivityIndicator, Appbar, Colors, Divider, List, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { AssistIndividualData } from "../Scripts/ApiTecnica/types";
+import overlay from "react-native-paper/src/styles/overlay";
 import Theme from "../Themes";
 
 type DataAssist = {
@@ -38,6 +40,7 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
         this.loadData = this.loadData.bind(this);
         this.close = this.close.bind(this);
     }
+    static contextType = ThemeContext;
     loadData() {
         this.setState({ isLoading: true }, ()=>{
             var newData: DataAssist[] = [];
@@ -65,7 +68,7 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
         lazyPreloadDistance: 2,
         tabBarScrollEnabled: true,
         tabBarLabelStyle: { color: '#FFFFFF' },
-        tabBarStyle: { backgroundColor: Theme.colors.primary },
+        //tabBarStyle: { backgroundColor: Theme.colors.primary },
         tabBarIndicatorStyle: { backgroundColor: Theme.colors.accent, height: 4 }
     };
 
@@ -84,6 +87,7 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
             <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
                 <Appbar.Header>
@@ -91,7 +95,7 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
                     <Appbar.Content title={'Ver más detalles'}  />
                 </Appbar.Header>
                 <View style={{ flex: 2 }}>
-                    {(!this.state.isLoading)? <Tab.Navigator screenOptions={this.tabOptions}>
+                    {(!this.state.isLoading)? <Tab.Navigator screenOptions={{ ...this.tabOptions, tabBarStyle: { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary } }}>
                         {this.state.datas.map((value)=><Tab.Screen
                             key={value.key}
                             name={value.label}

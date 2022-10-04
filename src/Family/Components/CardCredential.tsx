@@ -10,6 +10,8 @@ import RNFS from "react-native-fs";
 import Share from "react-native-share";
 import Theme from "../../Themes";
 import Tooltip from "react-native-walkthrough-tooltip";
+import { ThemeContext } from "../../Components/ThemeProvider";
+import overlay from "react-native-paper/src/styles/overlay";
 
 type IProps = {
     studentData: StudentsData;
@@ -40,6 +42,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
         this.downloadImageTarget = this.downloadImageTarget.bind(this);
     }
     private refTarget = createRef<ViewShot>();
+    static contextType = ThemeContext;
     componentDidMount(): void {
         const { width } = Dimensions.get('window');
         var isFind = false;
@@ -116,6 +119,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
             .catch(()=>this.props.showSnackbar('Error al generar la imagen.'));
     }
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View>
             <Card style={styles.card} elevation={3}>
                 <Card.Title
@@ -128,7 +132,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
                         image={`${urlBase}/image/${decode(this.props.studentData.picture)}`}
                         name={decode(this.props.studentData.name)}
                         dni={decode(this.props.studentData.dni)}
-                        style={styles.target}
+                        style={[styles.target, { borderColor: theme.colors.text }]}
                         refTarget2={this.refTarget}
                         type={this.props.designCardElection}
                         onPress={this._viewImageTarget}
@@ -161,6 +165,7 @@ class TooltipButtonDesigns extends PureComponent<IProps2, IState2> {
         this.close = this.close.bind(this);
     }
     private event: EventSubscription | null = null;
+    static contextType = ThemeContext;
     componentDidMount(): void {
         this.event = DeviceEventEmitter.addListener('OpenDesignsPopover', this.open);
     }
@@ -174,8 +179,10 @@ class TooltipButtonDesigns extends PureComponent<IProps2, IState2> {
         this.setState({ showPopover: false });
     }
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<Tooltip
             isVisible={this.state.showPopover}
+            contentStyle={{ backgroundColor: (isDark)? overlay(24, theme.colors.surface): "#FFFFFF" }}
             content={<View style={styles.tooltipContent}>
                 <View style={styles.tooltipContent2}>
                     <Text style={styles.tooltipContent2Title}>¡¡¡Descubre más diseños aquí!!!</Text>
@@ -222,7 +229,6 @@ const styles = StyleSheet.create({
     target: {
         overflow: 'hidden',
         borderWidth: 1.5,
-        borderColor: '#000000',
         borderRadius: 8
     },
     cardActions: {

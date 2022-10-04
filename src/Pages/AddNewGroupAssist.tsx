@@ -8,6 +8,7 @@ import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Theme from "../Themes";
 import { Assist } from "../Scripts/ApiTecnica";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     createNow: (datas: { course: string; date: string; time: string; }, then?: ()=>any)=>Promise<string>;
@@ -53,6 +54,7 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
         this.close = this.close.bind(this);
     }
     private listCourses: string[] = ['- Seleccionar -', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
+    static contextType = ThemeContext;
     closeAndClean() {
         this.close();
         var calcHour = Assist.getCalcHour();
@@ -95,8 +97,9 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={{ backgroundColor: Theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.closeAndClean} />
                     <Appbar.Content title={'Agregar nuevo grupo'}  />
@@ -104,7 +107,12 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
                 </Appbar.Header>
                 <ScrollView style={{ paddingBottom: 8 }}>
                     <CustomPicker2 title={"Curso:"} value={this.state.formCourse} error={this.state.errorFormCourse} onChange={(v)=>this.setState({ formCourse: v, errorFormCourse: false })} style={styles.textInput}>
-                        {this.listCourses.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
+                        {this.listCourses.map((value, index)=><Picker.Item
+                            key={index.toString()}
+                            label={value}
+                            value={value}
+                            color={'#000000'}
+                        />)}
                     </CustomPicker2>
                     <Pressable onPress={()=>this.setState({ visibleDatePicker: true })}>
                         <TextInput

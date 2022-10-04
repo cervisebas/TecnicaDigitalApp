@@ -2,6 +2,7 @@ import React, { createRef, PureComponent } from "react";
 import { StyleSheet, View } from "react-native";
 import Swiper from "react-native-swiper";
 import CustomModal from "../../Components/CustomModal";
+import { ThemeContext } from "../../Components/ThemeProvider";
 import Theme from "../../Themes";
 import View1 from "./Tutorial/View1";
 import View2 from "./Tutorial/View2";
@@ -20,7 +21,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            visible: false
+            visible: true
         };
         this._nextPage = this._nextPage.bind(this);
         this.open = this.open.bind(this);
@@ -28,6 +29,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
         this._restart = this._restart.bind(this);
     }
     private refSwiper = createRef<Swiper>();
+    static contextType = ThemeContext;
     _nextPage() {
         this.refSwiper.current?.scrollBy(1, true);
     }
@@ -44,8 +46,9 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onClose={this.props.onClose} animationIn={'fadeIn'} animationOut={'fadeOut'}>
-            <View style={styles.contain}>
+            <View style={[styles.contain, { backgroundColor: theme.colors.background }]}>
                 <Swiper
                     ref={this.refSwiper}
                     showsButtons={false}
@@ -66,8 +69,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
 
 const styles = StyleSheet.create({
     contain: {
-        flex: 1,
-        backgroundColor: Theme.colors.background
+        flex: 1
     },
     slides: {
         flex: 2,

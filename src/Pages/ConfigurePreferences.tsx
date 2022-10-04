@@ -3,6 +3,7 @@ import { DeviceEventEmitter, Dimensions, FlatList, ListRenderItemInfo, StyleShee
 import { Appbar, Banner, Checkbox, Divider, FAB, List } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Prefences } from "../Scripts/ApiTecnica";
 import Theme from "../Themes";
 
@@ -59,6 +60,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
         { id: 72, label: '7°2', check: 'unchecked' },
         { id: 73, label: '7°3', check: 'unchecked' }
     ];
+    static contextType = ThemeContext;
     clear() {
         var clear = this.state.curses.map((v)=>{
             v.check = 'unchecked';
@@ -110,6 +112,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
         return(<List.Icon {...props} icon={'google-classroom'} />);
     }
     _renderItem({ item }: ListRenderItemInfo<Curses>) {
+        const { isDark, theme } = this.context;
         return(<List.Item
             title={`Curso ${item.label}`}
             style={styles.item}
@@ -118,6 +121,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
             right={(props)=><Checkbox
                 {...props}
                 status={item.check}
+                color={(item.check == 'checked' && isDark)? theme.colors.accent: undefined}
                 onPress={()=>this.set(item.id)}
             />}
             left={this._leftIcon}
@@ -140,8 +144,9 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
     }
     
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={'Preferencias de registros'} />
@@ -174,7 +179,6 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         marginRight: 8,
         height: '90%',
-        backgroundColor: Theme.colors.background,
         borderRadius: 8,
         overflow: 'hidden',
         position: 'relative'

@@ -148,8 +148,8 @@ android {
         applicationId "com.tecnicadigital"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 21
-        versionName "3.1.1"
+        versionCode 22
+        versionName "3.1.2"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         vectorDrawables {
@@ -283,6 +283,7 @@ dependencies {
     // Google
     implementation platform('com.google.firebase:firebase-bom:30.2.0')
     implementation 'com.google.firebase:firebase-analytics'
+    //implementation 'com.google.android.material:material:1.8.0-alpha01'
 
     // Images
     implementation 'com.facebook.fresco:webpsupport:2.5.0'

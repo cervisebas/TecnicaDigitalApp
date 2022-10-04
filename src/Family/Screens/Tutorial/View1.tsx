@@ -4,6 +4,7 @@ import FastImage from "react-native-fast-image";
 import { Button, Colors, Text } from "react-native-paper";
 import LogoSweep from "../../../Assets/Tutorial/logo_sweep.webp";
 import CustomBackgroundSession from "../../../Components/CustomBackgroundSession";
+import { ThemeContext } from "../../../Components/ThemeProvider";
 
 type IProps = {
     nextButton?: ()=>any;
@@ -16,10 +17,12 @@ export default class View1 extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
     }
+    static contextType = ThemeContext;
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={styles.contain}>
             <CustomBackgroundSession style={styles.imageBackground} />
-            <Text style={styles.firstText}>¿Primera vez aquí?</Text>
+            <Text style={[styles.firstText, { color: theme.colors.text }]}>¿Primera vez aquí?</Text>
             <View style={styles.content1}>
                 <FastImage style={styles.logo} source={LogoSweep} />
                 <CustomTitle />
@@ -41,9 +44,11 @@ class CustomTitle extends PureComponent<IProps2> {
     constructor(props: IProps2) {
         super(props);
     }
+    static contextType = ThemeContext;
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={[this.props.style, { alignItems: 'center' }]}>
-            <Text style={styles.titleContent}>Bienvenid@ a</Text>
+            <Text style={[styles.titleContent, { color: theme.colors.text }]}>Bienvenid@ a</Text>
             <Text>
                 <Text style={styles.title1}>Tecnica</Text>
                 <Text style={styles.title2}>Digital</Text>

@@ -53,7 +53,8 @@ export default class DesingDefault extends PureComponent<IPropsCard, IStateCard>
                     top: this.state.textTop,
                     justifyContent: 'center',
                     width: this.getScale(780),
-                    fontSize: this.getScale(64)
+                    fontSize: this.getScale(64),
+                    color: '#000000'
                 }}
                 numberOfLines={2}
                 onTextLayout={({ nativeEvent: { lines } })=>this.setState({ textTop: (lines.length >= 2)? this.getScale(148): this.getScale(192) })}

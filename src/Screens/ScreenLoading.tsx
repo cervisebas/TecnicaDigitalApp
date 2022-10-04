@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import { View, ImageSourcePropType, StyleSheet } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import LinearGradient from 'react-native-linear-gradient';
-import { ActivityIndicator, Provider as PaperProvider, Text } from 'react-native-paper';
+import { ActivityIndicator, Text } from 'react-native-paper';
 import CustomModal from '../Components/CustomModal';
-import Theme from '../Themes';
 // Images
 import logo from '../Assets/logo.webp';
 import newLogoAnim1 from '../Assets/ScreenAnims/animation1.webp';
 import newLogoAnim2 from '../Assets/ScreenAnims/animation2.webp';
+import { ThemeContext } from '../Components/ThemeProvider';
 
 type IProps = {
     setTimeout?: (time: number)=>any;
@@ -33,6 +33,7 @@ export default class ScreenLoading extends Component<IProps, IState> {
             logo: logo
         };
     }
+    static contextType = ThemeContext;
     componentDidMount() {
         this.setLogo();
     }
@@ -112,35 +113,33 @@ export default class ScreenLoading extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>
-            <PaperProvider theme={Theme}>
-                <View style={styles.background}>
-                    <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={styles.gradient}>
-                        {(this.state.logo)&&<FastImage
-                            source={this.state.logo as any}
-                            style={styles.logo}
-                        />}
-                        <View style={styles.contentLoading}>
-                            {(!this.state.showMessage || !this.state.hideLoadinginMessage)&&<ActivityIndicator size={'large'} animating={true} />}
-                            {(this.state.showMessage)&&<Text
-                                style={[styles.text, (!this.state.hideLoadinginMessage)&&{
-                                    fontSize: 14,
-                                    marginTop: 16
-                                }]}>
-                                {this.state.message}
-                            </Text>}
-                        </View>
-                    </LinearGradient>
-                </View>
-            </PaperProvider>
+            <View style={[styles.background, { backgroundColor: theme.colors.background }]}>
+                <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={styles.gradient}>
+                    {(this.state.logo)&&<FastImage
+                        source={this.state.logo as any}
+                        style={styles.logo}
+                    />}
+                    <View style={styles.contentLoading}>
+                        {(!this.state.showMessage || !this.state.hideLoadinginMessage)&&<ActivityIndicator size={'large'} animating={true} />}
+                        {(this.state.showMessage)&&<Text
+                            style={[styles.text, (!this.state.hideLoadinginMessage)&&{
+                                fontSize: 14,
+                                marginTop: 16
+                            }]}>
+                            {this.state.message}
+                        </Text>}
+                    </View>
+                </LinearGradient>
+            </View>
         </CustomModal>);
     }
 }
 
 const styles = StyleSheet.create({
     background: {
-        flex: 1,
-        backgroundColor: Theme.colors.background
+        flex: 1
     },
     gradient: {
         position: 'relative',

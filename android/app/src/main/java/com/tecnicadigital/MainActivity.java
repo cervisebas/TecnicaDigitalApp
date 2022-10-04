@@ -4,15 +4,31 @@ import android.os.Bundle;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
-import com.zoontek.rnbootsplash.RNBootSplash;
+//import com.zoontek.rnbootsplash.RNBootSplash;
+import org.devio.rn.splashscreen.SplashScreen;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 public class MainActivity extends ReactActivity {
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    RNBootSplash.init(this);
+    // ThemeMode
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ThemePref", Context.MODE_PRIVATE);
+    String appTheme = sharedPref.getString("appTheme", "default");
+    //getTheme().applyStyle((appTheme.equals("dark"))? R.style.BootThemeDark: R.style.BootTheme, true);
+    setTheme((appTheme.equals("dark"))? R.style.AppThemeDark: R.style.AppThemeLight);
+
+    SplashScreen.show(this, (appTheme.equals("dark"))? R.style.SplashScreenThemeDark: R.style.SplashScreenThemeLight, false);
+    //RNBootSplash.init(this);
     //super.onCreate(savedInstanceState);
     super.onCreate(null);
+  }
+  public void updateTheme() {
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ThemePref", Context.MODE_PRIVATE);
+    String appTheme = sharedPref.getString("appTheme", "default");
+    setTheme((appTheme.equals("dark"))? R.style.AppThemeDark: R.style.AppThemeLight);
   }
 
   /**

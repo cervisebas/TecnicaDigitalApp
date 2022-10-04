@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Appbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
+import { ThemeContext } from "../Components/ThemeProvider";
 import Theme from "../Themes";
 
 type IProps = {
@@ -45,6 +46,7 @@ export default class AddNewGroup extends Component<IProps, IState> {
     }
     private listCourses: string[] = ['- Seleccionar -', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     private listGroup: string[] = ['- Seleccionar -', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+    static contextType = ThemeContext;
     closeAndClean() {
         this.close();
         this.setState({
@@ -81,8 +83,9 @@ export default class AddNewGroup extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={{ backgroundColor: Theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.closeAndClean} />
                     <Appbar.Content title={'Agregar nuevo grupo'}  />

@@ -46,7 +46,8 @@ export default class Card6 extends PureComponent<IPropsCard, IStateCard> {
                     width: this.getScale(700),
                     textAlign: 'center',
                     fontWeight: '700',
-                    fontSize: this.getScale(48)
+                    fontSize: this.getScale(48),
+                    color: '#000000'
                 }}
                 numberOfLines={2}
                 onTextLayout={this._onTextLayout}

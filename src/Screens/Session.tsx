@@ -1,10 +1,10 @@
 import React, { Component, createRef, PureComponent } from "react";
 import { Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet, BackHandler } from "react-native";
-import { Text, Provider as PaperProvider, TextInput, Button, Colors, Snackbar } from "react-native-paper";
+import { Text, TextInput, Button, Colors, Snackbar, IconButton } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Directive, Family } from "../Scripts/ApiTecnica";
-import Theme from "../Themes";
 import CustomBackgroundSession from "../Components/CustomBackgroundSession";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     reVerifySession: ()=>any;
@@ -64,6 +64,7 @@ export default class Session extends Component<IProps, IState> {
     }
     private input1 = createRef<NativeTextInput>();
     private input2 = createRef<NativeTextInput>();
+    static contextType = ThemeContext;
     logInNow() {
         if (!this.verifyInputs()) return;
         this.setState({ isLoading: true }, ()=>
@@ -150,122 +151,129 @@ export default class Session extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme, setTheme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={BackHandler.exitApp} animationInTiming={0} animationOutTiming={0} animationIn={'fadeIn'} animationOut={'fadeOut'}>
-            <PaperProvider theme={Theme}>
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                    <View style={styles.content}>
-                        <CustomBackgroundSession style={styles.imageBackground} />
-                        <View style={{ width: '100%', alignItems: 'center' }}>
-                            <CustomTitle />
-                            {(this.state.isDirective)? <View style={{ marginTop: 16, width: '90%' }}>
-                                <TextInput
-                                    label={'Nombre de usuario'}
-                                    mode={'outlined'}
-                                    autoCapitalize={'none'}
-                                    secureTextEntry={false}
-                                    keyboardType={'email-address'}
-                                    autoComplete={'off'}
-                                    autoCorrect={false}
-                                    textContentType={'username'}
-                                    blurOnSubmit={false}
-                                    value={this.state.formUserName}
-                                    error={this.state.formErrorUserName}
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <View style={[styles.content, { backgroundColor: theme.colors.background }]}>
+                    <CustomBackgroundSession style={styles.imageBackground} />
+                    <IconButton
+                        icon={(isDark)? 'weather-night': 'weather-sunny'}
+                        style={styles.buttonTheme}
+                        size={34}
+                        animated={true}
+                        color={(isDark)? theme.colors.accent: theme.colors.primary}
+                        onPress={setTheme}
+                    />
+                    <View style={{ width: '100%', alignItems: 'center' }}>
+                        <CustomTitle />
+                        {(this.state.isDirective)? <View style={{ marginTop: 16, width: '90%' }}>
+                            <TextInput
+                                label={'Nombre de usuario'}
+                                mode={'outlined'}
+                                autoCapitalize={'none'}
+                                secureTextEntry={false}
+                                keyboardType={'email-address'}
+                                autoComplete={'off'}
+                                autoCorrect={false}
+                                textContentType={'username'}
+                                blurOnSubmit={false}
+                                value={this.state.formUserName}
+                                error={this.state.formErrorUserName}
+                                disabled={this.state.isLoading}
+                                render={(props)=><NativeTextInput {...props} ref={this.input1} />}
+                                onChangeText={(text)=>this.setState({ formUserName: text, formErrorUserName: false })}
+                                returnKeyType={'next'}
+                                onSubmitEditing={()=>this.input2.current?.focus()}
+                            />
+                            <TextInput
+                                label={'Contraseña'}
+                                mode={'outlined'}
+                                autoCapitalize={'none'}
+                                secureTextEntry={this.state.stateTextInputPassword}
+                                autoComplete={'off'}
+                                autoCorrect={false}
+                                textContentType={'password'}
+                                style={{ marginTop: 8 }}
+                                value={this.state.formPassword}
+                                error={this.state.formErrorPassword}
+                                disabled={this.state.isLoading}
+                                render={(props)=><NativeTextInput {...props} ref={this.input2} />}
+                                onChangeText={(text)=>this.setState({ formPassword: text, formErrorPassword: false })}
+                                returnKeyType={'send'}
+                                onSubmitEditing={this.logInNow}
+                                onFocus={()=>this.setState({ showIconTextInputPassword: true })}
+                                onBlur={()=>this.setState({ showIconTextInputPassword: false, stateTextInputPassword: true, iconTextInputPassword: 'eye-outline' })}
+                                right={(this.state.showIconTextInputPassword)&&<TextInput.Icon
+                                    name={this.state.iconTextInputPassword}
+                                    onPress={()=>{
+                                        var state: boolean = this.state.stateTextInputPassword;
+                                        this.setState({
+                                            stateTextInputPassword: !state,
+                                            iconTextInputPassword: (state)? 'eye-off-outline': 'eye-outline'
+                                        });
+                                    }}
+                                />}
+                            />
+                            <View style={{ width: '100%', alignItems: 'center', marginTop: 16 }}>
+                                <Button
+                                    mode={'contained'}
+                                    onPress={this.logInNow}
+                                    style={{ width: '50%' }}
+                                    loading={this.state.isLoading}
                                     disabled={this.state.isLoading}
-                                    render={(props)=><NativeTextInput {...props} ref={this.input1} />}
-                                    onChangeText={(text)=>this.setState({ formUserName: text, formErrorUserName: false })}
-                                    returnKeyType={'next'}
-                                    onSubmitEditing={()=>this.input2.current?.focus()}
-                                />
-                                <TextInput
-                                    label={'Contraseña'}
-                                    mode={'outlined'}
-                                    autoCapitalize={'none'}
-                                    secureTextEntry={this.state.stateTextInputPassword}
-                                    autoComplete={'off'}
-                                    autoCorrect={false}
-                                    textContentType={'password'}
-                                    style={{ marginTop: 8 }}
-                                    value={this.state.formPassword}
-                                    error={this.state.formErrorPassword}
+                                >Iniciar sesión</Button>
+                                <Button
+                                    mode={'text'}
+                                    onPress={this.changePanel}
+                                    style={{ width: '80%', marginTop: 8 }}
                                     disabled={this.state.isLoading}
-                                    render={(props)=><NativeTextInput {...props} ref={this.input2} />}
-                                    onChangeText={(text)=>this.setState({ formPassword: text, formErrorPassword: false })}
-                                    returnKeyType={'send'}
-                                    onSubmitEditing={this.logInNow}
-                                    onFocus={()=>this.setState({ showIconTextInputPassword: true })}
-                                    onBlur={()=>this.setState({ showIconTextInputPassword: false, stateTextInputPassword: true, iconTextInputPassword: 'eye-outline' })}
-                                    right={(this.state.showIconTextInputPassword)&&<TextInput.Icon
-                                        name={this.state.iconTextInputPassword}
-                                        onPress={()=>{
-                                            var state: boolean = this.state.stateTextInputPassword;
-                                            this.setState({
-                                                stateTextInputPassword: !state,
-                                                iconTextInputPassword: (state)? 'eye-off-outline': 'eye-outline'
-                                            });
-                                        }}
-                                    />}
-                                />
-                                <View style={{ width: '100%', alignItems: 'center', marginTop: 16 }}>
-                                    <Button
-                                        mode={'contained'}
-                                        onPress={this.logInNow}
-                                        style={{ width: '50%' }}
-                                        loading={this.state.isLoading}
-                                        disabled={this.state.isLoading}
-                                    >Iniciar sesión</Button>
-                                    <Button
-                                        mode={'text'}
-                                        onPress={this.changePanel}
-                                        style={{ width: '80%', marginTop: 8 }}
-                                        disabled={this.state.isLoading}
-                                    >Soy familia/estudiante</Button>
-                                </View>
-                            </View>:
-                            <View style={{ marginTop: 16, width: '90%' }}>
-                                <TextInput
-                                    label={'D.N.I'}
-                                    mode={'outlined'}
-                                    autoCapitalize={'none'}
-                                    secureTextEntry={false}
-                                    keyboardType={'number-pad'}
-                                    autoComplete={'off'}
-                                    autoCorrect={false}
-                                    value={this.state.formDNI}
-                                    error={this.state.formErrorDNI}
+                                >Soy familia/estudiante</Button>
+                            </View>
+                        </View>:
+                        <View style={{ marginTop: 16, width: '90%' }}>
+                            <TextInput
+                                label={'D.N.I'}
+                                mode={'outlined'}
+                                autoCapitalize={'none'}
+                                secureTextEntry={false}
+                                keyboardType={'number-pad'}
+                                autoComplete={'off'}
+                                autoCorrect={false}
+                                value={this.state.formDNI}
+                                error={this.state.formErrorDNI}
+                                disabled={this.state.isLoading}
+                                maxLength={9}
+                                onChangeText={this.student_changeTextDNI}
+                                returnKeyType={'send'}
+                                onSubmitEditing={this.goLogInStudent}
+                            />
+                            <View style={{ width: '100%', alignItems: 'center', marginTop: 16 }}>
+                                <Button
+                                    mode={'contained'}
+                                    onPress={this.goLogInStudent}
+                                    style={{ width: '50%' }}
+                                    loading={this.state.isLoading}
                                     disabled={this.state.isLoading}
-                                    maxLength={9}
-                                    onChangeText={this.student_changeTextDNI}
-                                    returnKeyType={'send'}
-                                    onSubmitEditing={this.goLogInStudent}
-                                />
-                                <View style={{ width: '100%', alignItems: 'center', marginTop: 16 }}>
-                                    <Button
-                                        mode={'contained'}
-                                        onPress={this.goLogInStudent}
-                                        style={{ width: '50%' }}
-                                        loading={this.state.isLoading}
-                                        disabled={this.state.isLoading}
-                                    >Iniciar sesión</Button>
-                                    <Button
-                                        mode={'text'}
-                                        onPress={this.changePanel}
-                                        style={{ width: '50%', marginTop: 8 }}
-                                        disabled={this.state.isLoading}
-                                    >Soy directivo</Button>
-                                </View>
-                            </View>}
-                        </View>
+                                >Iniciar sesión</Button>
+                                <Button
+                                    mode={'text'}
+                                    onPress={this.changePanel}
+                                    style={{ width: '50%', marginTop: 8 }}
+                                    disabled={this.state.isLoading}
+                                >Soy directivo</Button>
+                            </View>
+                        </View>}
                     </View>
-                </TouchableWithoutFeedback>
-                <Snackbar
-                    visible={this.state.snackbarShow}
-                    onDismiss={()=>this.setState({ snackbarShow: false })}
-                    duration={3000}
-                    action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackbarShow: false }) }}
-                >
-                    <Text>{this.state.snackbarText}</Text>
-                </Snackbar>
-            </PaperProvider>
+                </View>
+            </TouchableWithoutFeedback>
+            <Snackbar
+                visible={this.state.snackbarShow}
+                onDismiss={()=>this.setState({ snackbarShow: false })}
+                duration={3000}
+                action={{ label: 'OCULTAR', onPress: ()=>this.setState({ snackbarShow: false }) }}
+            >
+                <Text>{this.state.snackbarText}</Text>
+            </Snackbar>
         </CustomModal>);
     }
 }
@@ -275,9 +283,11 @@ class CustomTitle extends PureComponent<IProps2> {
     constructor(props: IProps2) {
         super(props);
     }
+    static contextType = ThemeContext;
     render(): React.ReactNode {
+        const { isDark } = this.context;
         return(<View style={[this.props.style, { alignItems: 'center' }]}>
-            <Text style={styles.titleContent}>Bienvenid@ a</Text>
+            <Text style={[styles.titleContent, { color: (isDark)? "#FFFFFF": "#000000" }]}>Bienvenid@ a</Text>
             <Text>
                 <Text style={styles.title1}>Tecnica</Text>
                 <Text style={styles.title2}>Digital</Text>
@@ -315,7 +325,6 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 2,
-        backgroundColor: Theme.colors.background,
         justifyContent: 'center',
         alignItems: 'center'
     },
@@ -326,5 +335,12 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0
+    },
+    buttonTheme: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        marginLeft: 6,
+        marginTop: 6
     }
 });

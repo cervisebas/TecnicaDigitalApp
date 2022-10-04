@@ -1,19 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
-import { StyleSheet, TouchableHighlight, View } from "react-native";
+import { ScrollView, StyleSheet, TouchableHighlight, View } from "react-native";
 import { Button, IconButton, List, Switch, Text } from "react-native-paper";
-import CustomModal from "../Components/CustomModal";
-import { Family, urlBase } from "../Scripts/ApiTecnica";
+import CustomModal from "../../Components/CustomModal";
+import { Family, urlBase } from "../../Scripts/ApiTecnica";
 import messaging from '@react-native-firebase/messaging';
-import { StudentsData } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
+import { StudentsData } from "../../Scripts/ApiTecnica/types";
+import Theme from "../../Themes";
 import FastImage from "react-native-fast-image";
-import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
+import ImageLazyLoad from "../../Components/Elements/ImageLazyLoad";
 // Images
-import HatImage from "../Assets/hat_student.webp";
-import BlackBoard from "../Assets/blackboard.webp";
-import IndicatorTeacher from "../Assets/indicator-teacher.webp";
+import HatImage from "../../Assets/hat_student.webp";
+import BlackBoard from "../../Assets/blackboard.webp";
+import IndicatorTeacher from "../../Assets/indicator-teacher.webp";
+import { ThemeContext } from "../../Components/ThemeProvider";
 
 type IProps = {
     data: StudentsData | undefined;
@@ -43,6 +44,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
         this._openImage = this._openImage.bind(this);
         this._closeSession = this._closeSession.bind(this);
     }
+    static contextType = ThemeContext;
     componentDidMount() {
         this.loadData(true);
     }
@@ -90,14 +92,15 @@ export default class FamilyOptions extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme, setTheme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            {(this.props.data)? <View style={styles.content}>
+            {(this.props.data)? <View style={[styles.content, { backgroundColor: theme.colors.surface }]}>
                 <View style={styles.contentImage}>
                     {(!this.state.isStudent)&&<>
                         <FastImage source={BlackBoard} style={styles.blackboardImage} />
                         <FastImage source={IndicatorTeacher} style={styles.indicatorImage} />
                     </>}
-                    <TouchableHighlight onPress={this._openImage} style={styles.touchImage}>
+                    <TouchableHighlight onPress={this._openImage} style={[styles.touchImage, { borderColor: theme.colors.text }]}>
                         <ImageLazyLoad
                             source={{ uri: `${urlBase}/image/${decode(this.props.data.picture)}` }}
                             circle
@@ -114,29 +117,37 @@ export default class FamilyOptions extends Component<IProps, IState> {
                 <Text style={styles.textBrand}>SCAPPS</Text>
                 <View style={{ width: '100%', alignItems: 'center' }}>
                     <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
-                    <View style={{ marginTop: 16, width: '100%' }}>
-                        <TextView title={'ID Estudiante'} text={this.state.idStudent} />
-                        {(this.state.isStudent)&&<TextView title={'Curso'} text={decode(this.props.data.curse)} />}
-                        <TextView title={'DNI'} text={decode(this.props.data.dni)} />
-                        <TextView title={'Nacimiento'} text={decode(this.props.data.date)} />
-                        <TextView title={'Teléfono'} text={decode(this.props.data.tel)} />
-                        {(this.props.data.email.length !== 0)&&<TextView title={'E-Mail'} text={decode(this.props.data.email)} />}
-                    </View>
-                    <View style={{ marginTop: 12, flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                        {(this.state.isStudent)&&<List.Item
-                            title={"Subscribirse a las notificaciones"}
-                            description={"Al activar esta opción, recibirá una notificación cada vez que se actualicé el registro del estudiante."}
-                            onPress={()=>this.setSwitchSubscription(!this.state.switchNotifications)}
-                            descriptionNumberOfLines={4}
-                            style={{ width: '95%' }}
-                            right={()=><Switch value={this.state.switchNotifications} onValueChange={this.setSwitchSubscription} />}
-                        />}
-                        <Button
-                            mode={'contained'}
-                            style={{ marginTop: 12 }}
-                            onPress={this._closeSession}
-                        >Cerrar sesión</Button>
-                    </View>
+                    <ScrollView style={{ width: '100%' }}>
+                        <View style={{ marginTop: 16, width: '100%' }}>
+                            <TextView title={'ID Estudiante'} text={this.state.idStudent} />
+                            {(this.state.isStudent)&&<TextView title={'Curso'} text={decode(this.props.data.curse)} />}
+                            <TextView title={'DNI'} text={decode(this.props.data.dni)} />
+                            <TextView title={'Nacimiento'} text={decode(this.props.data.date)} />
+                            <TextView title={'Teléfono'} text={decode(this.props.data.tel)} />
+                            {(this.props.data.email.length !== 0)&&<TextView title={'E-Mail'} text={decode(this.props.data.email)} />}
+                        </View>
+                        <View style={{ marginTop: 12, flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                            {(this.state.isStudent)&&<List.Item
+                                title={"Subscribirse a las notificaciones"}
+                                description={"Al activar esta opción, recibirá una notificación cada vez que se actualicé el registro del estudiante."}
+                                onPress={()=>this.setSwitchSubscription(!this.state.switchNotifications)}
+                                descriptionNumberOfLines={4}
+                                style={{ width: '95%' }}
+                                right={()=><Switch trackColor={{ false: theme.colors.disabled }} value={this.state.switchNotifications} onValueChange={this.setSwitchSubscription} />}
+                            />}
+                            <List.Item
+                                title={"Modo oscuro"}
+                                onPress={setTheme}
+                                style={{ width: '95%' }}
+                                right={()=><Switch trackColor={{ false: theme.colors.disabled }} value={isDark} onValueChange={setTheme} />}
+                            />
+                            <Button
+                                mode={'contained'}
+                                style={{ marginTop: 12 }}
+                                onPress={this._closeSession}
+                            >Cerrar sesión</Button>
+                        </View>
+                    </ScrollView>
                 </View>
             </View>: <></>}
         </CustomModal>);
@@ -183,7 +194,6 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 10,
         marginTop: 30,
-        backgroundColor: Theme.colors.background,
         paddingTop: 60,
         paddingBottom: 14,
         alignItems: 'center'
@@ -199,7 +209,7 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 120,
         overflow: 'hidden',
-        borderColor: '#000000',
+        //borderColor: '#000000',
         backgroundColor: '#000000',
         borderWidth: 3
     },

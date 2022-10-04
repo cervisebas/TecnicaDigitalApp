@@ -8,7 +8,7 @@
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
         <item name="android:forceDarkAllowed">false</item>
 
-        <item name="colorPrimary">@color/colorPrimary</item>
+        <!--<item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         
@@ -18,27 +18,89 @@
         <item name="android:windowLightNavigationBar">false</item>
 
         <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogTheme</item>
-        <item name="android:timePickerDialogTheme">@style/MyTimePickerDialogTheme</item>
+        <item name="android:timePickerDialogTheme">@style/MyTimePickerDialogTheme</item>-->
     </style>
 
-    <style name="BootTheme" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/bootsplash_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/bootsplash_logo</item>
+    <!-- Colors Themes -->
+    <style name="ColorsThemeDark" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimary_dark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_dark</item>
+        <item name="colorAccent">@color/colorAccent</item>
         
+        <item name="android:statusBarColor">@color/status_bar_color_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/status_bar_color_dark</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <style name="ColorsThemeLight" parent="AppTheme">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
+        
         <item name="android:statusBarColor">@color/status_bar_color</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/status_bar_color</item>
         <item name="android:windowLightNavigationBar">false</item>
+    </style>
 
+    <!-- App Themes -->
+    <style name="AppThemeDark" parent="ColorsThemeDark">
+        <item name="splashImage">@mipmap/splash_logo_dark</item>
+        <item name="splashColor">@color/splash_background_dark</item>
+        <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogThemeDark</item>
+        <item name="android:timePickerDialogTheme">@style/MyTimePickerDialogThemeDark</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItemDark</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemDark</item>
+    </style>
+    <style name="AppThemeLight" parent="ColorsThemeLight">
+        <item name="splashImage">@mipmap/splash_logo</item>
+        <item name="splashColor">@color/splash_background</item>
+        <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogTheme</item>
+        <item name="android:timePickerDialogTheme">@style/MyTimePickerDialogTheme</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItem</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItem</item>
+    </style>
+
+    <!-- Picker -->
+    <style name="SpinnerItem">
+      <item name="android:textColor">@color/picker_text</item>
+      <item name="android:backgroundTint">@color/picker_background</item>
+   </style>
+   <style name="SpinnerDropDownItem">
+      <item name="android:textColor">@color/picker_text</item>
+      <item name="android:backgroundTint">@color/picker_background</item>
+   </style>
+    <style name="SpinnerItemDark">
+      <item name="android:textColor">@color/picker_text_dark</item>
+      <item name="android:backgroundTint">@color/picker_background_dark</item>
+   </style>
+   <style name="SpinnerDropDownItemDark">
+      <item name="android:textColor">@color/picker_text_dark</item>
+      <item name="android:backgroundTint">@color/picker_background_dark</item>
+   </style>
+
+    <!-- SplashScreen Themes -->
+    <style name="SplashScreenTheme" parent="SplashScreen_SplashTheme">
         <item name="android:windowEnterTransition">@android:transition/no_transition</item>
         <item name="android:windowExitTransition">@android:transition/no_transition</item>
-
-        <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
+    <style name="SplashScreenThemeLight" parent="SplashScreenTheme">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:statusBarColor">@color/status_bar_color</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/status_bar_color</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+    <style name="SplashScreenThemeDark" parent="SplashScreenTheme">
+        <item name="colorPrimary">@color/colorPrimary_dark</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark_dark</item>
+        <item name="android:statusBarColor">@color/status_bar_color_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/status_bar_color_dark</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
 
     <style name="Theme.FullScreenDialog">
         <item name="android:windowNoTitle">true</item>
@@ -78,6 +140,36 @@
         <item name="android:numbersBackgroundColor">@color/background</item>
     </style>
     <!-- ############################# -->
+    <!-- DatetimePicker and TimePicker (Dark) -->
+    <style name="MyDatePickerDialogThemeDark" parent="android:Theme.Material.Dialog">
+        <item name="colorPrimary">@color/foreground_dark</item>
+        <item name="colorPrimaryDark">@color/foreground_dark</item>
+        <item name="android:colorAccent">@color/highlight</item>
+        <item name="android:datePickerStyle">@style/MyDatePickerStyleDark</item>
+    </style>
+    <style name="MyTimePickerDialogThemeDark" parent="android:Theme.Material.Dialog">
+        <item name="colorPrimary">@color/foreground_dark</item>
+        <item name="colorPrimaryDark">@color/foreground_dark</item>
+        <item name="android:colorAccent">@color/highlight</item>
+        <item name="android:timePickerStyle">@style/MyTimePickerDark</item>
+    </style>
+    <style name="MyDatePickerStyleDark" parent="@android:style/Widget.Material.DatePicker">
+        <item name="android:headerBackground">@color/highlight</item>
+        <item name="android:dayOfWeekBackground">@color/highlight</item>
+        <item name="android:dayOfWeekTextAppearance">@color/highlight</item>
+        <item name="android:headerMonthTextAppearance">@color/highlight</item>
+        <item name="android:headerDayOfMonthTextAppearance">@color/highlight</item>
+        <item name="android:headerYearTextAppearance">@color/highlight</item>
+        <item name="android:yearListItemTextAppearance">@color/highlight</item>
+        <item name="android:yearListSelectorColor">@color/highlight</item>
+        <item name="android:calendarTextColor">@color/highlight</item>
+    </style>
+    <style name="MyTimePickerDark" parent="@android:style/Widget.Material.TimePicker">
+        <item name="android:headerBackground">@color/highlight</item>
+        <item name="android:numbersSelectorColor">@color/highlight</item>
+        <item name="android:numbersBackgroundColor">@color/background_dark</item>
+    </style>
+    <!-- ############################# -->
 
     <style name="Widget.TecnicaDigital.AppWidget.Container" parent="android:Widget">
         <item name="android:id">@android:id/background</item>
@@ -88,4 +180,5 @@
         <item name="android:background">?android:attr/colorBackground</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
+
 </resources>

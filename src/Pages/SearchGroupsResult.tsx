@@ -7,6 +7,7 @@ import { DataGroup } from "../Scripts/ApiTecnica/types";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Theme from "../Themes";
 import CustomCard from "../Components/Elements/CustomCard";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     openConfirm: (id: string, curse: string, date: string)=>any;
@@ -30,6 +31,7 @@ export default class SearchGroupsResult extends Component<IProps, IState> {
         this.updateDataLocal = this.updateDataLocal.bind(this);
         this.close = this.close.bind(this);
     }
+    static contextType = ThemeContext;
     updateDataLocal() {
         if (this.state.datas.length == 0) return this.setState({ title: 'Sin resultados' });
         this.setState({ title: decode(this.state.datas[0].date) });
@@ -69,8 +71,9 @@ export default class SearchGroupsResult extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.updateDataLocal} onRequestClose={this.close}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={`Busqueda: ${this.state.title}`}  />
@@ -92,7 +95,6 @@ export default class SearchGroupsResult extends Component<IProps, IState> {
 
 const styles = StyleSheet.create({
     content: {
-        flex: 1,
-        backgroundColor: Theme.colors.background
+        flex: 1
     }
 });

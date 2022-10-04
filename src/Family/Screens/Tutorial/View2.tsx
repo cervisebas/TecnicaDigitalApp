@@ -3,6 +3,8 @@ import { Dimensions, Image, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Title, Paragraph, Button } from "react-native-paper";
 import ViewAssistCard from "../../../Assets/Tutorial/ViewAssistCard.webp";
+import ViewAssistCardDark from "../../../Assets/Tutorial/ViewAssistCardDark.webp";
+import { ThemeContext } from "../../../Components/ThemeProvider";
 
 type IProps = {
     nextButton?: ()=>any;
@@ -26,6 +28,7 @@ export default class View2 extends PureComponent<IProps, IState> {
             }
         };
     }
+    static contextType = ThemeContext;
     componentDidMount(): void {
         const ImageSizes = Image.resolveAssetSource(ViewAssistCard);
         const newWidth = width - 64;
@@ -37,9 +40,10 @@ export default class View2 extends PureComponent<IProps, IState> {
         });
     }
     render(): React.ReactNode {
+        const { isDark } = this.context;
         return(<View style={styles.contain}>
             <Title style={styles.title}>Entérate del estado de tu asistencia</Title>
-            <FastImage source={ViewAssistCard} style={[styles.image, this.state.imageSize]} />
+            <FastImage source={(isDark)? ViewAssistCardDark: ViewAssistCard} style={[styles.image, this.state.imageSize]} />
             <Paragraph style={styles.paragraph}>Aquí podrás mantenerte al tanto del estado de presencias y ausencias que llevas.</Paragraph>
             <Button
                 children={'Siguiente'}

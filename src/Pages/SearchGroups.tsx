@@ -5,6 +5,7 @@ import { Appbar, TextInput } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Theme from "../Themes";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     goSearch: (newDate: Date)=>any;
@@ -29,6 +30,7 @@ export default class SearchGroups extends Component<IProps, IState> {
         this.resetDate = this.resetDate.bind(this);
         this.close = this.close.bind(this);
     }
+    static contextType = ThemeContext;
     componentDidMount(): void {
         this.setState({
             dateStr: moment().format('DD/MM/YYYY')
@@ -54,8 +56,9 @@ export default class SearchGroups extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onShow={this.resetDate} onRequestClose={this.close} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={'Buscar registro'}  />
@@ -92,7 +95,6 @@ export default class SearchGroups extends Component<IProps, IState> {
 
 const styles = StyleSheet.create({
     content: {
-        backgroundColor: Theme.colors.background,
         borderRadius: 8,
         overflow: 'hidden'
     },

@@ -3,6 +3,8 @@ import { Dimensions, Image, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
 import { Title, Paragraph, Button } from "react-native-paper";
 import NotificationsImage from "../../../Assets/Tutorial/Notifications.webp";
+import NotificationsImageDark from "../../../Assets/Tutorial/NotificationsDark.webp";
+import { ThemeContext } from "../../../Components/ThemeProvider";
 
 type IProps = {
     nextButton?: ()=>any;
@@ -26,6 +28,7 @@ export default class View3 extends PureComponent<IProps, IState> {
             }
         };
     }
+    static contextType = ThemeContext;
     componentDidMount(): void {
         const ImageSizes = Image.resolveAssetSource(NotificationsImage);
         const newWidth = width - 64;
@@ -37,9 +40,10 @@ export default class View3 extends PureComponent<IProps, IState> {
         });
     }
     render(): React.ReactNode {
+        const { isDark } = this.context;
         return(<View style={styles.contain}>
             <Title style={styles.title}>Suscríbete al servicio de notificaciones</Title>
-            <FastImage source={NotificationsImage} style={[styles.image, this.state.imageSize]} />
+            <FastImage source={(isDark)? NotificationsImageDark: NotificationsImage} style={[styles.image, this.state.imageSize]} />
             <Paragraph style={styles.paragraph}>Una vez activada la opción recibirás una notificación cada vez que se confirme tu asistencia dentro de la escuela.</Paragraph>
             <Button
                 children={'Siguiente'}

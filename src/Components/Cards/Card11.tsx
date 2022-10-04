@@ -52,7 +52,8 @@ export default class Card11 extends PureComponent<IPropsCard, IStateCard> {
                         height: this.getScale(2)
                     },
                     textShadowRadius: this.getScale(4),
-                    fontSize: this.getScale(58)
+                    fontSize: this.getScale(58),
+                    color: '#000000'
                 }}
                 numberOfLines={2}
                 onTextLayout={this._onTextLayout}

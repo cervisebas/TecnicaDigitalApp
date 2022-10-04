@@ -13,9 +13,12 @@ import RNFS from "react-native-fs";
 // Images
 import AnimationTop from "../Assets/DrawerAnims/anim1.webp";
 import AnimationTop1 from "../Assets/DrawerAnims/anim2.webp";
+import AnimationTop1Dark from "../Assets/DrawerAnims/anim2-dark.webp";
 import AnimationTop2 from "../Assets/DrawerAnims/anim3.webp";
 import AnimationTop3 from "../Assets/DrawerAnims/anim4.webp";
 import ProfilePicture from "../Assets/profile.webp";
+import { ThemeContext } from "./ThemeProvider";
+import Color from "color";
 //import ParticleBackground from "./ParticleBackground";
 
 type IState = {
@@ -46,6 +49,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     private interval: NodeJS.Timer | null = null;
     private interval2: NodeJS.Timer | null = null;
     private _isMount: boolean = false;
+    static contextType = ThemeContext;
     componentDidMount() {
         this._isMount = true;
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
@@ -67,10 +71,11 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         if (Directive.openSession) if (!this.state.loadingUser) this.loadData();
     }
     changeBackgroundImage() {
+        const { isDark } = this.context;
         var random = Math.floor(Math.random() * (10 - 0) + 0);
         if (random == 3 || random == 4) return this.setState({ backgroundImage: AnimationTop2 });
         if (random == 5 || random == 6) return this.setState({ backgroundImage: AnimationTop3 });
-        if (random == 2) return this.setState({ backgroundImage: AnimationTop1 });
+        if (random == 2) return this.setState({ backgroundImage: (isDark)? AnimationTop1Dark: AnimationTop1 });
         this.setState({ backgroundImage: AnimationTop });
     }
     async loadData() {
@@ -90,14 +95,15 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         this.props.navigation.closeDrawer();
     }
     render(): ReactNode {
-        return(<View style={styles.content}>
+        const { theme, setTheme } = this.context;
+        return(<View style={[styles.content, { backgroundColor: theme.colors.background }]}>
             <View onLayout={({ nativeEvent })=>this.setState({ widht: nativeEvent.layout.width })} {...this.props} style={{ flex: 2 }}>
-                <View style={styles.headerImage}>
+                <View style={[styles.headerImage, { backgroundColor: theme.colors.background, shadowColor: theme.colors.text }]}>
                     <FastImage source={this.state.backgroundImage} style={styles.fastImage} resizeMode={'cover'} />
                     <View style={styles.contentProfile}>
                         {(!this.state.loadingUser)? <Avatar.Image size={46} source={ProfilePicture} style={{ marginLeft: 12 }} />
                         :<ImageLazyLoad size={46} source={{ uri: this.state.pictureUser }} circle style={{ marginLeft: 12 }} />}
-                        <Title numberOfLines={1} style={[styles.profileName, { width: this.state.widht - 78 }]}>{this.state.nameUser}</Title>
+                        <Title numberOfLines={1} style={[styles.profileName, { width: this.state.widht - 78, color: theme.colors.text }]}>{this.state.nameUser}</Title>
                     </View>
                 </View>
                 <View style={styles.contentScrollView}>
@@ -119,6 +125,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                             />);
                             return(<Drawer.Item
                                 key={index}
+                                theme={theme}
                                 label={(drawerLabel !== undefined)? drawerLabel as string: (title !== undefined)? title: name}
                                 icon={drawerIcon as any}
                                 active={index == this.props.state.index}
@@ -127,6 +134,13 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                         })}
                         <ClearCacheItem onPress={this.clearCache} />
                         <Drawer.Item
+                            theme={theme}
+                            label={'Thema oscuro'}
+                            icon={'weather-night'}
+                            onPress={setTheme}
+                        />
+                        <Drawer.Item
+                            theme={theme}
                             label={'Cerrar sesión'}
                             icon={'logout'}
                             onPress={this.closeSession}
@@ -135,7 +149,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                 </View>
             </View>
             <View style={styles.brandContent}>
-                <Text style={styles.textSubBrand}>from</Text>
+                <Text style={[styles.textSubBrand, { color: Color(theme.colors.text).alpha(0.54).rgb().string() }]}>from</Text>
                 <Text style={styles.textBrand}>SCAPPS</Text>
             </View>
         </View>);
@@ -161,6 +175,7 @@ class ItemRegist extends PureComponent<IProps3, IState3> {
     }
     private event: EmitterSubscription | undefined = undefined;
     private isMount: boolean = false;
+    static contextType = ThemeContext;
     componentDidMount(): void {
         this.isMount = true;
         this.event = DeviceEventEmitter.addListener('update-regist-count', this.updateBadge);
@@ -176,7 +191,9 @@ class ItemRegist extends PureComponent<IProps3, IState3> {
         return(<Badge {...props} style={(this.state.count == '0')? { display: 'none' }: undefined}>{this.state.count}</Badge>);
     }
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<Drawer.Item
+            theme={theme}
             label={'Registros'}
             icon={'account-box-multiple'}
             right={this._right}
@@ -202,6 +219,7 @@ class ClearCacheItem extends PureComponent<IProps2, IState2> {
         this._right = this._right.bind(this);
     }
     private _isMount: boolean = false;
+    static contextType = ThemeContext;
     componentDidMount(): void {
         this._isMount = true;
         this.startNow();
@@ -251,7 +269,9 @@ class ClearCacheItem extends PureComponent<IProps2, IState2> {
         return(<Badge {...props}>{this.state.sizeCache}</Badge>);
     }
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<Drawer.Item
+            theme={theme}
             label={'Limpiar cache'}
             icon={'sd'}
             right={this._right}
@@ -263,8 +283,7 @@ class ClearCacheItem extends PureComponent<IProps2, IState2> {
 const styles = StyleSheet.create({
     content: {
         flex: 1,
-        position: 'relative',
-        backgroundColor: Theme.colors.background
+        position: 'relative'
     },
     fastImage: {
         width: '100%',
@@ -281,7 +300,7 @@ const styles = StyleSheet.create({
     },
     profileName: {
         marginLeft: 12,
-        color: '#000000'
+        //color: '#000000'
     },
     backgroundParticles: {
         position: 'absolute',
@@ -301,11 +320,11 @@ const styles = StyleSheet.create({
     headerImage: {
         width: '100%',
         height: 150,
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         position: 'relative',
         marginTop: -4,
         overflow: 'hidden',
-        shadowColor: "#000000",
+        //shadowColor: "#000000",
         shadowOffset:{
             width: 0,
             height: 1
@@ -315,7 +334,7 @@ const styles = StyleSheet.create({
         elevation: 3
     },
     textSubBrand: {
-        color: '#3a3a3a',
+        //color: '#3a3a3a',
         fontWeight: 'normal',
         fontSize: 13
     },

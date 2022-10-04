@@ -1,10 +1,12 @@
-import React, { useImperativeHandle, useState } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import React, { useContext, useImperativeHandle, useState } from "react";
+import { Dimensions, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import CustomModal from "../Components/CustomModal";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
-import RNBootSplash from "react-native-bootsplash";
+import SplashScreen from "react-native-splash-screen";
+import { ThemeContext } from "../Components/ThemeProvider";
 // Images
 import SplashLogo from "../Assets/splash_logo.webp";
+import SplashLogoDark from "../Assets/splash_logo_dark.webp";
 
 type IProps = {
     onFinish?: ()=>any;
@@ -21,7 +23,8 @@ function SplashScreenAnimation(props: IProps, ref: React.Ref<{ open: ()=>any; cl
     const wait = (time: number)=>new Promise((res)=>setTimeout(res, time));
     const _goAnimation = async()=>{
         await wait(1000);
-        await RNBootSplash.hide({ fade: false });
+        SplashScreen.hide();
+        //await RNBootSplash.hide({ fade: false });
         translateY.value = -50;
         await wait(500);
         translateY.value = Dimensions.get('window').height;
@@ -32,11 +35,13 @@ function SplashScreenAnimation(props: IProps, ref: React.Ref<{ open: ()=>any; cl
         (props.onFinish)&&props.onFinish();
         setVisible(false);
     };
+    const context = useContext(ThemeContext);
+    const styleContent: StyleProp<ViewStyle> = { backgroundColor: (context.isDark)? "#000000": "#FFFFFF" };
     return(<CustomModal visible={visible} animationIn={'fadeIn'} animationOut={'fadeOut'} animationInTiming={0} animationOutTiming={750}>
-        <View style={styles.content}>
+        <View style={[styles.content, styleContent]}>
             <Animated.Text style={[styles.textBrand, animatedTextStyles]}>SCAPPS</Animated.Text>
             <Animated.Image
-                source={SplashLogo}
+                source={(context.isDark)? SplashLogoDark: SplashLogo}
                 onLoad={_goAnimation}
                 style={[styles.logo, animatedImageStyles]}
             />
@@ -50,7 +55,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FFFFFF'
+        //backgroundColor: '#FFFFFF'
     },
     logo: {
         width: 100.39,

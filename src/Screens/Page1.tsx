@@ -21,6 +21,7 @@ import ImageViewerText from "../Pages/ImageViewerText";
 import LoadingComponent from "../Components/LoadingComponent";
 import SetGroup from "../Pages/SetGroup";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     navigation: any;
@@ -77,6 +78,7 @@ export default class Page1 extends Component<IProps, IState> {
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     private _isMount: boolean = false;
+    static contextType = ThemeContext;
     // Refs Components
     private refImageViewerText= createRef<ImageViewerText>();
     private refAddAnnotationAssist= createRef<AddAnnotationAssist>();
@@ -319,8 +321,9 @@ export default class Page1 extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={{ flex: 1 }}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <Appbar.Header>
                     <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros'}  />

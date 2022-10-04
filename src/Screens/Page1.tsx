@@ -342,7 +342,7 @@ export default class Page1 extends Component<IProps, IState> {
                         keyExtractor={this._keyExtractor}
                         getItemLayout={this._getItemLayout}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
-                        refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={()=>this.loadData(undefined, true)} />}
+                        refreshControl={<RefreshControl colors={[Theme.colors.primary]} progressBackgroundColor={theme.colors.surface} refreshing={this.state.isRefresh} onRefresh={()=>this.loadData(undefined, true)} />}
                         contentContainerStyle={(this.state.dataGroups.length == 0)? { flex: 2 }: undefined}
                         ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
                         renderItem={this._renderItem}

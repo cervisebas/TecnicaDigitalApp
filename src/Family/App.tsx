@@ -215,7 +215,7 @@ export default class AppFamily extends Component<IProps, IState> {
                 <Appbar.Action icon={'account-circle-outline'} disabled={this.state.isLoading} onPress={this._openOptions} />
             </Appbar.Header>
             {(!this.state.isLoading)? (this.state.studentData)&&<View style={{ flex: 2, overflow: 'hidden' }}>
-                <ScrollView style={{ flex: 3 }} contentContainerStyle={{ paddingBottom: 8 }} refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={this.loadData} colors={[Theme.colors.accent]} progressBackgroundColor={theme.colors.surface} />}>
+                <ScrollView style={{ flex: 3 }} contentContainerStyle={{ paddingBottom: 8 }} refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={this.loadData} colors={[Theme.colors.primary]} progressBackgroundColor={theme.colors.surface} />}>
                     <WelcomeCard namestudent={this.state.studentData.name} />
                     <AssistCard
                         isLoading={this.state.isLoadingAssist}

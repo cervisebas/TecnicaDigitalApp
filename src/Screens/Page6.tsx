@@ -15,6 +15,7 @@ import { decode } from "base-64";
 import ViewGroup from "../Pages/ViewGroup";
 import SelectStudentGroupEdit from "../Pages/SelectStudentGroupEdit";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     navigation: any;
@@ -61,6 +62,7 @@ export default class Page6 extends Component<IProps, IState> {
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
+    static contextType = ThemeContext;
     // Refs Components
     private refAddNewGroup = createRef<AddNewGroup>();
     private refSelectStudentGroup = createRef<SelectStudentGroup>();
@@ -151,8 +153,9 @@ export default class Page6 extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={{ flex: 1 }}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <Appbar>
                     <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Grupos'} />
@@ -161,7 +164,7 @@ export default class Page6 extends Component<IProps, IState> {
                 <View style={{ flex: 2, overflow: 'hidden' }}>
                     {(!this.state.isLoading && !this.state.isError)? <FlatList
                         data={this.state.datas}
-                        refreshControl={<RefreshControl refreshing={this.state.isRefresh} colors={[Theme.colors.primary]} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
+                        refreshControl={<RefreshControl refreshing={this.state.isRefresh} colors={[theme.colors.primary]} progressBackgroundColor={theme.colors.surface} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
                         keyExtractor={this._keyExtractor}
                         getItemLayout={this._getItemLayout}
                         contentContainerStyle={{ flex: (this.state.datas.length == 0)? 3: undefined, paddingBottom: 11 }}
@@ -172,9 +175,9 @@ export default class Page6 extends Component<IProps, IState> {
                         {(!this.state.isError)? <ActivityIndicator size={'large'} animating />:
                         <View style={{ width: '100%' }}>
                             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                                <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />
+                                <Icon name={'account-alert-outline'} size={48} color={theme.colors.text} style={{ fontSize: 48 }} />
                                 <Text style={{ marginTop: 14 }}>{this.state.messageError}</Text>
-                                <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.setState({ isError: false }, this.loadData)} style={{ marginTop: 12 }} />
+                                <IconButton icon={'reload'} color={theme.colors.primary} size={28} onPress={()=>this.setState({ isError: false }, this.loadData)} style={{ marginTop: 12 }} />
                             </View>
                         </View>}
                     </View>}
@@ -213,9 +216,11 @@ class ListEmpty extends PureComponent {
     constructor(props: any) {
         super(props);
     }
+    static contextType = ThemeContext;
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={styles.emptyContent}>
-            <Icon name={'account-alert-outline'} size={48} />
+            <Icon name={'account-alert-outline'} color={theme.colors.text} size={48} />
             <Text style={{ marginTop: 12 }}>No se encontraron grupos.</Text>
         </View>);
     }

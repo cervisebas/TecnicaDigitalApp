@@ -3,8 +3,8 @@ import React, { Component } from "react";
 import { View, Keyboard, TouchableWithoutFeedback, StyleSheet, DeviceEventEmitter, ToastAndroid } from "react-native";
 import { Appbar, Button, TextInput } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Annotation } from "../Scripts/ApiTecnica";
-import Theme from "../Themes";
 
 type IProps = {};
 type IState = {
@@ -28,6 +28,7 @@ export default class AddAnnotationAssist extends Component<IProps, IState> {
         this.sendData = this.sendData.bind(this);
         this.goClose = this.goClose.bind(this);
     }
+    static contextType = ThemeContext;
     onClose() {
         this.setState({
             isLoading: false,
@@ -68,8 +69,9 @@ export default class AddAnnotationAssist extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={{ backgroundColor: Theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: (isDark)? theme.colors.surface: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
                         <Appbar.Header>

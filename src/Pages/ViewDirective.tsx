@@ -7,9 +7,9 @@ import CustomModal from "../Components/CustomModal";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { urlBase } from "../Scripts/ApiTecnica";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 // Images
 import CoronaPicture from "../Assets/Corona.webp";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     openImage: (image: string)=>any;
@@ -41,6 +41,7 @@ export default class ViewDirective extends Component<IProps, IState> {
         username: '',
         permission: ''
     };
+    static contextType = ThemeContext;
     getLevelPermission(permission: string) {
         switch (permission) {
             case '0':
@@ -83,10 +84,11 @@ export default class ViewDirective extends Component<IProps, IState> {
         this.props.openImage(`${urlBase}/image/${decode(this.state.data.picture)}`);
     }
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <View style={styles.contentImage}>
-                    <TouchableHighlight onPress={this.openImage} style={styles.touchImage}>
+                    <TouchableHighlight onPress={this.openImage} style={[styles.touchImage, { borderColor: theme.colors.text }]}>
                         <ImageLazyLoad
                             source={{ uri: `${urlBase}/image/${decode(this.state.data.picture)}` }}
                             circle
@@ -140,7 +142,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 10,
         marginTop: 30,
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         paddingTop: 60,
         paddingBottom: 14,
         alignItems: 'center'
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 120,
         overflow: 'hidden',
-        borderColor: '#000000',
+        //borderColor: '#000000',
         backgroundColor: '#000000',
         borderWidth: 3
     },

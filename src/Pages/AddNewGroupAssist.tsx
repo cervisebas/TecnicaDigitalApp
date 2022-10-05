@@ -97,9 +97,9 @@ export default class AddNewGroupAssist extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
-        const { theme } = this.context;
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={{ backgroundColor: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: (isDark)? theme.colors.surface: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.closeAndClean} />
                     <Appbar.Content title={'Agregar nuevo grupo'}  />

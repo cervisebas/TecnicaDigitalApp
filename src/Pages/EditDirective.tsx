@@ -5,9 +5,9 @@ import { DeviceEventEmitter, Keyboard, StyleSheet, ToastAndroid, TouchableWithou
 import { Button, TextInput, Appbar } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Directive } from "../Scripts/ApiTecnica";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type IProps = {
     showSnackbar: (visible: boolean, text: string)=>any;
@@ -57,6 +57,7 @@ export default class EditDirective extends Component<IProps, IState> {
         username: '',
         permission: ''
     };
+    static contextType = ThemeContext;
 
     verifyInputs() {
         if (this.state.formName.length < 4) {
@@ -128,8 +129,9 @@ export default class EditDirective extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
                         <Appbar.Header>
@@ -150,7 +152,12 @@ export default class EditDirective extends Component<IProps, IState> {
                                 onChangeText={(text)=>this.setState({ formName: text, formErrorName: false })}
                             />
                             <CustomPicker2 title={"Posición:"} value={this.state.formPosition} error={this.state.formErrorPosition} disabled={this.state.isLoading} onChange={(value)=>this.setState({ formPosition: value })} style={{ ...styles.textInput, minHeight: 60 }}>
-                                {this.positions.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
+                                {this.positions.map((value, index)=><Picker.Item
+                                    key={index.toString()}
+                                    label={value}
+                                    value={value}
+                                    color={'#000000'}
+                                />)}
                             </CustomPicker2>
                             <TextInput
                                 label={'DNI'}
@@ -181,7 +188,7 @@ export default class EditDirective extends Component<IProps, IState> {
 
 const styles = StyleSheet.create({
     content: {
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         margin: 10,
         borderRadius: 8,
         overflow: 'hidden',

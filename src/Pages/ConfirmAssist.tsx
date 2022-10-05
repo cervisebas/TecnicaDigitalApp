@@ -6,9 +6,9 @@ import { Appbar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Par
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Assist, urlBase } from "../Scripts/ApiTecnica";
 import { AssistUserData, DataList } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type IProps = {
     showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
@@ -64,6 +64,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
         this._openDelete = this._openDelete.bind(this);
         this._goSelectAll = this._goSelectAll.bind(this);
     }
+    static contextType = ThemeContext;
     checkAction(idStudent: string, index: number) {
         let dataLog = this.state.dataLog;
         dataLog[index] = {
@@ -206,8 +207,9 @@ export default class ConfirmAssist extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.closeAndClean}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
@@ -224,7 +226,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                             onSelectAll={this._goSelectAll}
                         />
                     </Appbar.Header>
-                    <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
+                    <View style={{ flex: 2, backgroundColor: theme.colors.background }}>
                         <FlatList
                             data={this.state.data}
                             extraData={this.state}
@@ -241,15 +243,7 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                         label={(this.state.isLoading)? 'ENVIANDO': 'ENVIAR'}
                         onPress={()=>(!this.state.isLoading)? this.send(): undefined}
                         loading={this.state.isLoading}
-                        style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            marginBottom: 16,
-                            marginLeft: 96,
-                            marginRight: 96
-                        }}
+                        style={styles.floatButton}
                     />
                     <Portal>
                         <Dialog visible={this.state.alertVisible} onDismiss={()=>this.setState({ alertVisible: false })}>
@@ -347,5 +341,14 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
 const styles = StyleSheet.create({
     items: {
         height: 64
+    },
+    floatButton: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        marginBottom: 16,
+        marginLeft: 96,
+        marginRight: 96
     }
 });

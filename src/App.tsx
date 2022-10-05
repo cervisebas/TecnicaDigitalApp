@@ -17,6 +17,7 @@ import FastImage from "react-native-fast-image";
 import Page5 from "./Screens/Page5";
 import Page6 from "./Screens/Page6";
 import ImageCropPicker from "react-native-image-crop-picker";
+import { ThemeContext } from "./Components/ThemeProvider";
 
 type IProps = {};
 type IState = {
@@ -42,6 +43,7 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
+    static contextType = ThemeContext;
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('CloseSessionAdmin', ()=>this.setState({ viewLogOut: true }));
         this.event2 = DeviceEventEmitter.addListener('ClearNowCache', ()=>this.setState({ viewClearCache: true }));
@@ -84,7 +86,8 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
         });
     }
     render(): React.ReactNode {
-        return(<Provider theme={Theme}>
+        const { theme } = this.context;
+        return(<Provider theme={theme}>
             <Drawer.Navigator initialRouteName="Registros" screenOptions={{ headerShown: false }} drawerContent={(props)=><CustomDrawerNavegation {...props} />}>
                 <Drawer.Screen
                     name={"Registros"}

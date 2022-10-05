@@ -4,6 +4,8 @@ import { List, Menu, IconButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageLazyLoad from "./ImageLazyLoad";
 import pattern from "../../Assets/pattern3.webp";
+import { ThemeContext } from "../ThemeProvider";
+import Color from "color";
 
 type IProps2 = {
     source: { uri: string; },
@@ -44,10 +46,13 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         this.onNotDelete = this.onNotDelete.bind(this);
         this.leftImage = this.leftImage.bind(this);
     }
+    static contextType = ThemeContext;
     _description() {
+        const { theme } = this.context;
+        const descolor = Color(theme.colors.text).alpha(0.54).rgb().string();
         return(<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {(this.props.permission >= 3)&&<Icon name={(this.props.isCreator)? 'crown': 'shield-crown-outline'} size={20} />}
-            <Text style={[{ marginLeft: 4 }, (this.props.isCreator)&&{ fontWeight: '700' }]}>{this.props.position}</Text>
+            {(this.props.permission >= 3)&&<Icon name={(this.props.isCreator)? 'crown': 'shield-crown-outline'} size={20} color={descolor} />}
+            <Text style={[{ marginLeft: 4, color: descolor }, (this.props.isCreator)&&{ fontWeight: '700' }]}>{this.props.position}</Text>
         </View>);
     }
     showMenu() {

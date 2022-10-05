@@ -4,9 +4,9 @@ import { View, TouchableWithoutFeedback, Keyboard, StyleSheet, DeviceEventEmitte
 import { Appbar, Button } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Directive } from "../Scripts/ApiTecnica";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type IProps = {
     showSnackbar: (visible: boolean, text: string)=>any;
@@ -48,6 +48,7 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
         { name: '4 (alto)', value: '4' },
         { name: '5 (muy alto)', value: '5' }
     ];
+    static contextType = ThemeContext;
     sendData() {
         this.setState({ isLoading: true }, ()=>
             Directive.edit(this.state.data.id, undefined, undefined, undefined, undefined, undefined, this.state.formPermission)
@@ -83,8 +84,9 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
 
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={()=>this.setState({ formPermission: this.state.data.permission })} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
                         <Appbar.Header>
@@ -93,7 +95,12 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
                         </Appbar.Header>
                         <View>
                             <CustomPicker2 title={"Permisos:"} value={this.state.formPermission} disabled={this.state.isLoading} onChange={(value)=>this.setState({ formPermission: value })} style={{ ...styles.textInput, minHeight: 60 }}>
-                                {this.permissions.map((value, index)=><Picker.Item key={index.toString()} label={value.name} value={value.value} />)}
+                                {this.permissions.map((value, index)=><Picker.Item
+                                    key={index.toString()}
+                                    label={value.name}
+                                    value={value.value}
+                                    color={'#000000'}
+                                />)}
                             </CustomPicker2>
                             <View style={{ width: '100%', paddingTop: 12, paddingBottom: 4, alignItems: 'center' }}>
                                 <Button
@@ -112,7 +119,7 @@ export default class ChangePermissionDirective extends Component<IProps, IState>
 
 const styles = StyleSheet.create({
     content: {
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         margin: 10,
         borderRadius: 8,
         overflow: 'hidden',

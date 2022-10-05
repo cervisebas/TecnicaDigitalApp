@@ -1,14 +1,14 @@
 import { decode } from "base-64";
 import React, { PureComponent } from "react";
 import { FlatList, ListRenderItemInfo, NativeSyntheticEvent, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
-import { Appbar, Divider, ProgressBar, Provider as PaperProvider, Searchbar, Text } from "react-native-paper";
+import { Appbar, Divider, overlay, ProgressBar, Provider as PaperProvider, Searchbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import stringSimilarity from "string-similarity";
 import CustomModal from "../Components/CustomModal";
 import ItemStudent from "../Components/Elements/CustomItem";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type IProps = {
     openDetails: (data: StudentsData)=>any;
@@ -37,6 +37,7 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         this.close = this.close.bind(this);
     }
     private TextSearch: string = "";
+    static contextType = ThemeContext;
     
     // Search
     goSearch(event: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
@@ -117,15 +118,16 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
-            <PaperProvider theme={Theme}>
-                <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+            <PaperProvider theme={theme}>
+                <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={'Buscar estudiante'}  />
                     </Appbar.Header>
                     <View style={{ flex: 2 }}>
-                        <View style={styles.viewSearchbar}>
+                        <View style={[styles.viewSearchbar, { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary, borderBottomColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary }]}>
                             <CustomSearchbar
                                 visible={this.state.visible}
                                 onEmpty={()=>this.setState({ listShow: this.state.list })}
@@ -193,6 +195,7 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
     private forIndex: number = 0;
     private interval: NodeJS.Timer | undefined = undefined;
     private intervalTime: number = 10000;
+    static contextType = ThemeContext;
     componentDidMount(): void {
         if (this.props.visible) this.interval = setInterval(this.changePlaceholder, this.intervalTime);
     }
@@ -220,9 +223,10 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
         this.setState({ searchQuery: Query });
     }
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<Searchbar
             value={this.state.searchQuery}
-            style={styles.searchbar}
+            style={[styles.searchbar, (isDark)? { backgroundColor: theme.colors.background }: undefined]}
             placeholder={this.state.placeholder}
             onChangeText={this.onChangeSearch}
             onSubmitEditing={this.props.onSubmit}
@@ -243,9 +247,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     viewSearchbar: {
-        backgroundColor: Theme.colors.primary,
+        //backgroundColor: Theme.colors.primary,
         marginTop: -8,
-        borderBottomColor: Theme.colors.primary,
+        //borderBottomColor: Theme.colors.primary,
         borderBottomWidth: 1
     },
     listStyle: {

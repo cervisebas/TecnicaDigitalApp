@@ -1,5 +1,5 @@
 import { Picker } from "@react-native-picker/picker";
-import React, { PureComponent } from "react";
+import React, { createRef, PureComponent } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { TouchableRipple } from "react-native-paper";
 import { ThemeContext } from "../ThemeProvider";
@@ -37,7 +37,8 @@ export class CustomPicker2 extends PureComponent<IProps, IState2> {
         this.onPressIn = this.onPressIn.bind(this);
         this.onPressOut = this.onPressOut.bind(this);
     }
-    private ref: Picker<string> | null = null;
+    //private ref: Picker<string> | null = null;
+    private refPicker = createRef<Picker<string>>();
     static contextType = ThemeContext;
     private darkMode = false;
     componentDidUpdate(): void {
@@ -49,7 +50,8 @@ export class CustomPicker2 extends PureComponent<IProps, IState2> {
         }
     }
     onPress() {
-        if (!this.props.disabled) return this.ref?.focus();
+        //if (!this.props.disabled) return this.ref?.focus();
+        if (!this.props.disabled) return this.refPicker.current?.focus();
         return undefined;
     }
     onPressIn() {
@@ -67,21 +69,24 @@ export class CustomPicker2 extends PureComponent<IProps, IState2> {
                 onPress={this.onPress}
                 onPressIn={this.onPressIn}
                 onPressOut={this.onPressOut}
-                style={[this.props.style, styles.touchable, { borderColor: (!this.props.disabled)? (this.props.error)? this.state.colorsClickError[this.state.indexColors]: this.state.colorsClick[this.state.indexColors]: theme.colors.disable }]}>
+                style={[this.props.style, styles.touchable, {
+                    borderColor: (!this.props.disabled)? (this.props.error)? this.state.colorsClickError[this.state.indexColors]: this.state.colorsClick[this.state.indexColors]: theme.colors.disabled,
+                    backgroundColor: theme.colors.background
+                }]}>
             <View onLayout={(layout)=>this.setState({ widthMax: layout.nativeEvent.layout.width })} style={styles.viewInto}>
-                <Text onLayout={(layout)=>this.setState({ widthText: layout.nativeEvent.layout.width })} style={[styles.text, { color: (!this.props.disabled)? theme.colors.text: theme.colors.disable }]}>{this.props.title}</Text>
+                <Text onLayout={(layout)=>this.setState({ widthText: layout.nativeEvent.layout.width })} style={[styles.text, { color: (!this.props.disabled)? theme.colors.text: theme.colors.disabled }]}>{this.props.title}</Text>
                 <Picker
-                    ref={(ref)=>this.ref = ref}
+                    ref={this.refPicker}
                     style={{
                         width: (this.state.widthMax - this.state.widthText - 16),
                         height: 52,
-                        color: (!this.props.disabled)? theme.colors.text: theme.colors.disable
+                        color: (!this.props.disabled)? theme.colors.text: theme.colors.disabled
                     }}
                     selectedValue={this.props.value}
                     enabled={!this.props.disabled}
                     onValueChange={this.props.onChange}
                     mode={'dropdown'}
-                    dropdownIconColor={(!this.props.disabled)? (this.props.error)? this.state.borderClickError[this.state.indexColors]: this.state.borderClick[this.state.indexColors]: 'rgba(255, 255, 255, 0.30)'}
+                    dropdownIconColor={(!this.props.disabled)? (this.props.error)? this.state.borderClickError[this.state.indexColors]: this.state.borderClick[this.state.indexColors]: theme.colors.disabled}
                     dropdownIconRippleColor={'rgba(0,0,0,0)'}>
                     {this.props.children}
                 </Picker>

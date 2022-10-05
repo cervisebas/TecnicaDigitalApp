@@ -8,7 +8,6 @@ import AddNewStudent from "../Pages/AddNewStudent";
 import ViewDetails from "../Pages/ViewDetails";
 import { Student, urlBase } from "../Scripts/ApiTecnica";
 import { AssistIndividualData, OrderCurses, StudentsData } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 import EditStudent from "../Pages/EditStudent";
 import ChangeCardDesign from "../Pages/ChangeCardDesign";
 import ItemStudent from "../Components/Elements/CustomItem";
@@ -22,6 +21,7 @@ import LoadingComponent from "../Components/LoadingComponent";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import moment from "moment";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     navigation: any;
@@ -74,6 +74,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
     private designCardElection: number | undefined = undefined;
     private designCardElection2: number | undefined = undefined;
     private delimitesVip: number[] = [5, 23];
+    static contextType = ThemeContext;
     // Refs Components
     private refSearchStudents = createRef<SearchStudents>();
     private refOpenGenerateMultipleCards = createRef<OpenGenerateMultipleCards>();
@@ -251,8 +252,9 @@ export default class Page3 extends PureComponent<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<View style={{ flex: 1 }}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <Appbar>
                     <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Lista de alumnos'}  />
@@ -267,7 +269,8 @@ export default class Page3 extends PureComponent<IProps, IState> {
                                 contentContainerStyle={styles.listStyle}
                                 refreshControl={<RefreshControl
                                     refreshing={this.state.isRefresh}
-                                    colors={[Theme.colors.primary]}
+                                    colors={[theme.colors.primary]}
+                                    progressBackgroundColor={theme.colors.surface}
                                     onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)}
                                 />}
                                 keyExtractor={this._keyExtractor1}
@@ -278,9 +281,9 @@ export default class Page3 extends PureComponent<IProps, IState> {
                     <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
                         <View style={{ width: '100%' }}>
                             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                                <Icon name={'format-list-text'} size={48} style={{ fontSize: 48 }} />
+                                <Icon name={'format-list-text'} size={48} color={theme.colors.text} style={{ fontSize: 48 }} />
                                 <Text style={{ marginTop: 14 }}>La lista esta vacía</Text>
-                                <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.setState({ isRefresh: true, isError: false }, ()=>this.loadData())} style={{ marginTop: 12 }} />
+                                <IconButton icon={'reload'} color={theme.colors.primary} size={28} onPress={()=>this.setState({ isRefresh: true, isError: false }, ()=>this.loadData())} style={{ marginTop: 12 }} />
                             </View>
                         </View>
                     </View>:
@@ -288,9 +291,9 @@ export default class Page3 extends PureComponent<IProps, IState> {
                         {(!this.state.isError)? <ActivityIndicator size={'large'} animating />:
                         <View style={{ width: '100%' }}>
                             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                                <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />
+                                <Icon name={'account-alert-outline'} size={48} color={theme.colors.text} style={{ fontSize: 48 }} />
                                 <Text style={{ marginTop: 14 }}>{this.state.messageError}</Text>
-                                <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.setState({ isRefresh: true, isError: false }, this.loadData)} style={{ marginTop: 12 }} />
+                                <IconButton icon={'reload'} color={theme.colors.primary} size={28} onPress={()=>this.setState({ isRefresh: true, isError: false }, this.loadData)} style={{ marginTop: 12 }} />
                             </View>
                         </View>}
                     </View>}
@@ -321,7 +324,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
                     options={['Cámara', 'Galería', 'Cancelar']}
                     cancelButtonIndex={2}
                     destructiveButtonIndex={2}
-                    userInterfaceStyle={'light'}
+                    userInterfaceStyle={(isDark)? 'dark': 'light'}
                     onPress={this._setIndexActionSheet1}
                 />
                 <ActionSheet
@@ -330,7 +333,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
                     options={['Cámara', 'Galería', 'Quitar', 'Cancelar']}
                     cancelButtonIndex={3}
                     destructiveButtonIndex={3}
-                    userInterfaceStyle={'light'}
+                    userInterfaceStyle={(isDark)? 'dark': 'light'}
                     onPress={this._setIndexActionSheet2}
                 />
                 <SearchStudents

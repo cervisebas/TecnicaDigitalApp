@@ -9,6 +9,7 @@ import { AnnotationList, AssistUserData } from "../Scripts/ApiTecnica/types";
 import RNFS from "react-native-fs";
 import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type Select = {
     id: string;
@@ -65,6 +66,7 @@ export default class ViewAssist extends Component<IProps, IState> {
         hour: '',
         annotations: 0
     };
+    static contextType = ThemeContext;
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('show-dialog-add-annotation', (message: string)=>this.setState({ alertVisible: true, alertMessage: message }));
         this.event2 = DeviceEventEmitter.addListener('restore-view-annotations', ()=>this.openViewAnnotation('auto'));
@@ -178,15 +180,16 @@ export default class ViewAssist extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={`Ver registro: ${this.state.select.curse}`}  />
                         <Appbar.Action icon={'pencil'} onPress={this.openEditAssist} />
                     </Appbar.Header>
-                    <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
+                    <View style={{ flex: 2, backgroundColor: theme.colors.background }}>
                         <FlatList
                             data={this.state.data}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}

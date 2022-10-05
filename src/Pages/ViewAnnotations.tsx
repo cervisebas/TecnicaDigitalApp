@@ -3,9 +3,9 @@ import React, { Component } from "react";
 import { DeviceEventEmitter, FlatList, ListRenderItemInfo, ToastAndroid, View } from "react-native";
 import { Appbar, Avatar, Button, Card, Dialog, IconButton, Paragraph, Portal, Provider, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Annotation, urlBase } from "../Scripts/ApiTecnica";
 import { AnnotationList } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type Select = {
     id: string;
@@ -45,6 +45,7 @@ export default class ViewAnnotations extends Component<IProps, IState> {
         date: '',
         annotations: 0
     };
+    static contextType = ThemeContext;
 
     deleteNow() {
         this.setState({ showDeleteDialog: false });
@@ -98,6 +99,7 @@ export default class ViewAnnotations extends Component<IProps, IState> {
         });
     }
     close() {
+        if (this.state.showDeleteDialog) return this.setState({ showDeleteDialog: false });
         this.setState({
             visible: false,
             select: this.selectDefault,
@@ -106,9 +108,10 @@ export default class ViewAnnotations extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onClose={this.onClose} onRequestClose={this.close}>
-            <View style={{ flex: 1, backgroundColor: Theme.colors.background, margin: 12, overflow: 'hidden', borderRadius: 8 }}>
-                <Provider theme={Theme}>
+            <View style={{ flex: 1, backgroundColor: (isDark)? theme.colors.surface: theme.colors.background, margin: 12, overflow: 'hidden', borderRadius: 8 }}>
+                <Provider theme={theme}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={'Ver anotaciones'} />

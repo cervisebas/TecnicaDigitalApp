@@ -6,9 +6,9 @@ import { Appbar, TextInput, Button, Provider as PaperProvider, ProgressBar } fro
 import CustomModal from "../../Components/CustomModal";
 import { CustomPicker2 } from "../../Components/Elements/CustomInput";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
+import { ThemeContext } from "../../Components/ThemeProvider";
 import { Matters, Student } from "../../Scripts/ApiTecnica";
 import { Matter } from "../../Scripts/ApiTecnica/types";
-import Theme from "../../Themes";
 
 type IProps = {
     snackbar: (message: string)=>any;
@@ -57,6 +57,7 @@ export default class EditMatter extends PureComponent<IProps, IState> {
         this.loadingTeachers = this.loadingTeachers.bind(this);
     }
     private refCustomSnackbar = createRef<CustomSnackbar>();
+    static contextType = ThemeContext;
 
     closeAndClean() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
@@ -126,14 +127,15 @@ export default class EditMatter extends PureComponent<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadingTeachers} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={styles.content}>
+                <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
                         <Appbar.Content title={`Editar materia: #${this.state.idMatter}`} />
                     </Appbar.Header>
-                    <ProgressBar indeterminate color={Theme.colors.accent} style={[styles.progressBar, { opacity: (this.state.isLoadingTeachers)? 1: 0 }]} />
+                    <ProgressBar indeterminate color={theme.colors.accent} style={{ opacity: (this.state.isLoadingTeachers)? 1: 0, backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }} />
                     <View>
                         <TextInput
                             label={'Nombre de la materia'}
@@ -170,7 +172,6 @@ export default class EditMatter extends PureComponent<IProps, IState> {
 
 const styles = StyleSheet.create({
     content: {
-        backgroundColor: Theme.colors.background,
         overflow: 'hidden',
         marginLeft: 8,
         marginRight: 8,

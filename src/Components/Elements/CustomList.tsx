@@ -1,6 +1,7 @@
 import React, { PureComponent, ReactNode } from "react";
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
-import { List } from "react-native-paper";
+import { List, overlay } from "react-native-paper";
+import { ThemeContext } from "../ThemeProvider";
 
 type IProps = {
     title: string;
@@ -19,6 +20,7 @@ export default class CustomList extends PureComponent<IProps, IState> {
             count: 'Cargando...'
         };
     }
+    static contextType = ThemeContext;
     getCountString() {
         return `${this.props.leght} ${
             (this.props.title.indexOf('Archivado') !== -1)?
@@ -36,12 +38,13 @@ export default class CustomList extends PureComponent<IProps, IState> {
             this.setState({ count: this.getCountString() });
     }
     render(): ReactNode {
+        const { isDark, theme } = this.context;
         return(<List.Accordion
             id={this.props.id}
             title={this.props.title}
             description={this.state.count}
             descriptionStyle={styles.description}
-            style={[this.props.style, styles.list]}
+            style={[this.props.style, styles.list, { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.background }]}
         >
             {this.props.children}
         </List.Accordion>);
@@ -55,7 +58,6 @@ const styles = StyleSheet.create({
         marginTop: 4,
         borderRadius: 8,
         overflow: 'hidden',
-        backgroundColor: '#FFFFFF',
         shadowColor: "#000000",
         shadowOffset: {
             width: 0,

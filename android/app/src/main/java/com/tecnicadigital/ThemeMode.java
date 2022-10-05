@@ -49,6 +49,6 @@ public class ThemeMode extends ReactContextBaseJavaModule {
 	@ReactMethod
 	public void update() {
 		String value = mSharedPreferences.getString("appTheme", "default");
-		context.getCurrentActivity().setTheme((value.equals("dark"))? R.style.AppThemeDark: R.style.AppThemeLight);
+		getCurrentActivity().setTheme((value.equals("dark"))? R.style.AppThemeDark: R.style.AppThemeLight);
 	}
 }

@@ -343,13 +343,13 @@ export default class Page1 extends Component<IProps, IState> {
                         getItemLayout={this._getItemLayout}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
                         refreshControl={<RefreshControl colors={[Theme.colors.primary]} progressBackgroundColor={theme.colors.surface} refreshing={this.state.isRefresh} onRefresh={()=>this.loadData(undefined, true)} />}
-                        contentContainerStyle={(this.state.dataGroups.length == 0)? { flex: 2 }: undefined}
-                        ListEmptyComponent={()=><View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
+                        contentContainerStyle={(this.state.dataGroups2.length == 0)? { flex: 2 }: undefined}
+                        ListEmptyComponent={<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} color={theme.colors.text} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
                         renderItem={this._renderItem}
                     />:
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                            <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />
+                            <Icon name={'account-alert-outline'} size={48} color={theme.colors.text} style={{ fontSize: 48 }} />
                             <Text style={{ marginTop: 14 }}>{this.state.messageError}</Text>
                             <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.loadData()} style={{ marginTop: 12 }} />
                         </View>

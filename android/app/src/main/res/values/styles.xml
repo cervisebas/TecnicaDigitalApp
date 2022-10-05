@@ -64,19 +64,23 @@
     <!-- Picker -->
     <style name="SpinnerItem">
       <item name="android:textColor">@color/picker_text</item>
-      <item name="android:backgroundTint">@color/picker_background</item>
+      <item name="android:background">@color/picker_background</item>
+      <item name="android:popupBackground">@color/picker_background</item>
    </style>
    <style name="SpinnerDropDownItem">
       <item name="android:textColor">@color/picker_text</item>
-      <item name="android:backgroundTint">@color/picker_background</item>
+      <item name="android:background">@color/picker_background</item>
+      <item name="android:popupBackground">@color/picker_background</item>
    </style>
     <style name="SpinnerItemDark">
       <item name="android:textColor">@color/picker_text_dark</item>
-      <item name="android:backgroundTint">@color/picker_background_dark</item>
+      <item name="android:background">@color/picker_background_dark</item>
+      <item name="android:popupBackground">@color/picker_background_dark</item>
    </style>
    <style name="SpinnerDropDownItemDark">
       <item name="android:textColor">@color/picker_text_dark</item>
-      <item name="android:backgroundTint">@color/picker_background_dark</item>
+      <item name="android:background">@color/picker_background_dark</item>
+      <item name="android:popupBackground">@color/picker_background_dark</item>
    </style>
 
     <!-- SplashScreen Themes -->

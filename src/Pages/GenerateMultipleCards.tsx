@@ -9,7 +9,7 @@ import CustomModal from "../Components/CustomModal";
 import { urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import Theme from "../Themes";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {};
 type IState = {
@@ -40,6 +40,7 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
         this._keyExtractor = this._keyExtractor.bind(this);4
         this.close = this.close.bind(this);
     }
+    static contextType = ThemeContext;
     componentDidMount() {
         var scales: number[] = [];
         for (let i = 1; i > 0; i -= 0.001) { scales.push(i); }
@@ -89,8 +90,9 @@ export default class GenerateMultipleCards extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
-            <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
+            <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={`Generar credenciales (${this.state.title})`}  />
@@ -139,6 +141,7 @@ class CustomCredentialDownload extends PureComponent<IProps2, IState2> {
         };
         this.goGenerate = this.goGenerate.bind(this);
     }
+    static contextType = ThemeContext;
     
     downloadImageTarget(ref: ViewShot): Promise<boolean> {
         return new Promise(async(resolve, reject)=>{
@@ -166,11 +169,12 @@ class CustomCredentialDownload extends PureComponent<IProps2, IState2> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={{ position: 'relative' }} onLayout={({ nativeEvent })=>this.setState({ heightLayout: nativeEvent.layout.height })}>
             <CustomCredential
                 key={`credential-${decode(this.props.data.dni)}`}
                 scale={this.props.scaleImage}
-                style={styles.target}
+                style={[styles.target, { borderColor: theme.colors.text }]}
                 image={`${urlBase}/image/${decode(this.props.data.picture)}`}
                 name={decode(this.props.data.name)}
                 dni={decode(this.props.data.dni)}
@@ -208,7 +212,7 @@ const styles = StyleSheet.create({
     target: {
         overflow: 'hidden',
         borderWidth: 1.5,
-        borderColor: '#000000',
+        //borderColor: '#000000',
         borderRadius: 8,
         marginBottom: 4,
         marginTop: 4,

@@ -5,13 +5,14 @@ import React, { Component, createRef, PureComponent } from "react";
 import { View, Image, ImageSourcePropType, TouchableHighlight, Dimensions, StyleSheet, ScrollView, ToastAndroid, DeviceEventEmitter, Pressable, LayoutChangeEvent } from "react-native";
 import DatePicker from "react-native-date-picker";
 import ImageCropPicker, { Options, Image as TypeImageCrop } from "react-native-image-crop-picker";
-import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider, Checkbox, Text } from "react-native-paper";
+import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider as PaperProvider, Checkbox, Text, overlay } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { Directive, Student, urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
+import { ThemeContext } from "../Components/ThemeProvider";
+import { ThemeDark } from "../Themes";
 // Images
 import ImageProfile from "../Assets/profile.webp";
 
@@ -113,6 +114,12 @@ export default class EditStudent extends Component<IProps, IState> {
         compressImageMaxWidth: 512,
         compressImageMaxHeight: 512
     };
+    private defaultOptionsDark = {
+        ...this.defaultOptions,
+        cropperStatusBarColor: '#1D1D1D',
+        cropperToolbarColor: overlay(4, ThemeDark.colors.surface),
+    };
+    static contextType = ThemeContext;
     componentDidUpdate() {
         if (this.state.visible && !this.state.loadData && this.state.data) {
             this.setState({
@@ -317,20 +324,22 @@ export default class EditStudent extends Component<IProps, IState> {
         });
     }
     actionSetPicture(index: number) {
-        if (index == 0) ImageCropPicker.openCamera(this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
-        if (index == 1) ImageCropPicker.openPicker(this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
+        const { isDark } = this.context;
+        if (index == 0) ImageCropPicker.openCamera((isDark)? this.defaultOptionsDark: this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
+        if (index == 1) ImageCropPicker.openPicker((isDark)? this.defaultOptionsDark: this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
         if (index == 2) this.removePicture();
     }
     
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.closeAndClean}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
                         <Appbar.Content title={'Editar estudiante'}  />
                     </Appbar.Header>
-                    <ScrollView style={{ flex: 2, backgroundColor: Theme.colors.background }}>
+                    <ScrollView style={{ flex: 2, backgroundColor: theme.colors.background }}>
                         <View style={{ width: '100%', height: 124, flexDirection: 'row' }}>
                             <TouchableHighlight disabled={this.state.isLoading} onPress={this.props.goEditActionSheet} style={{ position: 'relative', marginTop: 16, marginBottom: 16, marginRight: 16, marginLeft: 16, height: 100, width: 100, borderRadius: 168, overflow: 'hidden', elevation: 2, backgroundColor: '#FFFFFF' }}>
                                 <View>
@@ -365,7 +374,12 @@ export default class EditStudent extends Component<IProps, IState> {
                                 mode={'outlined'}
                             />
                             <CustomPicker2 title={"Curso:"} value={this.state.formCourse} error={this.state.errorFormCourse} disabled={this.state.isLoading || this.state.disableCursePicker} onChange={(v)=>(!this.state.disableCursePicker)&&this.setState({ formCourse: v, errorFormCourse: false })} style={styles.textInput}>
-                                {this.listCourses.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
+                                {this.listCourses.map((value, index)=><Picker.Item
+                                    key={index.toString()}
+                                    label={value}
+                                    value={value}
+                                    color={'#000000'}
+                                />)}
                             </CustomPicker2>
                             <Pressable style={styles.checkbox_teachers} disabled={this.state.isLoading} onPress={this.changeTeacherStudent}>
                                 <Checkbox
@@ -420,21 +434,6 @@ export default class EditStudent extends Component<IProps, IState> {
                     </ScrollView>
                     <CustomSnackbar ref={this.refCustomSnackbar} />
                     <Portal>
-                        {/*<Dialog visible={this.state.viewModalDate} dismissable={true} onDismiss={()=>this.setState({ viewModalDate: false })}>
-                            <Dialog.Title>Fecha de nacimiento</Dialog.Title>
-                            <Dialog.Content style={{ overflow: 'hidden' }}>
-                                <DatePicker
-                                    date={this.state.actualDatePicker}
-                                    mode={'date'}
-                                    theme={'auto'}
-                                    onDateChange={(date)=>this.setState({ actualDatePicker: date, actualDate: moment(date).format('DD/MM/YYYY') })}
-                                />
-                            </Dialog.Content>
-                            <Dialog.Actions>
-                                <Button onPress={()=>this.setState({ viewModalDate: false })}>Cancelar</Button>
-                                <Button onPress={()=>this.setState({ formDate: this.state.actualDate, viewModalDate: false })}>Aceptar</Button>
-                            </Dialog.Actions>
-                        </Dialog>*/}
                         <DialogDatePicker
                             visible={this.state.viewModalDate}
                             actualDate={this.state.actualDatePicker}
@@ -468,12 +467,14 @@ class DialogDatePicker extends PureComponent<IProps2, IState2> {
         };
         this._onLayout = this._onLayout.bind(this);
     }
+    static contextType = ThemeContext;
     _onLayout({ nativeEvent: { layout: { width } } }: LayoutChangeEvent) {
         this.setState({
             widthContent: width - 48
         });
     }
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<Dialog visible={this.props.visible} dismissable={true} onDismiss={this.props.onDismiss}>
             <Dialog.Title>Fecha de nacimiento</Dialog.Title>
             <Dialog.Content style={{ overflow: 'hidden' }} onLayout={this._onLayout}>
@@ -483,6 +484,8 @@ class DialogDatePicker extends PureComponent<IProps2, IState2> {
                     theme={'auto'}
                     style={(this.state.widthContent !== 0)? { width: this.state.widthContent }: undefined}
                     onDateChange={this.props.onDateChange}
+                    fadeToColor={(isDark)? overlay(24, theme.colors.surface): theme.colors.surface}
+                    textColor={theme.colors.text}
                 />
             </Dialog.Content>
             <Dialog.Actions>

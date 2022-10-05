@@ -5,9 +5,9 @@ import { Appbar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Paragraph
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Groups, urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type IProps = {
     showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
@@ -49,6 +49,7 @@ export default class SelectStudentGroup extends Component<IProps, IState> {
         this._renderItem = this._renderItem.bind(this);
         this._closeAlert = this._closeAlert.bind(this);
     }
+    static contextType = ThemeContext;
     checkAction(id: string, index: number) {
         let dataLog = this.state.dataLog;
         dataLog[index] = {
@@ -146,14 +147,15 @@ export default class SelectStudentGroup extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.closeAndClean}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
                         <Appbar.Content title={'Selecciona los alumnos'} />
                     </Appbar.Header>
-                    <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
+                    <View style={{ flex: 2, backgroundColor: theme.colors.background }}>
                         <FlatList
                             data={this.state.dataStudents}
                             extraData={this.state}

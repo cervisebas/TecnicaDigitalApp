@@ -83,9 +83,9 @@ export default class AddNewGroup extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
-        const { theme } = this.context;
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={{ backgroundColor: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: (isDark)? theme.colors.surface: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.closeAndClean} />
                     <Appbar.Content title={'Agregar nuevo grupo'}  />
@@ -93,10 +93,22 @@ export default class AddNewGroup extends Component<IProps, IState> {
                 </Appbar.Header>
                 <ScrollView style={{ paddingBottom: 8 }}>
                     <CustomPicker2 title={"Curso:"} value={this.state.formCourse} error={this.state.errorFormCourse} onChange={(v)=>this.setState({ formCourse: v, errorFormCourse: false })} style={styles.textInput}>
-                        {this.listCourses.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
+                        {this.listCourses.map((value, index)=><Picker.Item
+                            key={index.toString()}
+                            label={value}
+                            value={value}
+                            color={'#000000'}
+                            //style={{ backgroundColor: theme.colors.surface, color: theme.colors.text }}
+                        />)}
                     </CustomPicker2>
                     <CustomPicker2 title={"Grupo:"} value={this.state.formGroup} error={this.state.errorFormGroup} onChange={(v)=>this.setState({ formGroup: v, errorFormGroup: false })} style={styles.textInput}>
-                        {this.listGroup.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
+                        {this.listGroup.map((value, index)=><Picker.Item
+                            key={index.toString()}
+                            label={value}
+                            value={value}
+                            color={'#000000'}
+                            //style={{ backgroundColor: theme.colors.surface, color: theme.colors.text }}
+                        />)}
                     </CustomPicker2>
                 </ScrollView>
             </View>

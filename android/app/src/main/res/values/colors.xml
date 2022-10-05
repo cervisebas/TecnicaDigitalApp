@@ -19,10 +19,10 @@
 
     <!-- Dark Colors -->
 
-    <color name="status_bar_color_dark">#000000</color>
+    <color name="status_bar_color_dark">#1D1D1D</color>
 
-    <color name="colorPrimary_dark">#000000</color>
-    <color name="colorPrimaryDark_dark">#000000</color>
+    <color name="colorPrimary_dark">#1D1D1D</color>
+    <color name="colorPrimaryDark_dark">#1D1D1D</color>
 
     <color name="background_dark">#000000</color>
     <color name="foreground_dark">#FFFFFF</color>

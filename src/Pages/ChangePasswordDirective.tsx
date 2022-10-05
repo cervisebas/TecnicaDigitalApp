@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import { View, TouchableWithoutFeedback, Keyboard, StyleSheet, ToastAndroid, DeviceEventEmitter } from "react-native";
 import { Appbar, TextInput, Button } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Directive } from "../Scripts/ApiTecnica";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type IProps = {
     showSnackbar: (visible: boolean, text: string)=>any;
@@ -59,6 +59,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
         username: '',
         permission: ''
     };
+    static contextType = ThemeContext;
     verifyInputs() {
         if (this.state.formPassword.length < 8) {
             this.setState({ formErrorPassword: true });
@@ -117,8 +118,9 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
                         <Appbar.Header>
@@ -126,7 +128,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
                             <Appbar.Content title={'Editar contraseña'}  />
                         </Appbar.Header>
                         <View>
-                        <TextInput
+                            <TextInput
                                 label={'Contraseña'}
                                 mode={'outlined'}
                                 autoCapitalize={'none'}
@@ -193,7 +195,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
 
 const styles = StyleSheet.create({
     content: {
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         margin: 10,
         borderRadius: 8,
         overflow: 'hidden',

@@ -1,6 +1,6 @@
 import React, { createRef, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Appbar, Colors, Divider, IconButton, List, Provider as PaperProvider, Text } from "react-native-paper";
+import { ActivityIndicator, Appbar, Colors, Divider, IconButton, List, overlay, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Records } from "../Scripts/ApiTecnica";
 import { RecordData } from "../Scripts/ApiTecnica/types";
@@ -10,6 +10,7 @@ import { decode as utf8decode } from "utf8";
 import ViewDetailsRecord from "../Pages/ViewDetailsRecord";
 import { createMaterialTopTabNavigator, MaterialTopTabNavigationOptions } from "@react-navigation/material-top-tabs";
 import { NavigationContainer } from "@react-navigation/native";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 const useUtf8 = (string: string)=>{
     try {
@@ -60,6 +61,7 @@ export default class Page5 extends PureComponent<IProps, IState> {
     }
     private event: EmitterSubscription | null = null;
     private refViewDetailsRecords = createRef<ViewDetailsRecord>();
+    static contextType = ThemeContext;
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
         this.loadData();
@@ -77,7 +79,7 @@ export default class Page5 extends PureComponent<IProps, IState> {
                     isLoading: false,
                     isRefresh: false
                 }))
-                .catch(({ cause })=>this.setState({ isError: true, isLoading: false, messageError: cause  }))
+                .catch(({ cause })=>this.setState({ isError: true, isLoading: false, messageError: cause }))
         );
     }
     filterByDay(datas: RecordData[]) {
@@ -99,8 +101,9 @@ export default class Page5 extends PureComponent<IProps, IState> {
         this.refViewDetailsRecords.current?.open(data);
     }
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<View style={{ flex: 1 }}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <Appbar>
                     <Appbar.Action icon={"menu"} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros de actividad'} />
@@ -117,9 +120,9 @@ export default class Page5 extends PureComponent<IProps, IState> {
                         {(!this.state.isError)? <ActivityIndicator size={'large'} animating />:
                         <View style={{ width: '100%' }}>
                             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                                <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />
+                                <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} color={theme.colors.text} />
                                 <Text style={{ marginTop: 14 }}>{this.state.messageError}</Text>
-                                <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.setState({ isLoading: true, isError: false }, this.loadData)} style={{ marginTop: 12 }} />
+                                <IconButton icon={'reload'} color={theme.colors.primary} size={28} onPress={()=>this.setState({ isLoading: true, isError: false }, this.loadData)} style={{ marginTop: 12 }} />
                             </View>
                         </View>}
                     </View>}
@@ -150,9 +153,10 @@ class ViewRegistDay extends PureComponent<IProps4, IState4> {
         lazyPreloadDistance: 1,
         swipeEnabled: true,
         tabBarScrollEnabled: true,
-        tabBarStyle: { backgroundColor: Theme.colors.primary },
+        //tabBarStyle: { backgroundColor: Theme.colors.primary },
         tabBarIndicatorStyle: { backgroundColor: Theme.colors.accent, height: 4 }
     };
+    static contextType = ThemeContext;
     _ItemSeparatorComponent() {
         return(<Divider />);
     }
@@ -175,8 +179,9 @@ class ViewRegistDay extends PureComponent<IProps4, IState4> {
         };
     }
     render(): React.ReactNode {
-        return(<NavigationContainer independent theme={{ ...Theme, colors: { ...Theme.colors, text: '#FFFFFF' } }}>
-            <Tab.Navigator screenOptions={this.tabOptions}>
+        const { isDark, theme } = this.context;
+        return(<NavigationContainer independent theme={{ ...theme, colors: { ...theme.colors, text: '#FFFFFF' } }}>
+            <Tab.Navigator screenOptions={{ ...this.tabOptions, tabBarStyle: { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary } }}>
                 {this.props.data.map((value)=><Tab.Screen
                     key={value.title}
                     name={`${value.title} (${value.data.length})`}
@@ -184,7 +189,12 @@ class ViewRegistDay extends PureComponent<IProps4, IState4> {
                         data={value.data}
                         extraData={value}
                         contentContainerStyle={styles.contentFlatlist}
-                        refreshControl={<RefreshControl refreshing={this.props.isRefresh} colors={[Theme.colors.primary]} onRefresh={this.props.onRefresh} />}
+                        refreshControl={<RefreshControl
+                            refreshing={this.props.isRefresh}
+                            colors={[theme.colors.primary]}
+                            progressBackgroundColor={theme.colors.surface}
+                            onRefresh={this.props.onRefresh}
+                        />}
                         getItemLayout={this._getItemLayout}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
                         keyExtractor={this._keyExtractor}

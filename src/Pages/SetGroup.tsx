@@ -1,12 +1,10 @@
 import { decode } from "base-64";
 import React, { PureComponent } from "react";
-import { DeviceEventEmitter, Dimensions, FlatList, ListRenderItemInfo, StyleSheet, ToastAndroid, View } from "react-native";
-import { Appbar, Banner, Button, Checkbox, Dialog, Divider, FAB, List, Paragraph, Portal, Provider } from "react-native-paper";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { Dimensions, FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
+import { Appbar, Button, Dialog, Divider, List, Paragraph, Portal, Provider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
-import { Prefences } from "../Scripts/ApiTecnica";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Groups } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 
 type IProps = {
     setFilter: (set: string[])=>any;
@@ -42,6 +40,7 @@ export default class SetGroup extends PureComponent<IProps, IState> {
         name_group: '',
         students: []
     };
+    static contextType = ThemeContext;
     setNow(actual: Groups) {
         this.setState({
             confirmView: true,
@@ -96,9 +95,10 @@ export default class SetGroup extends PureComponent<IProps, IState> {
     }
     
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
-            <View style={styles.content}>
-                <Provider theme={Theme}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+                <Provider theme={theme}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={'Preferencias de registros'} />
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         marginRight: 8,
         height: '90%',
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         borderRadius: 8,
         overflow: 'hidden',
         position: 'relative'

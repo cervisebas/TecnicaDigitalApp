@@ -4,8 +4,8 @@ import { DeviceEventEmitter, Keyboard, StyleSheet, ToastAndroid, TouchableWithou
 import { Appbar, Button, TextInput } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
+import { ThemeContext } from "../Components/ThemeProvider";
 import { Directive } from "../Scripts/ApiTecnica";
-import Theme from "../Themes";
 
 type IProps = {
     showSnackbar: (visible: boolean, text: string)=>any;
@@ -71,6 +71,7 @@ export default class AddDirective extends Component<IProps, IState> {
     }
     private positions: string[] = ['- Seleccionar -', 'Invitado', 'Preceptor/a', 'Secretario/a', 'Director/a', 'Vicedirector/a', 'Otro'];
     private permissions: string[] = ['0', '1', '2', '3', '5', '4', '1'];
+    static contextType = ThemeContext;
 
     verifyInputs() {
         if (this.state.formName.length < 4) {
@@ -157,8 +158,9 @@ export default class AddDirective extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onClose={this.clearNow} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
                         <Appbar.Header>
@@ -191,7 +193,12 @@ export default class AddDirective extends Component<IProps, IState> {
                                 onChangeText={this.onChangeTextDNI}
                             />
                             <CustomPicker2 title={"Posición:"} value={this.state.formPosition} error={this.state.formErrorPosition} disabled={this.state.isLoading} onChange={this._setPosition} style={{ ...styles.textInput, minHeight: 60 }}>
-                                {this.positions.map((value, index)=><Picker.Item key={index.toString()} label={value} value={value} />)}
+                                {this.positions.map((value, index)=><Picker.Item
+                                    key={index.toString()}
+                                    label={value}
+                                    value={value}
+                                    color={'#000000'}
+                                />)}
                             </CustomPicker2>
                             <TextInput
                                 label={'Nombre de usuario'}
@@ -273,7 +280,7 @@ export default class AddDirective extends Component<IProps, IState> {
 
 const styles = StyleSheet.create({
     content: {
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         margin: 10,
         borderRadius: 8,
         overflow: 'hidden',

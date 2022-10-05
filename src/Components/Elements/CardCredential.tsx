@@ -9,6 +9,7 @@ import { StudentsData } from "../../Scripts/ApiTecnica/types";
 import RNFS from "react-native-fs";
 import Share from "react-native-share";
 import Theme from "../../Themes";
+import { ThemeContext } from "../ThemeProvider";
 
 type IProps = {
     studentData: StudentsData;
@@ -39,6 +40,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
         this.downloadImageTarget = this.downloadImageTarget.bind(this);
     }
     private refTarget = createRef<ViewShot>();
+    static contextType = ThemeContext;
     componentDidMount(): void {
         const { width } = Dimensions.get('window');
         var isFind = false;
@@ -124,6 +126,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
             .catch(()=>this.props.showSnackbar('Error al generar la imagen.'));
     }
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={styles.content}>
             <Card style={styles.card} elevation={3}>
                 <Card.Title
@@ -136,7 +139,7 @@ export default class CardCredential extends PureComponent<IProps, IState> {
                         image={`${urlBase}/image/${decode(this.props.studentData.picture)}`}
                         name={decode(this.props.studentData.name)}
                         dni={decode(this.props.studentData.dni)}
-                        style={styles.target}
+                        style={[styles.target, { borderColor: theme.colors.text }]}
                         refTarget2={this.refTarget}
                         type={this.props.designCardElection}
                         onPress={this._viewImageTarget}
@@ -162,7 +165,7 @@ const styles = StyleSheet.create({
     target: {
         overflow: 'hidden',
         borderWidth: 1.5,
-        borderColor: '#000000',
+        //borderColor: '#000000',
         borderRadius: 8
     },
     cardActions: {

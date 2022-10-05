@@ -8,6 +8,7 @@ import { Groups, urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
 import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
@@ -48,6 +49,7 @@ export default class ViewGroup extends Component<IProps, IState> {
         this._goEdit = this._goEdit.bind(this);
     }
     private event: EmitterSubscription | null = null;
+    static contextType = ThemeContext;
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('show-dialog-add-annotation', (message: string)=>this.setState({ alertVisible: true, alertMessage: message }));
     }
@@ -120,8 +122,9 @@ export default class ViewGroup extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
@@ -129,7 +132,7 @@ export default class ViewGroup extends Component<IProps, IState> {
                         <Appbar.Action icon={'pencil'} onPress={this._goEdit} />
                         <Appbar.Action icon={'delete-outline'} onPress={this._openDialogDelete} />
                     </Appbar.Header>
-                    <View style={{ flex: 2, backgroundColor: Theme.colors.background }}>
+                    <View style={{ flex: 2, backgroundColor: theme.colors.background }}>
                         <FlatList
                             data={this.state.data}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}

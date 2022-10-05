@@ -4,10 +4,9 @@ import { decode } from "base-64";
 import React, { PureComponent, ReactNode } from "react";
 import { DeviceEventEmitter, EmitterSubscription, ScrollView, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
-import { Avatar, Badge, Text, Title } from "react-native-paper";
+import { Avatar, Badge, overlay, Text, Title } from "react-native-paper";
 import { Drawer } from "./CustomDrawer";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
-import Theme from "../Themes";
 import ImageLazyLoad from "./Elements/ImageLazyLoad";
 import RNFS from "react-native-fs";
 // Images
@@ -95,8 +94,8 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         this.props.navigation.closeDrawer();
     }
     render(): ReactNode {
-        const { theme, setTheme } = this.context;
-        return(<View style={[styles.content, { backgroundColor: theme.colors.background }]}>
+        const { isDark, theme, setTheme } = this.context;
+        return(<View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
             <View onLayout={({ nativeEvent })=>this.setState({ widht: nativeEvent.layout.width })} {...this.props} style={{ flex: 2 }}>
                 <View style={[styles.headerImage, { backgroundColor: theme.colors.background, shadowColor: theme.colors.text }]}>
                     <FastImage source={this.state.backgroundImage} style={styles.fastImage} resizeMode={'cover'} />
@@ -283,7 +282,8 @@ class ClearCacheItem extends PureComponent<IProps2, IState2> {
 const styles = StyleSheet.create({
     content: {
         flex: 1,
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden'
     },
     fastImage: {
         width: '100%',

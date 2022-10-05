@@ -6,10 +6,11 @@ import { Appbar, Button, Card, IconButton, ProgressBar, Provider as PaperProvide
 import CustomModal from "../Components/CustomModal";
 import { Assist, urlBase } from "../Scripts/ApiTecnica";
 import { AssistIndividualData, StudentsData } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import CardCredential from "../Components/Elements/CardCredential";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import { ThemeContext } from "../Components/ThemeProvider";
+import Color from "color";
 
 type IProps = {
     openImage: (data: { uri: string })=>any;
@@ -66,6 +67,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         picture: encode('default.png')
     };
     private refCustomSnackbar = createRef<CustomSnackbar>();
+    static contextType = ThemeContext;
     calcYears(date: string): string {
         var dateNow = new Date();
         var processDate = moment(date, 'DD-MM-YYYY').toDate();
@@ -146,9 +148,10 @@ export default class ViewDetails extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadAssist} onRequestClose={this.closeAndClear}>
-            <PaperProvider theme={Theme}>
-                <View style={{ flex: 1, backgroundColor: Theme.colors.background }}>
+            <PaperProvider theme={theme}>
+                <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClear} />
                         <Appbar.Content title={'Ver más detalles'} />
@@ -156,13 +159,13 @@ export default class ViewDetails extends Component<IProps, IState> {
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2 }}>
                         <View style={{ margin: 20, height: 100, width: (width - 40), flexDirection: 'row' }}>
-                            <TouchableHighlight style={styles.imageProfile} onPress={()=>this.props.openImage({ uri: `${urlBase}/image/${(this.state.data)? decode(this.state.data.picture): ''}` })}>
+                            <TouchableHighlight style={[styles.imageProfile, { shadowColor: theme.colors.text }]} onPress={()=>this.props.openImage({ uri: `${urlBase}/image/${(this.state.data)? decode(this.state.data.picture): ''}` })}>
                                 <ImageLazyLoad style={{ width: '100%', height: '100%' }} source={{ uri: `${urlBase}/image/${decode(this.state.data.picture)}` }} circle={true} />
                             </TouchableHighlight>
                             <View style={styles.textProfile}>
                                 <Text numberOfLines={2} style={{ fontSize: 20 }}>{decode(this.state.data.name)}</Text>
-                                <Text style={{ marginTop: 8, marginLeft: 12, color: 'rgba(0, 0, 0, 0.7)' }}>
-                                    <Text style={{ fontWeight: 'bold', color: '#000000' }}>Curso: </Text>
+                                <Text style={{ marginTop: 8, marginLeft: 12, color: Color(theme.colors.text).alpha(0.70).rgb().string() }}>
+                                    <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>Curso: </Text>
                                     {decode(this.state.data.curse)}
                                 </Text>
                             </View>
@@ -183,7 +186,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                                 right={(props)=><IconButton
                                     {...props}
                                     icon={'reload'}
-                                    color={Theme.colors.accent}
+                                    color={theme.colors.accent}
                                     onPress={this.loadAssist}
                                 />}
                             />
@@ -244,7 +247,7 @@ const styles = StyleSheet.create({
         margin: 5,
         backgroundColor: '#FFFFFF',
         overflow: 'hidden',
-        shadowColor: "#000000",
+        //shadowColor: "#000000",
         shadowOffset: {
             width: 0,
             height: 1,

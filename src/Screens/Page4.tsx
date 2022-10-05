@@ -16,6 +16,7 @@ import ChangePasswordDirective from "../Pages/ChangePasswordDirective";
 import ChangePermissionDirective from "../Pages/ChangePermissionDirective";
 import ImageViewer from "../Pages/ImageViewer";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 type IProps = {
     navigation: any;
@@ -62,6 +63,7 @@ export default class Page4 extends Component<IProps, IState> {
     ];
     private idOptionSelect: string = '-1';
     private creators: number[] = [1, 5, 10, 14, 23];
+    static contextType = ThemeContext;
     // Refs    
     private actionSheet = createRef<ActionSheet>();
     private refViewDirective = createRef<ViewDirective>();
@@ -171,8 +173,9 @@ export default class Page4 extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<View style={{ flex: 1 }}>
-            <PaperProvider theme={Theme}>
+            <PaperProvider theme={theme}>
                 <Appbar>
                     <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Directivos'}  />
@@ -183,7 +186,12 @@ export default class Page4 extends Component<IProps, IState> {
                         data={this.state.datas}
                         extraData={this.state}
                         contentContainerStyle={{ paddingTop: 8 }}
-                        refreshControl={<RefreshControl refreshing={this.state.isRefresh} colors={[Theme.colors.primary]} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
+                        refreshControl={<RefreshControl
+                            refreshing={this.state.isRefresh}
+                            colors={[Theme.colors.primary]}
+                            progressBackgroundColor={theme.colors.surface}
+                            onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)}
+                        />}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
                         getItemLayout={this._getItemLayout}
                         keyExtractor={this._keyExtractor}
@@ -193,7 +201,7 @@ export default class Page4 extends Component<IProps, IState> {
                         {(!this.state.isError)? <ActivityIndicator size={'large'} animating />:
                         <View style={{ width: '100%' }}>
                             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                                <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />
+                                <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} color={theme.colors.text} />
                                 <Text style={{ marginTop: 14 }}>{this.state.messageError}</Text>
                                 <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={()=>this.setState({ isRefresh: true, isError: false }, this.loadData)} style={{ marginTop: 12 }} />
                             </View>
@@ -218,7 +226,7 @@ export default class Page4 extends Component<IProps, IState> {
                 {/* Modals */}
                 <ActionSheet
                     ref={this.actionSheet}
-                    userInterfaceStyle={'light'}
+                    userInterfaceStyle={(isDark)? 'dark': 'light'}
                     title={'¿Qué desea editar?'}
                     options={this.optionsMenuEdit}
                     cancelButtonIndex={3}

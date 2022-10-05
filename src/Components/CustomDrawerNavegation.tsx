@@ -48,6 +48,9 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     private interval: NodeJS.Timer | null = null;
     private interval2: NodeJS.Timer | null = null;
     private _isMount: boolean = false;
+    private numImage: number = 0;
+    private oldTheme: 'light' | 'dark' = 'light';
+    private currentTheme: 'light' | 'dark' = 'light';
     static contextType = ThemeContext;
     componentDidMount() {
         this._isMount = true;
@@ -68,13 +71,25 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     }
     componentDidUpdate() {
         if (Directive.openSession) if (!this.state.loadingUser) this.loadData();
+        if (this.oldTheme !== this.currentTheme && this.numImage == 1) this.changeBackgroundImage();
+        this.oldTheme = this.currentTheme;
     }
     changeBackgroundImage() {
         const { isDark } = this.context;
         var random = Math.floor(Math.random() * (10 - 0) + 0);
-        if (random == 3 || random == 4) return this.setState({ backgroundImage: AnimationTop2 });
-        if (random == 5 || random == 6) return this.setState({ backgroundImage: AnimationTop3 });
-        if (random == 2) return this.setState({ backgroundImage: (isDark)? AnimationTop1Dark: AnimationTop1 });
+        if (random == 3 || random == 4) {
+            this.numImage = 2;
+            return this.setState({ backgroundImage: AnimationTop2 });
+        }
+        if (random == 5 || random == 6) {
+            this.numImage = 3;
+            return this.setState({ backgroundImage: AnimationTop3 });
+        }
+        if (random == 2) {
+            this.numImage = 1;
+            return this.setState({ backgroundImage: (isDark)? AnimationTop1Dark: AnimationTop1 });
+        }
+        this.numImage = 0;
         this.setState({ backgroundImage: AnimationTop });
     }
     async loadData() {
@@ -94,7 +109,8 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         this.props.navigation.closeDrawer();
     }
     render(): ReactNode {
-        const { isDark, theme, setTheme } = this.context;
+        const { isDark, theme } = this.context;
+        this.currentTheme = (isDark)? 'dark': 'light';
         return(<View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
             <View onLayout={({ nativeEvent })=>this.setState({ widht: nativeEvent.layout.width })} {...this.props} style={{ flex: 2 }}>
                 <View style={[styles.headerImage, { backgroundColor: theme.colors.background, shadowColor: theme.colors.text }]}>
@@ -132,12 +148,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
                             />);
                         })}
                         <ClearCacheItem onPress={this.clearCache} />
-                        <Drawer.Item
-                            theme={theme}
-                            label={'Thema oscuro'}
-                            icon={'weather-night'}
-                            onPress={setTheme}
-                        />
+                        <ThemeItem />
                         <Drawer.Item
                             theme={theme}
                             label={'Cerrar sesión'}
@@ -275,6 +286,25 @@ class ClearCacheItem extends PureComponent<IProps2, IState2> {
             icon={'sd'}
             right={this._right}
             onPress={this.props.onPress}
+        />);
+    }
+}
+
+type IProps4 = {};
+type IState4 = {};
+
+class ThemeItem extends PureComponent<IProps4, IState4> {
+    constructor(props: IProps4) {
+        super(props);
+    }
+    static contextType = ThemeContext;
+    render(): React.ReactNode {
+        const { isDark, theme, setTheme } = this.context;
+        return(<Drawer.Item
+            theme={theme}
+            label={(isDark)? 'Tema oscuro': 'Tema claro'}
+            icon={(isDark)? 'weather-night': 'weather-sunny'}
+            onPress={setTheme}
         />);
     }
 }

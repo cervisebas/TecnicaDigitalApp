@@ -5,9 +5,9 @@ import { Appbar, List, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { RecordData } from "../Scripts/ApiTecnica/types";
 import { decode as utf8decode } from "utf8";
-import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { urlBase } from "../Scripts/ApiTecnica";
+import { ThemeContext } from "../Components/ThemeProvider";
 
 const useUtf8 = (string: string)=>{
     try {
@@ -52,6 +52,7 @@ export default class ViewDetailsRecord extends PureComponent<IProps, IState> {
         type: '',
         section: ''
     };
+    static contextType = ThemeContext;
     open(datas: RecordData) {
         this.setState({
             visible: true,
@@ -76,8 +77,9 @@ export default class ViewDetailsRecord extends PureComponent<IProps, IState> {
         return "Ninguna";
     }
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={styles.content}>
+            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={`Ver detalles: #${this.state.datas.id}`} />
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginLeft: 10,
         marginRight: 10,
-        backgroundColor: Theme.colors.background,
+        //backgroundColor: Theme.colors.background,
         overflow: 'hidden'
     },
     content2: {

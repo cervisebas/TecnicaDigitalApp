@@ -9,7 +9,6 @@ import { Directive, urlBase } from "../Scripts/ApiTecnica";
 import ItemDirective from "../Components/Elements/CustomItem2";
 import { decode } from "base-64";
 import ViewDirective from "../Pages/ViewDirective";
-import LoadingController from "../Components/loading/loading-controller";
 import AddDirective from "../Pages/AddDirective";
 import EditDirective from "../Pages/EditDirective";
 import ChangePasswordDirective from "../Pages/ChangePasswordDirective";

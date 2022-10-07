@@ -2,7 +2,7 @@ import { Picker } from "@react-native-picker/picker";
 import moment from "moment";
 import React, { Component } from "react";
 import { StyleSheet, View } from "react-native";
-import { Appbar } from "react-native-paper";
+import { Appbar, overlay } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -79,7 +79,7 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onClose={this.closeClear} onRequestClose={this.close} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={{ backgroundColor: (isDark)? theme.colors.surface: theme.colors.background, margin: 8, borderRadius: 8, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background, margin: 8, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={`Generar credenciales`} />

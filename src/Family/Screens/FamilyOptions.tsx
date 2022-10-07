@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
 import { ScrollView, StyleSheet, TouchableHighlight, View } from "react-native";
-import { Button, IconButton, List, Switch, Text } from "react-native-paper";
+import { Button, IconButton, List, overlay, Switch, Text } from "react-native-paper";
 import CustomModal from "../../Components/CustomModal";
 import { Family, urlBase } from "../../Scripts/ApiTecnica";
 import messaging from '@react-native-firebase/messaging';
@@ -94,7 +94,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
     render(): React.ReactNode {
         const { isDark, theme, setTheme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            {(this.props.data)? <View style={[styles.content, { backgroundColor: theme.colors.surface }]}>
+            {(this.props.data)? <View style={[styles.content, { backgroundColor: overlay(4, theme.colors.surface) }]}>
                 <View style={styles.contentImage}>
                     {(!this.state.isStudent)&&<>
                         <FastImage source={BlackBoard} style={styles.blackboardImage} />

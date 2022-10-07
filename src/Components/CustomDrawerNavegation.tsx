@@ -4,7 +4,7 @@ import { decode } from "base-64";
 import React, { PureComponent, ReactNode } from "react";
 import { DeviceEventEmitter, EmitterSubscription, ScrollView, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
-import { Avatar, Badge, overlay, Text, Title } from "react-native-paper";
+import { Avatar, Badge, overlay, Switch, Text, Title } from "react-native-paper";
 import { Drawer } from "./CustomDrawer";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
 import ImageLazyLoad from "./Elements/ImageLazyLoad";
@@ -302,8 +302,13 @@ class ThemeItem extends PureComponent<IProps4, IState4> {
         const { isDark, theme, setTheme } = this.context;
         return(<Drawer.Item
             theme={theme}
-            label={(isDark)? 'Tema oscuro': 'Tema claro'}
-            icon={(isDark)? 'weather-night': 'weather-sunny'}
+            label={'Tema oscuro'}
+            icon={'weather-night'}
+            right={()=><Switch
+                value={isDark}
+                color={theme.colors.primary}
+                onChange={setTheme}
+            />}
             onPress={setTheme}
         />);
     }

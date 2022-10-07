@@ -2,7 +2,7 @@ import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
 import { StyleSheet, TouchableHighlight, View } from "react-native";
 import FastImage from "react-native-fast-image";
-import { IconButton, Text } from "react-native-paper";
+import { IconButton, overlay, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { urlBase } from "../Scripts/ApiTecnica";
@@ -86,7 +86,7 @@ export default class ViewDirective extends Component<IProps, IState> {
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+            <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                 <View style={styles.contentImage}>
                     <TouchableHighlight onPress={this.openImage} style={[styles.touchImage, { borderColor: theme.colors.text }]}>
                         <ImageLazyLoad

@@ -1,7 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
 import React, { Component, ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Appbar } from "react-native-paper";
+import { Appbar, overlay } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -85,7 +85,7 @@ export default class AddNewGroup extends Component<IProps, IState> {
     render(): ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={{ backgroundColor: (isDark)? theme.colors.surface: theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
+            <View style={{ backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background, borderRadius: 8, overflow: 'hidden' }}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.closeAndClean} />
                     <Appbar.Content title={'Agregar nuevo grupo'}  />

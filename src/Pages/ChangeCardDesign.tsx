@@ -2,7 +2,7 @@ import React, { Component, PureComponent } from "react";
 import { FlatList, ImageSourcePropType, LayoutChangeEvent, ListRenderItemInfo, NativeScrollEvent, NativeSyntheticEvent, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FastImage from "react-native-fast-image";
-import { Appbar, Banner, Provider as PaperProvider } from "react-native-paper";
+import { Appbar, Banner, overlay, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
 // Images
@@ -163,7 +163,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ padding: 16 }} animationIn={'fadeInUp'} animationOut={'fadeOutDown'} onRequestClose={this.close}>
-            <View onLayout={this._onLayout} style={[styles.contain, { backgroundColor: theme.colors.surface }]}>
+            <View onLayout={this._onLayout} style={[styles.contain, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={'Lista de diseños'} />

@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { createRef, PureComponent } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import CustomDrawerNavegation from "./Components/CustomDrawerNavegation";
 import Page1 from "./Screens/Page1";
@@ -7,24 +7,21 @@ import Page3 from "./Screens/Page3";
 import Page4 from "./Screens/Page4";
 import messaging from '@react-native-firebase/messaging';
 import { Button, Dialog, Paragraph, Portal, Provider, Text } from "react-native-paper";
-import Theme from "./Themes";
 import { DeviceEventEmitter, EmitterSubscription, ToastAndroid } from "react-native";
 import { Directive } from "./Scripts/ApiTecnica";
 import MainWidget from "./Scripts/MainWidget";
-import LoadingController from "./Components/loading/loading-controller";
 import RNFS from "react-native-fs";
 import FastImage from "react-native-fast-image";
 import Page5 from "./Screens/Page5";
 import Page6 from "./Screens/Page6";
 import ImageCropPicker from "react-native-image-crop-picker";
 import { ThemeContext } from "./Components/ThemeProvider";
+import LoadingComponent from "./Components/LoadingComponent";
 
 type IProps = {};
 type IState = {
     viewLogOut: boolean;
     viewClearCache: boolean;
-    showLoading: boolean;
-    textLoading: string;
 };
 
 const Drawer = createDrawerNavigator();
@@ -34,9 +31,7 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
         super(props);
         this.state = {
             viewLogOut: false,
-            viewClearCache: false,
-            showLoading: false,
-            textLoading: ''
+            viewClearCache: false
         };
         this.clearNowCache = this.clearNowCache.bind(this);
         this.closeSession = this.closeSession.bind(this);
@@ -44,6 +39,9 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     static contextType = ThemeContext;
+    // Ref's
+    private refLoadingComponent = createRef<LoadingComponent>();
+
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('CloseSessionAdmin', ()=>this.setState({ viewLogOut: true }));
         this.event2 = DeviceEventEmitter.addListener('ClearNowCache', ()=>this.setState({ viewClearCache: true }));
@@ -56,32 +54,36 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
         return new Promise((resolve)=>setTimeout(resolve, time));
     }
     closeSession() {
-        this.setState({ showLoading: true, textLoading: 'Cerrando sesión...', viewLogOut: false }, async()=>{
+        this.setState({ viewLogOut: false }, async()=>{
+            this.refLoadingComponent.current?.open('Cerrando sesión...');
             await Directive.closeSession();
             await messaging().unsubscribeFromTopic("directives");
             await MainWidget.init();
             await this.wait(1500);
-            this.setState({ showLoading: false });
+            this.refLoadingComponent.current?.close();
             DeviceEventEmitter.emit('reVerifySession');
         });
     }
     clearNowCache() {
-        this.setState({ viewClearCache: false, showLoading: true, textLoading: 'Limpiando: 0%' }, async()=>{
+        this.setState({ viewClearCache: false }, async()=>{
+            this.refLoadingComponent.current?.open('Limpiando: 0%');
             try {
                 const files = await RNFS.readDir(RNFS.CachesDirectoryPath);
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     if (file.isFile()) await RNFS.unlink(file.path);
-                    this.setState({ textLoading: `Limpiando: ${((i * 100) / files.length).toFixed(0)}%` });
+                    await this.refLoadingComponent.current?.updateAsync(`Limpiando: ${((i * 100) / files.length).toFixed(0)}%`);
                 }
                 await FastImage.clearMemoryCache();
                 await ImageCropPicker.clean();
-                setTimeout(()=>this.setState({ showLoading: false }, ()=>{
+                setTimeout(()=>{
+                    this.refLoadingComponent.current?.close();
                     ToastAndroid.show('Cache limpiada con éxito.', ToastAndroid.SHORT);
                     DeviceEventEmitter.emit('reloadCacheSize');
-                }), 1000);
+                }, 1000);
             } catch {
-                this.setState({ showLoading: false }, ()=>ToastAndroid.show('Ocurrió un error al limpiar la cache.', ToastAndroid.SHORT));
+                this.refLoadingComponent.current?.close();
+                ToastAndroid.show('Ocurrió un error al limpiar la cache.', ToastAndroid.SHORT);
             }
         });
     }
@@ -142,7 +144,7 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
                     </Dialog.Actions>
                 </Dialog>
             </Portal>
-            <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
+            <LoadingComponent ref={this.refLoadingComponent} />
         </Provider>);
     }
 }

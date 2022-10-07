@@ -2,7 +2,7 @@ import { Picker } from "@react-native-picker/picker";
 import { decode } from "base-64";
 import React, { Component } from "react";
 import { DeviceEventEmitter, Keyboard, StyleSheet, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
-import { Button, TextInput, Appbar } from "react-native-paper";
+import { Button, TextInput, Appbar, overlay } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -131,7 +131,7 @@ export default class EditDirective extends Component<IProps, IState> {
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+            <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
                         <Appbar.Header>

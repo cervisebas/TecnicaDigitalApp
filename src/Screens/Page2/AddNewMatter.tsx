@@ -2,7 +2,7 @@ import { Picker } from "@react-native-picker/picker";
 import { decode, encode } from "base-64";
 import React, { createRef, PureComponent } from "react";
 import { View, StyleSheet, ToastAndroid, DeviceEventEmitter, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { Appbar, TextInput, Button, Provider as PaperProvider, ProgressBar } from "react-native-paper";
+import { Appbar, TextInput, Button, Provider as PaperProvider, ProgressBar, overlay } from "react-native-paper";
 import CustomModal from "../../Components/CustomModal";
 import { CustomPicker2 } from "../../Components/Elements/CustomInput";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
@@ -121,12 +121,12 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadingTeachers} onRequestClose={this.closeAndClean} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+                <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
                         <Appbar.Content title={'Añadir nueva materia'} />
                     </Appbar.Header>
-                    <ProgressBar indeterminate color={theme.colors.accent} style={{ opacity: (this.state.isLoadingTeachers)? 1: 0, backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }} />
+                    <ProgressBar indeterminate color={theme.colors.accent} style={{ opacity: (this.state.isLoadingTeachers)? 1: 0, backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }} />
                     <View>
                         <TextInput
                             label={'Nombre de la materia'}

@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { DeviceEventEmitter, Dimensions, FlatList, ListRenderItemInfo, StyleSheet, ToastAndroid, View } from "react-native";
-import { Appbar, Banner, Checkbox, Divider, FAB, List } from "react-native-paper";
+import { Appbar, Banner, Checkbox, Divider, FAB, List, overlay } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -146,7 +146,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+            <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={'Preferencias de registros'} />

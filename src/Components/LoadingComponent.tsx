@@ -3,7 +3,6 @@ import Theme from "../Themes";
 import LoadingController from "./loading/loading-controller";
 import { ThemeContext } from "./ThemeProvider";
 import overlay from "react-native-paper/src/styles/overlay";
-import Color from "color";
 
 type IProps = {};
 type IState = {
@@ -29,6 +28,17 @@ export default class LoadingComponent extends PureComponent<IProps, IState> {
     }
     open(text: string) {
         (this.isMount)&&this.setState({ visible: true, text });
+    }
+    update(text: string) {
+        (this.isMount)&&this.setState({ text });
+    }
+    updateAsync(text: string): Promise<void> {
+        return new Promise((resolve)=>{
+            if (this.isMount)
+                this.setState({ text }, resolve);
+            else
+                resolve();
+        });
     }
     close() {
         (this.isMount)&&this.setState({ visible: false });

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { View, TouchableWithoutFeedback, Keyboard, StyleSheet, ToastAndroid, DeviceEventEmitter } from "react-native";
-import { Appbar, TextInput, Button } from "react-native-paper";
+import { Appbar, TextInput, Button, overlay } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { Directive } from "../Scripts/ApiTecnica";
@@ -120,7 +120,7 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onClose={this.onClose} onRequestClose={this.goClose} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+            <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View>
                         <Appbar.Header>

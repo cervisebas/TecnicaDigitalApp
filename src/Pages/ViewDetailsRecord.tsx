@@ -1,7 +1,7 @@
 import { decode } from "base-64";
 import React, { PureComponent } from "react";
 import { StyleSheet, View } from "react-native";
-import { Appbar, List, Text } from "react-native-paper";
+import { Appbar, List, overlay, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { RecordData } from "../Scripts/ApiTecnica/types";
 import { decode as utf8decode } from "utf8";
@@ -79,7 +79,7 @@ export default class ViewDetailsRecord extends PureComponent<IProps, IState> {
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+            <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={`Ver detalles: #${this.state.datas.id}`} />

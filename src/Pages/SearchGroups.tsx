@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { Component, ReactNode } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { Appbar, TextInput } from "react-native-paper";
+import { Appbar, overlay, TextInput } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Theme from "../Themes";
@@ -58,7 +58,7 @@ export default class SearchGroups extends Component<IProps, IState> {
     render(): ReactNode {
         const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} style={{ marginLeft: 12, marginRight: 12 }} onShow={this.resetDate} onRequestClose={this.close} animationIn={'slideInLeft'} animationOut={'slideOutRight'}>
-            <View style={[styles.content, { backgroundColor: (isDark)? theme.colors.surface: theme.colors.background }]}>
+            <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={'Buscar registro'}  />

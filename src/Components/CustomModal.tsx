@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Dimensions, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import Modal from "react-native-modal";
 import ExtraDimensions from "react-native-extra-dimensions-android";
+import { ThemeContext } from "./ThemeProvider";
+import Color from "color";
 
 type ExtractProps<TComponentOrTProps> = TComponentOrTProps extends React.Component<infer TProps, any> ? TProps : TComponentOrTProps;
 type IProps = {
@@ -29,6 +31,7 @@ export default class CustomModal extends Component<IProps, IState> {
         this.onClose = this.onClose.bind(this);
     }
     private _isMount: boolean = false;
+    static contextType = ThemeContext;
     componentDidMount(): void {
         this._isMount = true;
     }
@@ -45,6 +48,7 @@ export default class CustomModal extends Component<IProps, IState> {
         if (this.props.onClose && this._isMount) this.props.onClose();
     }
     render(): React.ReactNode {
+        const { isDark } = this.context;
         return(<Modal
             isVisible={this.props.visible}
             animationIn={(this.props.animationIn)? this.props.animationIn: 'fadeInUp'}
@@ -60,6 +64,7 @@ export default class CustomModal extends Component<IProps, IState> {
             useNativeDriverForBackdrop={true}
             deviceWidth={width}
             deviceHeight={height}
+            //backdropColor={(isDark)? 'gray': 'black'}
             style={[this.props.style, styles.modal]}>
             {this.props.children}
         </Modal>);

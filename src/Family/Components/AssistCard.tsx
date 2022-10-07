@@ -2,6 +2,7 @@ import React, { PureComponent } from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Card, IconButton, ProgressBar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { ThemeContext } from "../../Components/ThemeProvider";
 import Theme from "../../Themes";
 
 type IProps = {
@@ -24,7 +25,9 @@ export default class AssistCard extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
     }
+    static contextType = ThemeContext;
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<Card style={styles.content} elevation={3}>
             {(!this.props.isError)? <>
                 {(this.props.isLoading)&&<ProgressBar indeterminate />}
@@ -50,7 +53,7 @@ export default class AssistCard extends PureComponent<IProps, IState> {
             <>
                 <Card.Content>
                     <View style={styles.contentError}>
-                        <Icon name={'alert-outline'} size={48} style={{ fontSize: 48 }} />
+                        <Icon name={'alert-outline'} size={48} style={{ fontSize: 48 }} color={theme.colors.text} />
                         <Text style={{ marginTop: 10 }}>{this.props.messageError}</Text>
                         <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={this.props.reloadAssist} style={{ marginTop: 12 }} />
                     </View>

@@ -1,7 +1,7 @@
 import { decode } from "base-64";
 import React, { Component, ReactNode } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, PermissionsAndroid, Pressable, StyleSheet, ToastAndroid, View } from "react-native";
-import { Button, Appbar, Colors, Dialog, Divider, FAB, List, Paragraph, Portal, Provider as PaperProvider } from "react-native-paper";
+import { Button, Appbar, Colors, Dialog, Divider, FAB, List, Paragraph, Portal, Provider as PaperProvider, overlay } from "react-native-paper";
 import FileViewer from "react-native-file-viewer";
 import CustomModal from "../Components/CustomModal";
 import { Annotation, Assist, GeneratePDF, urlBase } from "../Scripts/ApiTecnica";
@@ -180,7 +180,7 @@ export default class ViewAssist extends Component<IProps, IState> {
     }
 
     render(): ReactNode {
-        const { theme } = this.context;
+        const { isDark, theme } = this.context;
         return(<CustomModal visible={this.state.visible} onRequestClose={this.close}>
             <PaperProvider theme={theme}>
                 <View style={{ flex: 1 }}>
@@ -239,15 +239,24 @@ export default class ViewAssist extends Component<IProps, IState> {
                         actions={[{
                             icon: 'delete-outline',
                             label: 'Borrar',
-                            onPress: ()=>this.setState({ deleteVisible: true }),
+                            style: (isDark)? {
+                                backgroundColor: overlay(4, theme.colors.surface)
+                            }: undefined,
+                            onPress: ()=>this.setState({ deleteVisible: true })
                         }, {
                             icon: 'file-pdf-box',
                             label: 'Crear PDF',
-                            onPress: this.generatePdf,
+                            style: (isDark)? {
+                                backgroundColor: overlay(4, theme.colors.surface)
+                            }: undefined,
+                            onPress: this.generatePdf
                         }, {
                             icon: 'note-edit-outline',
                             label: 'Añadir anotación',
-                            onPress: this.props.openAddAnnotation,
+                            style: (isDark)? {
+                                backgroundColor: overlay(4, theme.colors.surface)
+                            }: undefined,
+                            onPress: this.props.openAddAnnotation
                         }]}
                         onStateChange={({ open })=>this.setState({ fabShow: open })}
                     />

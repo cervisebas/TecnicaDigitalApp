@@ -17,6 +17,7 @@ import ChangePermissionDirective from "../Pages/ChangePermissionDirective";
 import ImageViewer from "../Pages/ImageViewer";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../Components/ThemeProvider";
+import LoadingComponent from "../Components/LoadingComponent";
 
 type IProps = {
     navigation: any;
@@ -27,8 +28,6 @@ type IState = {
     isRefresh: boolean;
     messageError: string;
     datas: DirectivesList[];
-    showLoading: boolean;
-    textLoading: string;
     showConfirmDelete: boolean;
 };
 
@@ -41,8 +40,6 @@ export default class Page4 extends Component<IProps, IState> {
             isRefresh: false,
             messageError: '',
             datas: [],
-            showLoading: false,
-            textLoading: '',
             showConfirmDelete: false
         };
         this._renderItem = this._renderItem.bind(this);
@@ -74,6 +71,7 @@ export default class Page4 extends Component<IProps, IState> {
     private refChangePermissionDirective = createRef<ChangePermissionDirective>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private refYouNotDidDelete = createRef<YouNotDidDelete>();
+    private refLoadingComponent = createRef<LoadingComponent>();
 
 
     componentDidMount() {
@@ -133,17 +131,17 @@ export default class Page4 extends Component<IProps, IState> {
     /* ###################### */
 
     deleteNow() {
-        this.setState({ showLoading: true, textLoading: 'Eliminado directivo...' }, ()=>
-            Directive.delete(this.idOptionSelect)
-                .then(()=>{
-                    this.refCustomSnackbar.current?.open('El directivo se eliminó correctamente.');
-                    this.setState({ showLoading: false, isRefresh: true }, this.loadData);
-                })
-                .catch((error)=>{
-                    this.refCustomSnackbar.current?.open(error.cause);
-                    this.setState({ showLoading: false });
-                })
-        );
+        this.refLoadingComponent.current?.open('Eliminado directivo...');
+        Directive.delete(this.idOptionSelect)
+            .then(()=>{
+                this.refCustomSnackbar.current?.open('El directivo se eliminó correctamente.');
+                this.refLoadingComponent.current?.close();
+                this.setState({ isRefresh: true }, this.loadData);
+            })
+            .catch((error)=>{
+                this.refCustomSnackbar.current?.open(error.cause);
+                this.refLoadingComponent.current?.close();
+            });
     }
     selectEditOptions(opt: number) {
         switch (opt) {
@@ -239,7 +237,7 @@ export default class Page4 extends Component<IProps, IState> {
                 <EditDirective ref={this.refEditDirective} showSnackbar={this.showSnackbar} />
                 <ChangePasswordDirective ref={this.refChangePasswordDirective} showSnackbar={this.showSnackbar} />
                 <ChangePermissionDirective ref={this.refChangePermissionDirective} showSnackbar={this.showSnackbar} />
-                <LoadingController visible={this.state.showLoading} loadingText={this.state.textLoading} indicatorColor={Theme.colors.accent} />
+                <LoadingComponent ref={this.refLoadingComponent} />
             </PaperProvider>
         </View>);
     }

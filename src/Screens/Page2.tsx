@@ -10,6 +10,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import AddNewMatter from "./Page2/AddNewMatter";
 import LoadingComponent from "../Components/LoadingComponent";
 import { ThemeContext } from "../Components/ThemeProvider";
+import AddNewShedule from "./Page2/AddNewSchedule";
+import OpenAddNewSchedule from "./Page2/OpenAddNewSchedule";
 
 type IProps = {
     navigation: any;
@@ -23,19 +25,23 @@ export default class Page2 extends Component<IProps, IState> {
         super(props);
         this._onChangeTab = this._onChangeTab.bind(this);
         this._setStatusMatterPage = this._setStatusMatterPage.bind(this);
+        this._openAddSchedule = this._openAddSchedule.bind(this);
         this._openAddNewMatter = this._openAddNewMatter.bind(this);
         this._goLoading = this._goLoading.bind(this);
+        this._next = this._next.bind(this);
     }
     private tabOptions: MaterialTopTabNavigationOptions = {
         tabBarScrollEnabled: false,
         //tabBarStyle: { backgroundColor: Theme.colors.primary },
         tabBarIndicatorStyle: { backgroundColor: Theme.colors.accent, height: 4 }
     };
+    static contextType = ThemeContext;
     // Ref's
     private refFabPage2 = createRef<FabPage2>();
     private refAddNewMatter = createRef<AddNewMatter>();
     private refLoading = createRef<LoadingComponent>();
-    static contextType = ThemeContext;
+    private refAddNewShedule = createRef<AddNewShedule>();
+    private refOpenAddNewSchedule = createRef<OpenAddNewSchedule>();
 
     _setStatusMatterPage(status: boolean) {
         this.refFabPage2.current?.updateStatuses(2, status);
@@ -51,6 +57,14 @@ export default class Page2 extends Component<IProps, IState> {
     // Fab Functions
     _openAddNewMatter() {
         this.refAddNewMatter.current?.open();
+    }
+    _openAddSchedule() {
+        this.refOpenAddNewSchedule.current?.open();
+    }
+
+    // Functions
+    _next(curse: string) {
+        this.refAddNewShedule.current?.open(curse);
     }
 
     render(): React.ReactNode {
@@ -68,10 +82,16 @@ export default class Page2 extends Component<IProps, IState> {
                             <Tab.Screen name={'Materias'} children={()=><Page2Matters handlerLoad={this._setStatusMatterPage} goLoading={this._goLoading} />} />
                         </Tab.Navigator>
                     </View>
-                    <FabPage2 ref={this.refFabPage2} addNewMatter={this._openAddNewMatter} />
+                    <FabPage2
+                        ref={this.refFabPage2}
+                        addNewTimes={this._openAddSchedule}
+                        addNewMatter={this._openAddNewMatter}
+                    />
                 </PaperProvider>
             </NavigationContainer>
             <AddNewMatter ref={this.refAddNewMatter} />
+            <AddNewShedule ref={this.refAddNewShedule} goLoading={this._goLoading} />
+            <OpenAddNewSchedule ref={this.refOpenAddNewSchedule} nextStep={this._next} />
             <LoadingComponent ref={this.refLoading} />
         </View>);
     }

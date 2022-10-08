@@ -21,7 +21,7 @@ export default class FabPage2 extends PureComponent<IProps, IState> {
             icon: 'table-large-plus'
         };
     }
-    private page1status = false;
+    private page1status = true;
     private page2status = true;
     updateIndex(index: number) {
         this.setState({

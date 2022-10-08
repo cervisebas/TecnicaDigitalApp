@@ -8,6 +8,7 @@ import CursesGroupSystem from "./ApiTecnica/groups";
 import MatterScheduleSystem from "./ApiTecnica/matters";
 import PreferencesSystem from "./ApiTecnica/preferences";
 import { RecordSystem } from "./ApiTecnica/records";
+import ScheduleSystem from "./ApiTecnica/schedule";
 import StudentSystem from "./ApiTecnica/student";
 import { keyCodeAdmin } from "./SecurityKeyCodes";
 
@@ -24,6 +25,7 @@ const Actions = new ApiActions();
 const Prefences = new PreferencesSystem(urlBase, keyCodeAdmin);
 const Groups = new CursesGroupSystem(urlBase, keyCodeAdmin);
 const Matters = new MatterScheduleSystem(urlBase, keyCodeAdmin);
+const Schedules = new ScheduleSystem(urlBase, keyCodeAdmin);
 
 export {
     Student,
@@ -37,5 +39,6 @@ export {
     Records,
     Prefences,
     Groups,
-    Matters
+    Matters,
+    Schedules
 };

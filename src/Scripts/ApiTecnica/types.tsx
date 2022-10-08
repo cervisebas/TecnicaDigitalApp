@@ -167,6 +167,14 @@ type Matter = {
     teacher: StudentsData;
 };
 
+// Schedules
+type Schedule = {
+    day: string;
+    hour: string;
+    group: string;
+    matter: Matter;
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -186,5 +194,6 @@ export type {
     RecordData,
     PreferencesAssist,
     Groups,
-    Matter
+    Matter,
+    Schedule
 };

@@ -2,7 +2,14 @@ import axios from "axios";
 import { encode } from "base-64";
 import QueryString from "qs";
 import DirectiveSystem from "./directives";
-import { Matter, Schedule, TypicalRes } from "./types";
+import { DataSchedule, Schedule, TypicalRes } from "./types";
+
+type CreateSchedule = {
+    day: string;
+    hour: string;
+    group: string;
+    matter: string;
+};
 
 export default class ScheduleSystem {
     private urlBase: string = '';
@@ -11,11 +18,11 @@ export default class ScheduleSystem {
         this.urlBase = setUrl;
         this.header_access.headers.Authorization = setHeaderAccess;
     }
-    create(curse: string, data: Schedule[]): Promise<boolean> {
+    create(curse: string, data: CreateSchedule[]): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
             Directives.getDataLocal().then((value)=>{
-                const postData = { addSchedule: true, username: value.username, password: value.password, curse, data: encode(JSON.stringify(data)) };
+                const postData = { addSchedule: true, username: value.username, password: value.password, curse: encode(curse), data: encode(JSON.stringify(data)) };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
                     var res: TypicalRes = result.data;
                     if (res.ok) resolve(true); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
@@ -27,7 +34,7 @@ export default class ScheduleSystem {
         return new Promise((resolve, reject)=>{
             const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
             Directives.getDataLocal().then((value)=>{
-                const postData = { editSchedule: true, username: value.username, password: value.password, idSchedule, curse, data: encode(JSON.stringify(data)) };
+                const postData = { editSchedule: true, username: value.username, password: value.password, idSchedule, curse: encode(curse), data: encode(JSON.stringify(data)) };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
                     var res: TypicalRes = result.data;
                     if (res.ok) resolve(true); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
@@ -47,7 +54,7 @@ export default class ScheduleSystem {
             });
         });
     }
-    getAll(): Promise<Schedule[]> {
+    getAll(): Promise<DataSchedule[]> {
         return new Promise((resolve, reject)=>{
             const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
             Directives.getDataLocal().then((value)=>{

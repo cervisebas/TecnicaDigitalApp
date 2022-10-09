@@ -1,13 +1,16 @@
 import React, { PureComponent, ReactNode } from "react";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import { Button, Card, Text } from "react-native-paper";
+import { Button, Card, IconButton, Text } from "react-native-paper";
+import Theme from "../../Themes";
 
 type IProps = {
     title: string;
     subtitle: string;
     numColumns?: number;
-    onPress?: ()=>any;
     position?: 'left' | 'right';
+    onPress?: ()=>any;
+    onEdit?: ()=>any;
+    onDelete?: ()=>any;
 };
 type IState = {};
 
@@ -29,6 +32,10 @@ export default class CustomCard4 extends PureComponent<IProps, IState> {
             <Card style={styles.card} elevation={2} onPress={this.props.onPress}>
                 <Text style={styles.text}>{this.props.title}</Text>
                 <Text style={styles.subtext}>{this.props.subtitle}</Text>
+                <View style={styles.viewButtons}>
+                    <IconButton icon={'pencil-outline'} color={Theme.colors.primary} onPress={this.props.onEdit} />
+                    <IconButton icon={'delete-outline'} color={Theme.colors.primary} style={{ marginLeft: -2 }} onPress={this.props.onDelete} />
+                </View>
                 <Button
                     icon={'arrow-right'}
                     mode={'text'}
@@ -79,5 +86,12 @@ const styles = StyleSheet.create({
         bottom: 0,
         marginBottom: 6,
         marginRight: 4
+    },
+    viewButtons: {
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        marginBottom: 2,
+        flexDirection: 'row'
     }
 });

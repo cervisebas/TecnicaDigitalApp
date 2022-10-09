@@ -1,5 +1,6 @@
 import { createMaterialTopTabNavigator, MaterialTopTabNavigationOptions } from "@react-navigation/material-top-tabs";
 import { NavigationContainer } from "@react-navigation/native";
+import { decode } from "base-64";
 import React, { createRef, PureComponent } from "react";
 import { DeviceEventEmitter, StyleSheet, ToastAndroid, View } from "react-native";
 import { Appbar, overlay } from "react-native-paper";
@@ -7,7 +8,7 @@ import CustomModal from "../../Components/CustomModal";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../../Components/ThemeProvider";
 import { Matters, Schedules } from "../../Scripts/ApiTecnica";
-import { Matter } from "../../Scripts/ApiTecnica/types";
+import { DataSchedule, Matter } from "../../Scripts/ApiTecnica/types";
 import Theme from "../../Themes";
 import CreateScheduleDay, { DayResult } from "./CreateScheduleDay";
 
@@ -17,6 +18,7 @@ type IProps = {
 type IState = {
     visible: boolean;
     isLoading: boolean;
+    id: string;
     curse: string;
     matters: Matter[];
 };
@@ -30,12 +32,13 @@ type Results = {
     matter: string;
 };
 
-export default class AddNewShedule extends PureComponent<IProps, IState> {
+export default class EditShedule extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
             visible: false,
             isLoading: false,
+            id: '0',
             curse: '0°0',
             matters: []
         };
@@ -57,24 +60,24 @@ export default class AddNewShedule extends PureComponent<IProps, IState> {
     private refThursday = createRef<CreateScheduleDay>();
     private refFriday = createRef<CreateScheduleDay>();
 
-    open(curse: string) {
+    open(data: DataSchedule) {
         this.setState({
             visible: true,
-            curse
+            id: data.id,
+            curse: decode(data.curse)
         });
-        this.loadData();
+        this.loadData(data);
     }
     close() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
-        this.clearInputs();
         this.setState({ visible: false });
     }
-    clearInputs() {
-        this.refMonday.current?.clear();
-        this.refTuesday.current?.clear();
-        this.refWednesday.current?.clear();
-        this.refThursday.current?.clear();
-        this.refFriday.current?.clear();
+    setElements(data: DataSchedule) {
+        this.refMonday.current?.set(data.data.filter((v)=>v.day == 'monday'));
+        this.refTuesday.current?.set(data.data.filter((v)=>v.day == 'tuesday'));
+        this.refWednesday.current?.set(data.data.filter((v)=>v.day == 'wednesday'));
+        this.refThursday.current?.set(data.data.filter((v)=>v.day == 'thursday'));
+        this.refFriday.current?.set(data.data.filter((v)=>v.day == 'friday'));
     }
     createNow() {
         const mon = this.refMonday.current?.get();
@@ -99,10 +102,10 @@ export default class AddNewShedule extends PureComponent<IProps, IState> {
 
     sendData(data: Results[]) {
         this.props.goLoading(true, 'Enviando datos...');
-        Schedules.create(this.state.curse, data)
+        Schedules.modify(this.state.id, this.state.curse, data)
             .then(()=>{
                 this.props.goLoading(false);
-                ToastAndroid.show('Se añadio el nuevo horario.', ToastAndroid.SHORT);
+                ToastAndroid.show('Se edito correctamente el horario.', ToastAndroid.SHORT);
                 this.close();
                 DeviceEventEmitter.emit('p2-lists-reload', true);
             })
@@ -112,11 +115,14 @@ export default class AddNewShedule extends PureComponent<IProps, IState> {
             });
     }
 
-    loadData() {
+    loadData(data: DataSchedule) {
         this.props.goLoading(true, 'Cargando materias...');
         this.setState({ isLoading: true }, ()=>
             Matters.getAll()
-                .then((matters)=>this.setState({ matters, isLoading: false }, ()=>this.props.goLoading(false)))
+                .then((matters)=>this.setState({ matters, isLoading: false }, ()=>{
+                    this.setElements(data);
+                    this.props.goLoading(false);
+                }))
                 .catch((error)=>this.setState({ isLoading: false, visible: false }, ()=>{
                     this.props.goLoading(false);
                     ToastAndroid.show(error.cause, ToastAndroid.LONG);
@@ -153,7 +159,7 @@ export default class AddNewShedule extends PureComponent<IProps, IState> {
                 <View style={styles.content}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
-                        <Appbar.Content title={`Añadir horario (${this.state.curse})`} />
+                        <Appbar.Content title={`Editar horario (${this.state.curse})`} />
                         <Appbar.Action icon={'check'} disabled={this.state.isLoading} onPress={this.createNow} />
                     </Appbar.Header>
                     <View style={{ flex: 2 }}>

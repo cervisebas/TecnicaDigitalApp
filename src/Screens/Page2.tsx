@@ -25,6 +25,7 @@ export default class Page2 extends Component<IProps, IState> {
         super(props);
         this._onChangeTab = this._onChangeTab.bind(this);
         this._setStatusMatterPage = this._setStatusMatterPage.bind(this);
+        this._setStatusSchedulePage = this._setStatusSchedulePage.bind(this);
         this._openAddSchedule = this._openAddSchedule.bind(this);
         this._openAddNewMatter = this._openAddNewMatter.bind(this);
         this._goLoading = this._goLoading.bind(this);
@@ -44,6 +45,9 @@ export default class Page2 extends Component<IProps, IState> {
     private refOpenAddNewSchedule = createRef<OpenAddNewSchedule>();
 
     _setStatusMatterPage(status: boolean) {
+        this.refFabPage2.current?.updateStatuses(2, status);
+    }
+    _setStatusSchedulePage(status: boolean) {
         this.refFabPage2.current?.updateStatuses(2, status);
     }
     _onChangeTab({ data: { state: { index } } }: any) {
@@ -78,7 +82,7 @@ export default class Page2 extends Component<IProps, IState> {
                     </Appbar>
                     <View style={{ flex: 2 }}>
                         <Tab.Navigator initialRouteName={'Listas'} screenOptions={{ ...this.tabOptions, tabBarStyle: { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary } }} screenListeners={{ state: this._onChangeTab }}>
-                            <Tab.Screen name={'Listas'} children={()=><Page2Lists />} />
+                            <Tab.Screen name={'Listas'} children={()=><Page2Lists handlerLoad={this._setStatusSchedulePage} goLoading={this._goLoading} />} />
                             <Tab.Screen name={'Materias'} children={()=><Page2Matters handlerLoad={this._setStatusMatterPage} goLoading={this._goLoading} />} />
                         </Tab.Navigator>
                     </View>

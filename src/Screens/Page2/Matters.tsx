@@ -4,10 +4,10 @@ import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, 
 import { ActivityIndicator, Button, Dialog, Divider, IconButton, List, Paragraph, Portal, Text } from "react-native-paper";
 import { Matter } from "../../Scripts/ApiTecnica/types";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import Theme from "../../Themes";
 import { Matters } from "../../Scripts/ApiTecnica";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
 import EditMatter from "./EditMatter";
+import { ThemeContext } from "../../Components/ThemeProvider";
 
 type IProps = {
     handlerLoad: (status: boolean)=>any;
@@ -37,11 +37,12 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
         this._renderItem = this._renderItem.bind(this);
         this._goSnackbar = this._goSnackbar.bind(this);
     }
+    private event: EmitterSubscription | undefined = undefined;
+    private idDelete: string = '-1';
+    static contextType = ThemeContext;
     private refDialogDelete = createRef<DialogDeleteMatter>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private refEditMatter = createRef<EditMatter>();
-    private event: EmitterSubscription | undefined = undefined;
-    private idDelete: string = '-1';
 
     componentDidMount(): void {
         this.event = DeviceEventEmitter.addListener('p2-matters-reload', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
@@ -130,6 +131,7 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
     /* #################### */
 
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={styles.content}>
             <View style={{ flex: 1, overflow: 'hidden' }}>
                 {(!this.state.isLoading)? (!this.state.isError)?
@@ -138,17 +140,17 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
                     extraData={this.state}
                     keyExtractor={this._keyExtractor}
                     getItemLayout={this._getItemLayout}
-                    refreshControl={<RefreshControl colors={[Theme.colors.primary]} refreshing={this.state.isRefresh} onRefresh={this._refreshNow} />}
+                    refreshControl={<RefreshControl colors={[theme.colors.primary]} progressBackgroundColor={theme.colors.surface} refreshing={this.state.isRefresh} onRefresh={this._refreshNow} />}
                     contentContainerStyle={{ flex: (this.state.datas.length == 0)? 2: undefined, paddingTop: 8, paddingBottom: 76 }}
                     ItemSeparatorComponent={this._ItemSeparatorComponent}
-                    ListEmptyComponent={()=><View style={styles.emptyContent}><Icon name={'playlist-remove'} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ninguna materia</Text></View>}
+                    ListEmptyComponent={()=><View style={styles.emptyContent}><Icon name={'playlist-remove'} color={theme.colors.text} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ninguna materia</Text></View>}
                     renderItem={this._renderItem}
                 />:
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                     <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                        <Icon name={'account-alert-outline'} size={48} style={{ fontSize: 48 }} />
+                        <Icon name={'account-alert-outline'} color={theme.colors.text} size={48} style={{ fontSize: 48 }} />
                         <Text style={{ marginTop: 14 }}>{this.state.messageError}</Text>
-                        <IconButton icon={'reload'} color={Theme.colors.primary} size={28} onPress={this.loadData} style={{ marginTop: 12 }} />
+                        <IconButton icon={'reload'} color={theme.colors.primary} size={28} onPress={this.loadData} style={{ marginTop: 12 }} />
                     </View>
                 </View>
                 :<View style={styles.loadingContent}><ActivityIndicator size={'large'} animating /></View>}

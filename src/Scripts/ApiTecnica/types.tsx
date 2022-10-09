@@ -172,7 +172,12 @@ type Schedule = {
     day: string;
     hour: string;
     group: string;
-    matter: Matter;
+    matter: Matter | 'none';
+};
+type DataSchedule = {
+    id: string;
+    curse: string;
+    data: Schedule[];
 };
 
 export type {
@@ -195,5 +200,6 @@ export type {
     PreferencesAssist,
     Groups,
     Matter,
-    Schedule
+    Schedule,
+    DataSchedule
 };

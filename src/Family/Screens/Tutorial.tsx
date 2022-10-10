@@ -3,7 +3,6 @@ import { StyleSheet, View } from "react-native";
 import Swiper from "react-native-swiper";
 import CustomModal from "../../Components/CustomModal";
 import { ThemeContext } from "../../Components/ThemeProvider";
-import Theme from "../../Themes";
 import View1 from "./Tutorial/View1";
 import View2 from "./Tutorial/View2";
 import View3 from "./Tutorial/View3";

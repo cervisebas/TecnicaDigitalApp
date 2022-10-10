@@ -14,6 +14,7 @@
     "buildRelease": "cd android && ./gradlew bundleRelease && cd .."
   },
   "dependencies": {
+    "@adrianso/react-native-device-brightness": "^1.2.5",
     "@alessiocancian/react-native-actionsheet": "^3.1.2",
     "@kichiyaki/react-native-barcode-generator": "^0.6.7",
     "@notifee/react-native": "^5.7.0",
@@ -27,6 +28,7 @@
     "@react-navigation/material-top-tabs": "^6.2.4",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.0",
+    "@shopify/react-native-skia": "^0.1.155",
     "@svgr/core": "^6.3.1",
     "@svgr/plugin-svgo": "^6.3.1",
     "@types/base-64": "^1.0.0",
@@ -75,6 +77,7 @@
     "react-native-version-check": "^3.4.3",
     "react-native-view-shot": "^3.4.0",
     "react-native-walkthrough-tooltip": "^1.4.0",
+    "rn-perfect-sketch-canvas": "^0.3.0",
     "shelljs": "^0.8.5",
     "string-similarity": "^4.0.4",
     "utf8": "^3.0.0"

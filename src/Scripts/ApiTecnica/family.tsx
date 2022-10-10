@@ -1,7 +1,7 @@
 import { decode, encode } from "base-64";
 import axios from "axios";
 import qs from "qs";
-import { FamilyDataAssist, TypicalRes } from "./types";
+import { DataSchedule, FamilyDataAssist, TypicalRes } from "./types";
 import { StudentsData } from "./types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -88,6 +88,23 @@ export default class FamilySystem {
         return new Promise((resolve, reject)=>{
             this.getDataLocal().then((local)=>{
                 var dataPost = qs.stringify({ family_getDataAssist: true, dni: local.dni });
+                axios.post(`${this.urlBase}/index.php`, dataPost, this.header_access)
+                    .then(async(result)=>{
+                        try {
+                            var res: TypicalRes = result.data;
+                            if (res.ok) resolve(res.datas);
+                            return reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                        } catch {
+                            reject({ ok: false, cause: 'Ocurrio un error inesperado.' });                            
+                        }
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+            }).catch((e)=>reject(e));
+        });
+    }
+    getSchedule(curse: string): Promise<DataSchedule> {
+        return new Promise((resolve, reject)=>{
+            this.getDataLocal().then((local)=>{
+                var dataPost = qs.stringify({ family_getSchedule: true, curse, dni: local.dni });
                 axios.post(`${this.urlBase}/index.php`, dataPost, this.header_access)
                     .then(async(result)=>{
                         try {

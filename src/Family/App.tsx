@@ -5,7 +5,7 @@ import { ActivityIndicator, Appbar, Button, Dialog, IconButton, Paragraph, Porta
 import Theme from "../Themes";
 import messaging from '@react-native-firebase/messaging';
 import { Family } from "../Scripts/ApiTecnica";
-import { FamilyDataAssist, StudentsData } from "../Scripts/ApiTecnica/types";
+import { DataSchedule, FamilyDataAssist, StudentsData } from "../Scripts/ApiTecnica/types";
 import ViewDetailsAssist from "../Pages/ViewDetailsAssist";
 import ChangeCardDesign from "../Pages/ChangeCardDesign";
 import FamilyOptions from "./Screens/FamilyOptions";
@@ -23,6 +23,8 @@ import ScreenTutorial from "./Screens/Tutorial";
 import { decode } from "base-64";
 import moment from "moment";
 import { ThemeContext } from "../Components/ThemeProvider";
+import { ScheduleCard } from "./Components/ScheduleCard";
+import ViewSchedule from "../Pages/ViewSchedule";
 
 type IProps = {};
 type IState = {
@@ -86,6 +88,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this._openSnackbar = this._openSnackbar.bind(this);
         this._openLoading = this._openLoading.bind(this);
         this.checkWelcomeAndData = this.checkWelcomeAndData.bind(this);
+        this._openSchedule = this._openSchedule.bind(this);
     }
     private event: EmitterSubscription | null = null;
     static contextType = ThemeContext;
@@ -99,6 +102,7 @@ export default class AppFamily extends Component<IProps, IState> {
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private refCardCredential = createRef<CardCredential>();
     private refTutorial = createRef<ScreenTutorial>();
+    private refViewSchedule = createRef<ViewSchedule>();
 
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
@@ -201,6 +205,9 @@ export default class AppFamily extends Component<IProps, IState> {
         if (visible) this.refLoadingComponent.current?.open(text!);
         this.refLoadingComponent.current?.close();
     }
+    _openSchedule(data: DataSchedule) {
+        this.refViewSchedule.current?.open(data);
+    }
 
     // Support
     _support_open_phone() {
@@ -228,6 +235,7 @@ export default class AppFamily extends Component<IProps, IState> {
                         reloadAssist={this.loadDataAssist}
                         openDetailsAssit={this._openDetailsAssit}
                     />
+                    <ScheduleCard curse={this.state.studentData.curse} openSchedule={this._openSchedule} />
                     <SupportCard openDialogPhone={this._support_open_phone} />
                     <CardCredential
                         ref={this.refCardCredential}
@@ -291,6 +299,7 @@ export default class AppFamily extends Component<IProps, IState> {
                 openImage={this._openImageViewer}
                 openDialog={(title, text)=>this.setState({ dialogVisible: true, dialogTitle: title, dialogText: text })}
             />
+            <ViewSchedule ref={this.refViewSchedule} />
             <LoadingComponent ref={this.refLoadingComponent} />
         </View>);
     }

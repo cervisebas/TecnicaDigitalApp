@@ -6,7 +6,6 @@ import { Appbar, overlay, TextInput } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Theme from "../Themes";
 import { Assist } from "../Scripts/ApiTecnica";
 import { ThemeContext } from "../Components/ThemeProvider";
 

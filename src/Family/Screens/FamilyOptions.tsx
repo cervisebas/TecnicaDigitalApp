@@ -7,7 +7,6 @@ import CustomModal from "../../Components/CustomModal";
 import { Family, urlBase } from "../../Scripts/ApiTecnica";
 import messaging from '@react-native-firebase/messaging';
 import { StudentsData } from "../../Scripts/ApiTecnica/types";
-import Theme from "../../Themes";
 import FastImage from "react-native-fast-image";
 import ImageLazyLoad from "../../Components/Elements/ImageLazyLoad";
 // Images

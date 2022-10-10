@@ -17,6 +17,7 @@ import Page6 from "./Screens/Page6";
 import ImageCropPicker from "react-native-image-crop-picker";
 import { ThemeContext } from "./Components/ThemeProvider";
 import LoadingComponent from "./Components/LoadingComponent";
+import Page7 from "./Screens/Page7";
 
 type IProps = {};
 type IState = {
@@ -95,6 +96,11 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
                     name={"Registros"}
                     component={Page1 as any}
                     options={{ drawerLabel: 'Registros', drawerIcon: 'account-box-multiple' as any }}
+                />
+                <Drawer.Screen
+                    name={"Registros docentes"}
+                    component={Page7 as any}
+                    options={{ drawerLabel: 'Registros docentes', drawerIcon: 'account-box-multiple-outline' as any }}
                 />
                 <Drawer.Screen
                     name={"Grupos"}

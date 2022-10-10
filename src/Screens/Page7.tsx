@@ -13,6 +13,8 @@ import { decode, encode } from "base-64";
 import LoadingComponent from "../Components/LoadingComponent";
 import moment from "moment";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import ConfirmAssistTeacher from "../Pages/ConfirmAssistTeacher";
+import { InWorking } from "../Components/InWorking";
 
 type IProps = {
     navigation: any;
@@ -46,6 +48,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
     private refDialogCreate = createRef<DialogCreate>();
     private refLoadingComponent = createRef<LoadingComponent>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
+    private refConfirmAssistTeacher = createRef<ConfirmAssistTeacher>();
     /*private refSketchCanvas = createRef<SketchCanvasRef>();
     async convertToImage() {
         const base64 = this.refSketchCanvas.current?.toImage()?.encodeToBase64();
@@ -90,7 +93,19 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 this.refCustomSnackbar.current?.open(error.cause);
             });
     }
-
+    openRegist(idGroup: string) {
+        this.refLoadingComponent.current?.open('Cargando información...');
+        Assist.getGroup(idGroup)
+            .then((data)=>{
+                this.refLoadingComponent.current?.close();
+                this.refConfirmAssistTeacher.current?.open(idGroup, data);
+            })
+            .catch((error)=>{
+                this.refLoadingComponent.current?.close();
+                this.refCustomSnackbar.current?.open(error.cause);
+            });
+    }
+    
     _openCreateRegist() {
         this.refDialogCreate.current?.open();
     }
@@ -101,6 +116,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
             title={`Registro ${item.id}`}
             date={decode(item.date)}
             hour={decode(item.hour)}
+            openView={()=>this.openRegist(item.id)}
         />);
     }
     _getItemLayout(_data: DataGroup[] | null | undefined, index: number) {
@@ -120,8 +136,12 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 <Appbar.Header>
                     <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros de docentes'} />
-                    <Appbar.Action icon={'plus'} onPress={this._openCreateRegist} />
+                    <Appbar.Action disabled icon={'plus'} onPress={this._openCreateRegist} />
                 </Appbar.Header>
+                <View style={styles.content}>
+                    <InWorking />
+                </View>
+                {/*<>
                 <View style={styles.content}>
                     {(!this.state.isLoading)? (!this.state.isError)?
                     <FlatList
@@ -148,8 +168,19 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 <DialogCreate ref={this.refDialogCreate} goCreateRegist={this.createRegist} />
                 <CustomSnackbar ref={this.refCustomSnackbar} />
 
-                {/* ##### Modal's ##### */}
                 <LoadingComponent ref={this.refLoadingComponent} />
+                <ConfirmAssistTeacher ref={this.refConfirmAssistTeacher} showLoading={function (v: boolean, t: string, a?: (() => any) | undefined) {
+                    throw new Error("Function not implemented.");
+                } } showSnackbar={function (v: boolean, t: string, a?: (() => any) | undefined) {
+                    throw new Error("Function not implemented.");
+                } } openImage={function (source: string, text: string) {
+                    throw new Error("Function not implemented.");
+                } } openAddAnnotation={function () {
+                    throw new Error("Function not implemented.");
+                } } openSetGroup={function () {
+                    throw new Error("Function not implemented.");
+                } } />
+                </>*/}
             </PaperProvider>
         </View>);
     }

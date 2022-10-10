@@ -131,3 +131,15 @@
 -keep public class com.bumptech.glide.integration.webp.WebpImage { *; }
 -keep public class com.bumptech.glide.integration.webp.WebpFrame { *; }
 -keep public class com.bumptech.glide.integration.webp.WebpBitmapFactory { *; }
+
+# react-native-splash-screen
+-keep class org.devio.rn.splashscreen.** { *; }
+-dontwarn org.devio.rn.splashscreen.**
+
+# @shopify/react-native-skia
+-keep class com.shopify.reactnative.skia.** { *; }
+-dontwarn com.shopify.reactnative.skia.**
+
+# @adrianso/react-native-device-brightness
+-keep class org.capslock.RNDeviceBrightness.** { *; }
+-dontwarn org.capslock.RNDeviceBrightness.**

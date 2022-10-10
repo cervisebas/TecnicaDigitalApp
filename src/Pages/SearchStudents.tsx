@@ -1,4 +1,4 @@
-import { decode } from "base-64";
+import { decode, encode } from "base-64";
 import React, { PureComponent } from "react";
 import { FlatList, ListRenderItemInfo, NativeSyntheticEvent, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
 import { Appbar, Divider, overlay, ProgressBar, Provider as PaperProvider, Searchbar, Text } from "react-native-paper";
@@ -43,12 +43,19 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
     goSearch(event: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
         const { nativeEvent: { text } } = event;
         this.TextSearch = text;
-        if (text.indexOf('#') !== -1) if (parseInt(text) !== NaN) return this.goSearchForID(event);
+        if (text.indexOf('#') !== -1) if (!isNaN(parseInt(text.slice(1, text.length)))) return this.goSearchForID(event);
+        if (text.toLowerCase().indexOf('dni:') !== -1) return this.goSearchForDNI(event);
         this.goSearchForName(event);
     }
     goSearchForID({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
         const formattedQuery = text.slice(1, text.length);
         const search = this.state.list.filter((user)=>user.id == formattedQuery);
+        this.setState({ listShow: search });
+    }
+    goSearchForDNI({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+        const formattedQuery = text.slice(4, text.length);
+        const processQuery = encode(formattedQuery);
+        const search = this.state.list.filter((user)=>user.dni == processQuery);
         this.setState({ listShow: search });
     }
     goSearchForName({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {

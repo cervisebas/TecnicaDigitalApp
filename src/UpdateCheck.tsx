@@ -47,7 +47,7 @@ export default class UpdateCheck extends PureComponent<IProps, IState> {
                 });
                 DeviceInfo.getTotalMemory().then((getram)=>{
                     const RAM = ((getram / 1024) / 1024) / 1024;
-                    if (RAM <= 1.4) this.setState({ visible2: true });
+                    if (RAM <= 1.2) this.setState({ visible2: true });
                 });
             })
             .catch(()=>ToastAndroid.show('Ocurrió un error al comprobar las actualizaciones.', ToastAndroid.LONG));

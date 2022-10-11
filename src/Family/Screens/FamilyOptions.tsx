@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
-import { ScrollView, StyleSheet, TouchableHighlight, View } from "react-native";
+import { Dimensions, ScrollView, StyleSheet, TouchableHighlight, View } from "react-native";
 import { Button, IconButton, List, overlay, Switch, Text } from "react-native-paper";
 import CustomModal from "../../Components/CustomModal";
 import { Family, urlBase } from "../../Scripts/ApiTecnica";
@@ -27,6 +27,8 @@ type IState = {
     isStudent: boolean;
     switchNotifications: boolean;
 };
+
+const windowSizes = Dimensions.get('window');
 
 export default class FamilyOptions extends Component<IProps, IState> {
     constructor(props: IProps) {
@@ -114,9 +116,9 @@ export default class FamilyOptions extends Component<IProps, IState> {
                     style={styles.backButton}
                 />
                 <Text style={styles.textBrand}>SCAPPS</Text>
-                <View style={{ width: '100%', alignItems: 'center' }}>
+                <View style={{ width: '100%', height: '100%', alignItems: 'center' }}>
                     <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
-                    <ScrollView style={{ width: '100%' }}>
+                    <ScrollView style={{ width: '100%' }} contentContainerStyle={{ paddingBottom: 14 }} persistentScrollbar={true}>
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <TextView title={'ID Estudiante'} text={this.state.idStudent} />
                             {(this.state.isStudent)&&<TextView title={'Curso'} text={decode(this.props.data.curse)} />}
@@ -194,8 +196,10 @@ const styles = StyleSheet.create({
         marginRight: 10,
         marginTop: 30,
         paddingTop: 60,
-        paddingBottom: 14,
-        alignItems: 'center'
+        //paddingBottom: 14,
+        alignItems: 'center',
+        height: 490,
+        maxHeight: windowSizes.height - 180
     },
     contentImage: {
         position: 'absolute',

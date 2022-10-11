@@ -8,6 +8,7 @@ import View2 from "./Tutorial/View2";
 import View3 from "./Tutorial/View3";
 import View4 from "./Tutorial/View4";
 import View5 from "./Tutorial/View5";
+import View6 from "./Tutorial/View6";
 
 type IProps = {
     onClose?: ()=>any;
@@ -20,7 +21,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            visible: true
+            visible: false
         };
         this._nextPage = this._nextPage.bind(this);
         this.open = this.open.bind(this);
@@ -33,7 +34,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
         this.refSwiper.current?.scrollBy(1, true);
     }
     _restart() {
-        this.refSwiper.current?.scrollBy(-4, true);
+        this.refSwiper.current?.scrollBy(-5, true);
     }
 
     // Controller
@@ -59,6 +60,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
                     <View2 nextButton={this._nextPage} />
                     <View3 nextButton={this._nextPage} />
                     <View4 nextButton={this._nextPage} />
+                    <View6 nextButton={this._nextPage} />
                     <View5 nextButton={this.close} restart={this._restart} />
                 </Swiper>
             </View>

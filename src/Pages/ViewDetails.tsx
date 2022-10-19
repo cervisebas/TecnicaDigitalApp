@@ -134,7 +134,7 @@ export default class ViewDetails extends Component<IProps, IState> {
             data,
             designCard
         });
-        if (decode(data.curse).toLowerCase().indexOf('docente') !== -1) this.setState({ designCard: 4 });
+        if (decode(data.curse).toLowerCase().indexOf('docente') !== -1) this.setState({ designCard: 0 });
     }
     close() {
         this.setState({

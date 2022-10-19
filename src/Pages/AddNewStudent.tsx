@@ -219,7 +219,8 @@ export default class AddNewStudent extends Component<IProps, IState> {
                 var verify = this.verifyInputs();
                 if (!verify) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open('Por favor revise los datos ingresados.'));
                 Student.create(form).then(()=>{
-                    this.refCustomSnackbar.current?.open('Estudiante añadido con exito.');
+                    const snack: string = (this.state.formCourse == 'Docente')? 'Docente añadido con exito.': 'Estudiante añadido con exito.';
+                    this.refCustomSnackbar.current?.open(snack);
                     this.setState({
                         isLoading: false,
                         formName: '',
@@ -275,7 +276,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
                 <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
-                        <Appbar.Content title={'Añadir nuevo estudiante'}  />
+                        <Appbar.Content title={(this.state.formCourse == 'Docente')? 'Añadir nuevo docente': 'Añadir nuevo estudiante'}  />
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2 }}>
                         <View style={{ width: '100%', height: 124, flexDirection: 'row' }}>

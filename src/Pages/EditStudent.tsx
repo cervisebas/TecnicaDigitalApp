@@ -253,7 +253,8 @@ export default class EditStudent extends Component<IProps, IState> {
                 var verify = this.verifyInputs();
                 if (!verify) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open('Por favor revise los datos ingresados.'));
                 Student.modify(form).then(()=>{
-                    this.refCustomSnackbar.current?.open('Estudiante editado con exito.');
+                    const snack: string = (this.state.formCourse == 'Docente')? 'Docente editado con exito.': 'Estudiante editado con exito.';
+                    this.refCustomSnackbar.current?.open(snack);
                     this.setState({
                         isLoading: false,
                         formName: '',
@@ -337,7 +338,7 @@ export default class EditStudent extends Component<IProps, IState> {
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
-                        <Appbar.Content title={'Editar estudiante'}  />
+                        <Appbar.Content title={(this.state.formCourse == 'Docente')? 'Editar docente': 'Editar estudiante'}  />
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2, backgroundColor: theme.colors.background }}>
                         <View style={{ width: '100%', height: 124, flexDirection: 'row' }}>

@@ -137,7 +137,7 @@ export default class AppFamily extends Component<IProps, IState> {
     loadData() {
         this.setState({ isLoading: true, isError: false, studentData: undefined, designCardElection: undefined }, ()=>
             Family.getDataStudent()
-                .then((v)=>this.setState({ isLoading: false, studentData: v }, this.loadDataAssist))
+                .then((studentData)=>this.setState({ isLoading: false, studentData }, this.loadDataAssist))
                 .catch((v)=>this.setState({ isLoading: true, isError: true, messageError: v.cause }))
         );
     }
@@ -157,7 +157,7 @@ export default class AppFamily extends Component<IProps, IState> {
         });
         AsyncStorage.getItem('card-design-election-student').then((election)=>{
             try {
-                if (decode(this.state.studentData!.curse).toLowerCase().indexOf('docente') !== -1 || decode(this.state.studentData!.curse).toLowerCase().indexOf('profesor') !== -1) return this.setState({ designCardElection: 4 });
+                if (decode(this.state.studentData!.curse).toLowerCase().indexOf('docente') !== -1 || decode(this.state.studentData!.curse).toLowerCase().indexOf('profesor') !== -1) return this.setState({ designCardElection: 0 });
                 if (election !== null) this.setState({
                     designCardElection: (election == '0')? undefined: parseInt(election)
                 });
@@ -235,7 +235,7 @@ export default class AppFamily extends Component<IProps, IState> {
                         reloadAssist={this.loadDataAssist}
                         openDetailsAssit={this._openDetailsAssit}
                     />
-                    <ScheduleCard curse={this.state.studentData.curse} openSchedule={this._openSchedule} />
+                    {(decode(this.state.studentData.curse) !== 'Docente')&&<ScheduleCard curse={this.state.studentData.curse} openSchedule={this._openSchedule} />}
                     <SupportCard openDialogPhone={this._support_open_phone} />
                     <CardCredential
                         ref={this.refCardCredential}

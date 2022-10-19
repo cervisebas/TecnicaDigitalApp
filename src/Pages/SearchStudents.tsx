@@ -1,6 +1,6 @@
 import { decode, encode } from "base-64";
-import React, { PureComponent } from "react";
-import { FlatList, ListRenderItemInfo, NativeSyntheticEvent, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
+import React, { createRef, PureComponent } from "react";
+import { FlatList, Keyboard, ListRenderItemInfo, NativeSyntheticEvent, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
 import { Appbar, Divider, overlay, ProgressBar, Provider as PaperProvider, Searchbar, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import stringSimilarity from "string-similarity";
@@ -36,6 +36,7 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         this.reSearch = this.reSearch.bind(this);
         this.close = this.close.bind(this);
     }
+    private refSearchBar = createRef<CustomSearchbar>();
     private TextSearch: string = "";
     static contextType = ThemeContext;
     
@@ -107,7 +108,7 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
             visible: true,
             list,
             listShow: list
-        });
+        }, ()=>this.refSearchBar.current?.focus());
     }
     close() {
         this.setState({
@@ -136,6 +137,7 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
                     <View style={{ flex: 2 }}>
                         <View style={[styles.viewSearchbar, { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary, borderBottomColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary }]}>
                             <CustomSearchbar
+                                ref={this.refSearchBar}
                                 visible={this.state.visible}
                                 onEmpty={()=>this.setState({ listShow: this.state.list })}
                                 onSubmit={this.goSearch}
@@ -163,9 +165,11 @@ class ListEmpty extends PureComponent {
     constructor(props: any) {
         super(props);
     }
+    static contextType = ThemeContext;
     render(): React.ReactNode {
+        const { theme } = this.context;
         return(<View style={styles.emptyContain}>
-            <Icon name={'account-search-outline'} size={48} />
+            <Icon name={'account-search-outline'} size={48} color={theme.colors.text} />
             <Text style={{ marginTop: 12 }}>No se encontraron resultados</Text>
         </View>);
     }
@@ -189,6 +193,7 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
         };
         this.onChangeSearch = this.onChangeSearch.bind(this);
         this.changePlaceholder = this.changePlaceholder.bind(this);
+        this.focus = this.focus.bind(this);
     }
     private writeHere: string = 'Escribe para buscar...';
     private examples: string[] = [
@@ -199,6 +204,7 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
         'Ejemplo: Zapata o #75',
         'Ejemplo: Astor o #110'
     ];
+    private ref = createRef<any>();
     private forIndex: number = 0;
     private interval: NodeJS.Timer | undefined = undefined;
     private intervalTime: number = 10000;
@@ -217,6 +223,9 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
             this.interval = undefined;
         }
     }
+    focus() {
+        setTimeout(()=>this.ref.current?.focus(), 500);
+    }
     changePlaceholder() {
         if (!this.props.visible) return (this.state.placeholder !== this.writeHere)&&this.setState({ placeholder: this.writeHere });
         if (this.state.placeholder == this.writeHere) {
@@ -232,6 +241,8 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<Searchbar
+            ref={this.ref}
+            autoFocus={true}
             value={this.state.searchQuery}
             style={[styles.searchbar, (isDark)? { backgroundColor: theme.colors.background }: undefined]}
             placeholder={this.state.placeholder}

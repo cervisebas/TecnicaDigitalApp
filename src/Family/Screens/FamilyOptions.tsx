@@ -95,7 +95,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
     render(): React.ReactNode {
         const { isDark, theme, setTheme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            {(this.props.data)? <View style={[styles.content, { backgroundColor: overlay(4, theme.colors.surface) }]}>
+            {(this.props.data)? <View style={[styles.content, { backgroundColor: overlay(4, theme.colors.surface), height: (decode(this.props.data.curse) !== 'Docente')? 490: 365 }]}>
                 <View style={styles.contentImage}>
                     {(!this.state.isStudent)&&<>
                         <FastImage source={BlackBoard} style={styles.blackboardImage} />
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
         paddingTop: 60,
         //paddingBottom: 14,
         alignItems: 'center',
-        height: 490,
+        //height: 490,
         maxHeight: windowSizes.height - 180
     },
     contentImage: {

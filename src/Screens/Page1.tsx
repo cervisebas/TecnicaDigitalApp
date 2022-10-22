@@ -1,7 +1,7 @@
 import { decode, encode } from "base-64";
 import React, { Component, createRef, PureComponent } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
-import { ActivityIndicator, Appbar, Button, Dialog, Divider, IconButton, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
+import { DefaultSectionT, DeviceEventEmitter, EmitterSubscription, RefreshControl, SectionList, SectionListData, SectionListRenderItemInfo, StyleSheet, ToastAndroid, View } from "react-native";
+import { ActivityIndicator, Appbar, Button, Dialog, Divider, IconButton, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import messaging from '@react-native-firebase/messaging';
 import CustomCard from "../Components/Elements/CustomCard";
@@ -22,6 +22,7 @@ import LoadingComponent from "../Components/LoadingComponent";
 import SetGroup from "../Pages/SetGroup";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../Components/ThemeProvider";
+import color from "color";
 
 type IProps = {
     navigation: any;
@@ -39,8 +40,8 @@ type IState = {
     visibleAddNewGroup: boolean;
 };
 type DataGroupForDate = {
-    date: string;
-    list: DataGroup[];
+    title: string;
+    data: DataGroup[];
 };
 
 export default class Page1 extends Component<IProps, IState> {
@@ -59,7 +60,6 @@ export default class Page1 extends Component<IProps, IState> {
         this.loadData = this.loadData.bind(this);
         this.openConfirm = this.openConfirm.bind(this);
         this.createNewGroup = this.createNewGroup.bind(this);
-        this._renderItem = this._renderItem.bind(this);
         this._showLoading = this._showLoading.bind(this);
         this._openAddAnnotation = this._openAddAnnotation.bind(this);
         this._openImage = this._openImage.bind(this);
@@ -73,7 +73,8 @@ export default class Page1 extends Component<IProps, IState> {
         this._openAnnotations = this._openAnnotations.bind(this);
         this._openSetGroup = this._openSetGroup.bind(this);
         this._setFilterConfirm = this._setFilterConfirm.bind(this);
-        this._renderItem2 = this._renderItem2.bind(this);
+        this._renderItem3 = this._renderItem3.bind(this);
+        this._renderSectionHeader = this._renderSectionHeader.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -130,11 +131,11 @@ export default class Page1 extends Component<IProps, IState> {
     filterListForDate(actual: DataGroup[]) {
         const newList: DataGroupForDate[] = [];
         actual.forEach((v1)=>{
-            const findIndex = newList.findIndex((v0)=>v0.date == v1.date);
-            if (findIndex !== -1) return newList[findIndex].list.push(v1);
+            const findIndex = newList.findIndex((v0)=>v0.title == v1.date);
+            if (findIndex !== -1) return newList[findIndex].data.push(v1);
             newList.push({
-                date: v1.date,
-                list: [v1]
+                title: v1.date,
+                data: [v1]
             });
         });
         return newList;
@@ -210,37 +211,7 @@ export default class Page1 extends Component<IProps, IState> {
         this.openView(id, { id: id, curse: decode(curse), date: decode(date), hour: decode(hour), annotations: annotations });
     }
 
-    // Flatlist
-    _keyExtractor({ date }: DataGroupForDate) {
-        return `p1-list-${date}`;
-    }
-    _ItemSeparatorComponent() {
-        return(<Divider />);
-    }
-    _getItemLayout(data: DataGroupForDate[] | null | undefined, index: number) {
-        const header = 62;
-        const itemsTotal = 125 * ((typeof data == "object" && data !== null)? data[index].list.length: 1);
-        const totalHeight = header + itemsTotal;
-        return {
-            length: totalHeight,
-            offset: totalHeight * index,
-            index
-        };
-    }
-    _renderItem({ item }: ListRenderItemInfo<DataGroupForDate>) {
-        const title = moment(decode(item.date), 'DD/MM/YYYY').format('dddd, DD [de] MMMM [del] YYYY');
-        const title_2 = title[0].toUpperCase()+title.substring(1);
-        return(<List.Section title={title_2} key={`p1-list-${item.date}`} titleStyle={styles.titleList}>
-            <FlatList
-                data={item.list}
-                extraData={item}
-                keyExtractor={this._keyExtractor2}
-                getItemLayout={this._getItemLayout2}
-                renderItem={this._renderItem2}
-            />
-        </List.Section>);
-    }
-    // Flatlist 2
+    // SectionList
     _keyExtractor2({ id }: DataGroup) {
         return `p1-card-${id}`;
     }
@@ -251,7 +222,7 @@ export default class Page1 extends Component<IProps, IState> {
             index
         };
     }
-    _renderItem2({ item }: ListRenderItemInfo<DataGroup>) {
+    _renderItem3({ item }: SectionListRenderItemInfo<DataGroup, DefaultSectionT>) {
         return(<CustomCard
             key={`p1-card-${item.id}`}
             title={`Registro ${decode(item.curse)}`}
@@ -261,6 +232,15 @@ export default class Page1 extends Component<IProps, IState> {
             openConfirm={()=>this._openConfirm(item.id, item.curse, item.date)}
             openView={()=>this._openView(item.id, item.curse, item.date, item.hour, item.annotations)}
         />);
+    }
+    _renderSectionHeader({ section }: { section: SectionListData<DataGroup, DefaultSectionT>; }) {
+        const { theme } = this.context;
+        const title = moment(decode(section.title), 'DD/MM/YYYY').format('dddd, DD [de] MMMM [del] YYYY');
+        const title_2 = title[0].toUpperCase()+title.substring(1);
+        return(<Text
+            numberOfLines={1}
+            style={[styles.contentHead, { color: color(theme.colors.text).alpha(0.54).rgb().string() }, theme.fonts.medium]}
+        >{title_2}</Text>);
     }
     // #######
 
@@ -336,16 +316,15 @@ export default class Page1 extends Component<IProps, IState> {
                 </Appbar.Header>
                 <View style={{ flex: 1, overflow: 'hidden' }}>
                     {(!this.state.isLoading)? (!this.state.isError)?
-                    <FlatList
-                        data={this.state.dataGroups2}
+                    <SectionList
+                        sections={this.state.dataGroups2}
                         extraData={this.state}
-                        keyExtractor={this._keyExtractor}
-                        getItemLayout={this._getItemLayout}
-                        ItemSeparatorComponent={this._ItemSeparatorComponent}
+                        keyExtractor={this._keyExtractor2}
                         refreshControl={<RefreshControl colors={[Theme.colors.primary]} progressBackgroundColor={theme.colors.surface} refreshing={this.state.isRefresh} onRefresh={()=>this.loadData(undefined, true)} />}
                         contentContainerStyle={(this.state.dataGroups2.length == 0)? { flex: 2 }: undefined}
                         ListEmptyComponent={<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} color={theme.colors.text} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
-                        renderItem={this._renderItem}
+                        renderSectionHeader={this._renderSectionHeader}
+                        renderItem={this._renderItem3}
                     />:
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
@@ -464,5 +443,9 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
 const styles = StyleSheet.create({
     titleList: {
         fontSize: 14
+    },
+    contentHead: {
+        paddingHorizontal: 16,
+        paddingVertical: 13
     }
 });

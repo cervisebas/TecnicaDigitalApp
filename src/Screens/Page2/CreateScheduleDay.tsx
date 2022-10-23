@@ -130,11 +130,13 @@ class ElementHour extends PureComponent<IProps2, IState2> {
             slot2: '',
             disabled2: true
         };
+        this._onChange1 = this._onChange1.bind(this);
+        this._onChange2 = this._onChange2.bind(this);
     }
     private listGroup: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
     componentDidUpdate(): void {
         if (this.state.group1 !== '' && this.state.slot1 !== '' && this.state.group1 !== 'none') this.setState({ disabled2: false });
-        if (this.state.group1 == '' || this.state.slot1 == '' || this.state.group1 == 'none') this.setState({ disabled2: true });
+        if (this.state.group1 == '' || this.state.slot1 == '' || this.state.group1 == 'none') this.setState({ disabled2: true, slot2: '', group2: '' });
     }
     clear() {
         this.setState({
@@ -162,8 +164,24 @@ class ElementHour extends PureComponent<IProps2, IState2> {
         var result: HourResult[] = [];
         if (this.state.group1 !== '' && this.state.slot1 !== '') result.push({ group: this.state.group1, matter: this.state.slot1 });
         if (this.state.group2 !== '' && this.state.slot2 !== '') result.push({ group: this.state.group2, matter: this.state.slot2 });
+        if (this.state.group1 == '' && this.state.slot1 == '') result.push({ group: 'none', matter: 'none' });
         return result;
     }
+
+    private _onChange1(slot1: string) {
+        let set: any = { slot1 };
+        if (this.state.group1 == '') set['group1'] = 'none';
+        this.setState(set);
+    }
+    private _onChange2(slot2: string) {
+        let set: any = { slot2 };
+        if (this.state.group2 == '') {
+            const findIndex = this.listGroup.findIndex((v)=>v == this.state.group1);
+            set['group2'] = this.listGroup[findIndex + 1];
+        }
+        this.setState(set);
+    }
+
     render(): React.ReactNode {
         return(<View style={styles.contentElement}>
             <Text style={{ marginLeft: 8, marginBottom: 4, fontSize: 16, fontWeight: '700' }}>{this.props.title}</Text>
@@ -177,7 +195,7 @@ class ElementHour extends PureComponent<IProps2, IState2> {
                     color={'#000000'}
                 />)}
             </CustomPicker2>
-            <CustomPicker2 disabled={this.props.disabled} title={'Materia'} value={this.state.slot1} style={styles.picker} onChange={(slot1)=>this.setState({ slot1 })}>
+            <CustomPicker2 disabled={this.props.disabled} title={'Materia'} value={this.state.slot1} style={styles.picker} onChange={this._onChange1}>
                 <Picker.Item label={'- Seleccionar -'} value={''} color={'#000000'} />
                 <Picker.Item label={'Libre'} value={'none'} color={'#000000'} />
                 {this.props.matters.map((value, index)=><Picker.Item
@@ -197,9 +215,8 @@ class ElementHour extends PureComponent<IProps2, IState2> {
                     color={'#000000'}
                 />)}
             </CustomPicker2>
-            <CustomPicker2 disabled={this.props.disabled || this.state.disabled2} title={'Materia'} value={this.state.slot2} style={styles.picker} onChange={(slot2)=>this.setState({ slot2 })}>
+            <CustomPicker2 disabled={this.props.disabled || this.state.disabled2} title={'Materia'} value={this.state.slot2} style={styles.picker} onChange={this._onChange2}>
                 <Picker.Item label={'- Seleccionar -'} value={''} color={'#000000'} />
-                <Picker.Item label={'Libre'} value={'none'} color={'#000000'} />
                 {this.props.matters.map((value, index)=><Picker.Item
                     key={index.toString()}
                     label={`${decode(value.name)} - ${decode(value.teacher.name)}`}

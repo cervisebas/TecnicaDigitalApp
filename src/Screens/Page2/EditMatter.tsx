@@ -1,7 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
 import { decode, encode } from "base-64";
 import React, { createRef, PureComponent } from "react";
-import { View, StyleSheet, ToastAndroid, DeviceEventEmitter, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, StyleSheet, ToastAndroid, DeviceEventEmitter, TouchableWithoutFeedback, Keyboard, Pressable } from "react-native";
 import { Appbar, TextInput, Button, Provider as PaperProvider, ProgressBar, overlay } from "react-native-paper";
 import CustomModal from "../../Components/CustomModal";
 import { CustomPicker2 } from "../../Components/Elements/CustomInput";
@@ -12,6 +12,8 @@ import { Matter } from "../../Scripts/ApiTecnica/types";
 
 type IProps = {
     snackbar: (message: string)=>any;
+    openTeacherSelector?: (id: string, teachers: { id: string; name: string; }[])=>any;
+    openMatterSelector?: ()=>any;
 };
 type IState = {
     visible: boolean;
@@ -112,6 +114,10 @@ export default class EditMatter extends PureComponent<IProps, IState> {
                 })
         );
     }
+    _openTeacherSelector() {
+        if (!this.props.openTeacherSelector) return;
+        this.props.openTeacherSelector(this.state.formTeacher, this.state.listTeachers);
+    }
 
     // Controller
     open(data: Matter) {
@@ -124,6 +130,19 @@ export default class EditMatter extends PureComponent<IProps, IState> {
     }
     close() {
         this.setState({ visible: false });
+    }
+    updateMatter(formName: string) {
+        this.setState({ formName });
+    }
+    updateTeacher(formTeacher: string) {
+        this.setState({ formTeacher });
+    }
+
+    getNameTeacherByID(id: string) {
+        if (id == '-1') return '- Seleccionar -';
+        const search = this.state.listTeachers.find((v)=>v.id == id);
+        if (search == undefined) return '- Seleccionar -';
+        return decode(search.name);
     }
 
     render(): React.ReactNode {
@@ -146,14 +165,35 @@ export default class EditMatter extends PureComponent<IProps, IState> {
                             disabled={this.state.isLoading || this.state.isLoadingTeachers}
                             error={this.state.errorFormName}
                             onChangeText={(text)=>this.setState({ formName: text, errorFormName: false })}
+                            right={<TextInput.Icon
+                                icon={'magnify'}
+                                disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                onPress={this.props.openMatterSelector}
+                            />}
                         />
-                        <CustomPicker2 title={"Profesor:"} value={this.state.formTeacher} error={this.state.errorFormTeacher} disabled={this.state.isLoading || this.state.isLoadingTeachers} onChange={(v)=>(!this.state.isLoadingTeachers)&&this.setState({ formTeacher: v, errorFormTeacher: false })} style={styles.textInput}>
+                        <Pressable onPress={this._openTeacherSelector}>
+                            <TextInput
+                                label={'Profesor'}
+                                mode={'outlined'}
+                                style={styles.textInput}
+                                value={this.getNameTeacherByID(this.state.formTeacher)}
+                                editable={false}
+                                disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                error={this.state.errorFormTeacher}
+                                right={<TextInput.Icon
+                                    icon={'gesture-tap'}
+                                    disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                    onPress={this._openTeacherSelector}
+                                />}
+                            />
+                        </Pressable>
+                        {/*<CustomPicker2 title={"Profesor:"} value={this.state.formTeacher} error={this.state.errorFormTeacher} disabled={this.state.isLoading || this.state.isLoadingTeachers} onChange={(v)=>(!this.state.isLoadingTeachers)&&this.setState({ formTeacher: v, errorFormTeacher: false })} style={styles.textInput}>
                             {this.state.listTeachers.map((value)=><Picker.Item
                                 key={`item-teacher-${value.id}`}
                                 label={decode(value.name)}
                                 value={value.id}
                             />)}
-                        </CustomPicker2>
+                        </CustomPicker2>*/}
                         <View style={styles.buttonContent}>
                             <Button
                                 mode={'contained'}

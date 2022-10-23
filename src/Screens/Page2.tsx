@@ -12,6 +12,8 @@ import LoadingComponent from "../Components/LoadingComponent";
 import { ThemeContext } from "../Components/ThemeProvider";
 import AddNewShedule from "./Page2/AddNewSchedule";
 import OpenAddNewSchedule from "./Page2/OpenAddNewSchedule";
+import SelectorTeacher from "./Page2/SelectorTeacher";
+import SelectorMatter from "./Page2/SelectorMatter";
 
 type IProps = {
     navigation: any;
@@ -30,6 +32,10 @@ export default class Page2 extends Component<IProps, IState> {
         this._openAddNewMatter = this._openAddNewMatter.bind(this);
         this._goLoading = this._goLoading.bind(this);
         this._next = this._next.bind(this);
+        this._openTeacherSelector = this._openTeacherSelector.bind(this);
+        this._openMatterSelector = this._openMatterSelector.bind(this);
+        this._updateTeacherAddMatter = this._updateTeacherAddMatter.bind(this);
+        this._updateMatterAddMatter = this._updateMatterAddMatter.bind(this);
     }
     private tabOptions: MaterialTopTabNavigationOptions = {
         tabBarScrollEnabled: false,
@@ -43,6 +49,8 @@ export default class Page2 extends Component<IProps, IState> {
     private refLoading = createRef<LoadingComponent>();
     private refAddNewShedule = createRef<AddNewShedule>();
     private refOpenAddNewSchedule = createRef<OpenAddNewSchedule>();
+    private refSelectorTeacher = createRef<SelectorTeacher>();
+    private refSelectorMatter = createRef<SelectorMatter>();
 
     _setStatusMatterPage(status: boolean) {
         this.refFabPage2.current?.updateStatuses(2, status);
@@ -70,6 +78,18 @@ export default class Page2 extends Component<IProps, IState> {
     _next(curse: string) {
         this.refAddNewShedule.current?.open(curse);
     }
+    _openTeacherSelector(id: string, listTeachers: { id: string; name: string; }[]) {
+        this.refSelectorTeacher.current?.open(id, listTeachers);
+    }
+    _openMatterSelector() {
+        this.refSelectorMatter.current?.open();
+    }
+    _updateTeacherAddMatter(id: string) {
+        this.refAddNewMatter.current?.updateTeacher(id);
+    }
+    _updateMatterAddMatter(matter: string) {
+        this.refAddNewMatter.current?.updateMatter(matter);
+    }
 
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
@@ -93,7 +113,15 @@ export default class Page2 extends Component<IProps, IState> {
                     />
                 </PaperProvider>
             </NavigationContainer>
-            <AddNewMatter ref={this.refAddNewMatter} />
+            
+            <AddNewMatter
+                ref={this.refAddNewMatter}
+                openTeacherSelector={this._openTeacherSelector}
+                openMatterSelector={this._openMatterSelector}
+            />
+            <SelectorTeacher ref={this.refSelectorTeacher} onSelect={this._updateTeacherAddMatter} />
+            <SelectorMatter ref={this.refSelectorMatter} onSelect={this._updateMatterAddMatter} />
+
             <AddNewShedule ref={this.refAddNewShedule} goLoading={this._goLoading} />
             <OpenAddNewSchedule ref={this.refOpenAddNewSchedule} nextStep={this._next} />
             <LoadingComponent ref={this.refLoading} />

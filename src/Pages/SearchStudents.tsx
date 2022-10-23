@@ -110,7 +110,7 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
             visible: true,
             list,
             listShow: list
-        }, ()=>this.refSearchBar.current?.focus());
+        }, ()=>setTimeout(()=>this.refSearchBar.current?.focus(), 500));
     }
     close() {
         this.setState({
@@ -179,6 +179,7 @@ class ListEmpty extends PureComponent {
 
 type IProps2 = {
     visible: boolean;
+    disableTextExamples?: boolean;
     onEmpty: ()=>any;
     onSubmit: (event: NativeSyntheticEvent<TextInputSubmitEditingEventData>)=>any;
 };
@@ -186,7 +187,7 @@ type IState2 = {
     searchQuery: string;
     placeholder: string;
 };
-class CustomSearchbar extends PureComponent<IProps2, IState2> {
+export class CustomSearchbar extends PureComponent<IProps2, IState2> {
     constructor(props: IProps2) {
         super(props);
         this.state = {
@@ -229,6 +230,7 @@ class CustomSearchbar extends PureComponent<IProps2, IState2> {
         setTimeout(()=>this.ref.current?.focus(), 500);
     }
     changePlaceholder() {
+        if (this.props.disableTextExamples) return;
         if (!this.props.visible) return (this.state.placeholder !== this.writeHere)&&this.setState({ placeholder: this.writeHere });
         if (this.state.placeholder == this.writeHere) {
             this.setState({ placeholder: this.examples[this.forIndex] });

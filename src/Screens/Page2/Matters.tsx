@@ -9,6 +9,8 @@ import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
 import EditMatter from "./EditMatter";
 import { ThemeContext } from "../../Components/ThemeProvider";
 import { orderArray } from "../../Scripts/Utils";
+import SelectorTeacher from "./SelectorTeacher";
+import SelectorMatter from "./SelectorMatter";
 
 type IProps = {
     handlerLoad: (status: boolean)=>any;
@@ -37,13 +39,20 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
         this._refreshNow = this._refreshNow.bind(this);
         this._renderItem = this._renderItem.bind(this);
         this._goSnackbar = this._goSnackbar.bind(this);
+        this._openTeacherSelector = this._openTeacherSelector.bind(this);
+        this._openMatterSelector = this._openMatterSelector.bind(this);
+        this._updateTeacherAddMatter = this._updateTeacherAddMatter.bind(this);
+        this._updateMatterAddMatter = this._updateMatterAddMatter.bind(this);
     }
     private event: EmitterSubscription | undefined = undefined;
     private idDelete: string = '-1';
     static contextType = ThemeContext;
+    // Ref's
     private refDialogDelete = createRef<DialogDeleteMatter>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private refEditMatter = createRef<EditMatter>();
+    private refSelectorTeacher = createRef<SelectorTeacher>();
+    private refSelectorMatter = createRef<SelectorMatter>();
 
     componentDidMount(): void {
         this.event = DeviceEventEmitter.addListener('p2-matters-reload', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
@@ -131,6 +140,20 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
     }
     /* #################### */
 
+    // Edit Matter: Functions
+    _openTeacherSelector(id: string, listTeachers: { id: string; name: string; }[]) {
+        this.refSelectorTeacher.current?.open(id, listTeachers);
+    }
+    _openMatterSelector() {
+        this.refSelectorMatter.current?.open();
+    }
+    _updateTeacherAddMatter(id: string) {
+        this.refEditMatter.current?.updateTeacher(id);
+    }
+    _updateMatterAddMatter(matter: string) {
+        this.refEditMatter.current?.updateMatter(matter);
+    }
+
     render(): React.ReactNode {
         const { theme } = this.context;
         return(<View style={styles.content}>
@@ -160,7 +183,14 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
             <DialogDeleteMatter ref={this.refDialogDelete} onConfirm={this.goDelete} />
 
             {/* Modal's */}
-            <EditMatter ref={this.refEditMatter} snackbar={this._goSnackbar} />
+            <EditMatter
+                ref={this.refEditMatter}
+                snackbar={this._goSnackbar}
+                openTeacherSelector={this._openTeacherSelector}
+                openMatterSelector={this._openMatterSelector}
+            />
+            <SelectorTeacher ref={this.refSelectorTeacher} onSelect={this._updateTeacherAddMatter} />
+            <SelectorMatter ref={this.refSelectorMatter} onSelect={this._updateMatterAddMatter} />
         </View>);
     }
 }

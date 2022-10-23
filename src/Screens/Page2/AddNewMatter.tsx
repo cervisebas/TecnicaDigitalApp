@@ -1,15 +1,16 @@
-import { Picker } from "@react-native-picker/picker";
 import { decode, encode } from "base-64";
 import React, { createRef, PureComponent } from "react";
-import { View, StyleSheet, ToastAndroid, DeviceEventEmitter, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { Appbar, TextInput, Button, Provider as PaperProvider, ProgressBar, overlay } from "react-native-paper";
+import { View, StyleSheet, ToastAndroid, DeviceEventEmitter, TouchableWithoutFeedback, Keyboard, Pressable, Platform } from "react-native";
+import { Appbar, TextInput, Button, ProgressBar, overlay } from "react-native-paper";
 import CustomModal from "../../Components/CustomModal";
-import { CustomPicker2 } from "../../Components/Elements/CustomInput";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../../Components/ThemeProvider";
 import { Matters, Student } from "../../Scripts/ApiTecnica";
 
-type IProps = {};
+type IProps = {
+    openTeacherSelector?: (id: string, teachers: { id: string; name: string; }[])=>any;
+    openMatterSelector?: ()=>any;
+};
 type IState = {
     visible: boolean;
     isLoading: boolean;
@@ -47,6 +48,7 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
         this.close = this.close.bind(this);
         this.sendData = this.sendData.bind(this);
         this.loadingTeachers = this.loadingTeachers.bind(this);
+        this._openTeacherSelector = this._openTeacherSelector.bind(this);
     }
     private refCustomSnackbar = createRef<CustomSnackbar>();
     static contextType = ThemeContext;
@@ -108,6 +110,10 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
                 })
         );
     }
+    _openTeacherSelector() {
+        if (!this.props.openTeacherSelector) return;
+        this.props.openTeacherSelector(this.state.formTeacher, this.state.listTeachers);
+    }
 
     // Controller
     open() {
@@ -116,6 +122,19 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
     close() {
         this.setState({ visible: false });
     }
+    updateMatter(formName: string) {
+        this.setState({ formName });
+    }
+    updateTeacher(formTeacher: string) {
+        this.setState({ formTeacher });
+    }
+
+    getNameTeacherByID(id: string) {
+        if (id == '-1') return '- Seleccionar -';
+        const search = this.state.listTeachers.find((v)=>v.id == id);
+        if (search == undefined) return '- Seleccionar -';
+        return decode(search.name);
+    }
 
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
@@ -123,7 +142,7 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={[styles.content, { backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }]}>
                     <Appbar.Header>
-                        <Appbar.BackAction onPress={this.closeAndClean} />
+                        <Appbar.BackAction onPress={this.closeAndClean} borderless={Platform.Version > 25} />
                         <Appbar.Content title={'Añadir nueva materia'} />
                     </Appbar.Header>
                     <ProgressBar indeterminate color={theme.colors.accent} style={{ opacity: (this.state.isLoadingTeachers)? 1: 0, backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }} />
@@ -137,15 +156,36 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
                             disabled={this.state.isLoading || this.state.isLoadingTeachers}
                             error={this.state.errorFormName}
                             onChangeText={(text)=>this.setState({ formName: text, errorFormName: false })}
+                            right={<TextInput.Icon
+                                icon={'magnify'}
+                                disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                onPress={this.props.openMatterSelector}
+                            />}
                         />
-                        <CustomPicker2 title={"Profesor:"} value={this.state.formTeacher} error={this.state.errorFormTeacher} disabled={this.state.isLoading || this.state.isLoadingTeachers} onChange={(v)=>(!this.state.isLoadingTeachers)&&this.setState({ formTeacher: v, errorFormTeacher: false })} style={styles.textInput}>
+                        <Pressable onPress={this._openTeacherSelector}>
+                            <TextInput
+                                label={'Profesor'}
+                                mode={'outlined'}
+                                style={styles.textInput}
+                                value={this.getNameTeacherByID(this.state.formTeacher)}
+                                editable={false}
+                                disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                error={this.state.errorFormTeacher}
+                                right={<TextInput.Icon
+                                    icon={'gesture-tap'}
+                                    disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                    onPress={this._openTeacherSelector}
+                                />}
+                            />
+                        </Pressable>
+                        {/*<CustomPicker2 title={"Profesor:"} value={this.state.formTeacher} error={this.state.errorFormTeacher} disabled={this.state.isLoading || this.state.isLoadingTeachers} onChange={(v)=>(!this.state.isLoadingTeachers)&&this.setState({ formTeacher: v, errorFormTeacher: false })} style={styles.textInput}>
                             {this.state.listTeachers.map((value)=><Picker.Item
                                 key={`item-teacher-${value.id}`}
                                 label={decode(value.name)}
                                 value={value.id}
                                 color={'#000000'}
                             />)}
-                        </CustomPicker2>
+                        </CustomPicker2>*/}
                         <View style={styles.buttonContent}>
                             <Button
                                 mode={'contained'}

@@ -1,11 +1,12 @@
 import React, { createRef, PureComponent } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { Appbar, Button, Dialog, Paragraph, Portal, Text, TouchableRipple, Provider as PaperProvider } from "react-native-paper";
+import { ScrollView, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Appbar, Button, Dialog, Portal, Text, TouchableRipple, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { DataSchedule, Matter, Schedule } from "../Scripts/ApiTecnica/types";
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
 import { decode } from "base-64";
+import { ReactNativeZoomableViewWithGestures } from "@openspacelabs/react-native-zoomable-view";
 
 type IProps = {};
 type IState = {
@@ -61,7 +62,17 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
     private getItem(matter: string, data: Schedule) {
         return(<TouchableRipple style={{ flexDirection: 'column' }} onPress={()=>this.openDialog(false, data)}>
             <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 16 }}>{matter}</Text>
+                <Text
+                    style={{
+                        fontSize: 16,
+                        paddingLeft: 4,
+                        paddingRight: 4,
+                        textAlign: 'center',
+                        flexWrap: 'wrap'
+                    }}
+                    
+                    numberOfLines={3}
+                >{matter}</Text>
             </View>
         </TouchableRipple>);
     }
@@ -101,11 +112,11 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
             var text: string | React.ReactNode = '';
             if (isGroup) {
                 text = this.getItemGroup(
-                    data.group, (data.matter == 'none')? 'Libre': decode(data.matter.name), data,
-                    morning[group2].group, (morning[group2].matter == 'none')? 'Libre': decode((morning[group2].matter as any).name), morning[group2]
+                    data.group, (data.matter == 'none')? /*'Libre'*/'': decode(data.matter.name), data,
+                    morning[group2].group, (morning[group2].matter == 'none')? /*'Libre'*/'': decode((morning[group2].matter as any).name), morning[group2]
                 );
                 useIndex1.push(group2);
-            } else text = (data.matter == 'none')? this.getItemDefault('Libre'): this.getItem(decode(data.matter.name), data);
+            } else text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
 
             if (rows1_2[dayIndex] == undefined) {
                 const newArray: string[] = [];
@@ -139,11 +150,11 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
             var text: string | React.ReactNode = '';
             if (isGroup) {
                 text = this.getItemGroup(
-                    data.group, (data.matter == 'none')? 'Libre': decode(data.matter.name), data,
-                    afternoon[group2].group, (afternoon[group2].matter == 'none')? 'Libre': decode((afternoon[group2].matter as any).name), afternoon[group2]
+                    data.group, (data.matter == 'none')? /*'Libre'*/'': decode(data.matter.name), data,
+                    afternoon[group2].group, (afternoon[group2].matter == 'none')? /*'Libre'*/'': decode((afternoon[group2].matter as any).name), afternoon[group2]
                 );
                 useIndex2.push(group2);
-            } else text = (data.matter == 'none')? this.getItemDefault('Libre'): this.getItem(decode(data.matter.name), data);
+            } else text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
 
             if (rows2_2[dayIndex] == undefined) {
                 const newArray: string[] = [];
@@ -187,50 +198,50 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
                     </Appbar.Header>
                     <ScrollContent>
                         <View style={styles.container}>
-                        <Table borderStyle={{ borderWidth: 2, borderColor: theme.colors.text }}>
-                            <Row data={['Turno mañana']} style={(isDark)? styles.title1cDark: styles.title1c} textStyle={[styles.title1, { color: theme.colors.text }]} />
-                            <Row
-                                data={this.days}
-                                style={(isDark)? styles.headDark: styles.head}
-                                widthArr={[80, this.width, this.width, this.width, this.width, this.width]}
-                                textStyle={[styles.textHead, { color: theme.colors.text }]}
-                            />
-                            <TableWrapper style={styles.wrapper}>
-                                <Col
-                                    data={this.morning}
-                                    style={(isDark)? styles.titleDark: styles.title}
-                                    heightArr={[this.height, this.height, this.height, this.height]}
-                                    width={80}
-                                    textStyle={[styles.textTitle, { color: theme.colors.text }]}
+                            <Table borderStyle={{ borderWidth: 2, borderColor: theme.colors.text }}>
+                                <Row data={['Turno mañana']} style={(isDark)? styles.title1cDark: styles.title1c} textStyle={[styles.title1, { color: theme.colors.text }]} />
+                                <Row
+                                    data={this.days}
+                                    style={(isDark)? styles.headDark: styles.head}
+                                    widthArr={[80, this.width, this.width, this.width, this.width, this.width]}
+                                    textStyle={[styles.textHead, { color: theme.colors.text }]}
                                 />
-                                <Rows
-                                    data={this.state.rows1}
-                                    widthArr={[this.width, this.width, this.width, this.width, this.width]}
-                                    heightArr={[this.height, this.height, this.height, this.height]}
+                                <TableWrapper style={styles.wrapper}>
+                                    <Col
+                                        data={this.morning}
+                                        style={(isDark)? styles.titleDark: styles.title}
+                                        heightArr={[this.height, this.height, this.height, this.height]}
+                                        width={80}
+                                        textStyle={[styles.textTitle, { color: theme.colors.text }]}
+                                    />
+                                    <Rows
+                                        data={this.state.rows1}
+                                        widthArr={[this.width, this.width, this.width, this.width, this.width]}
+                                        heightArr={[this.height, this.height, this.height, this.height]}
+                                    />
+                                </TableWrapper>
+                                <Row data={['Turno tarde']} style={(isDark)? styles.title1cDark: styles.title1c} textStyle={[styles.title1, { color: theme.colors.text }]} />
+                                <Row
+                                    data={this.days}
+                                    style={(isDark)? styles.headDark: styles.head}
+                                    widthArr={[80, this.width, this.width, this.width, this.width, this.width]}
+                                    textStyle={[styles.textHead, { color: theme.colors.text }]}
                                 />
-                            </TableWrapper>
-                            <Row data={['Turno tarde']} style={(isDark)? styles.title1cDark: styles.title1c} textStyle={[styles.title1, { color: theme.colors.text }]} />
-                            <Row
-                                data={this.days}
-                                style={(isDark)? styles.headDark: styles.head}
-                                widthArr={[80, this.width, this.width, this.width, this.width, this.width]}
-                                textStyle={[styles.textHead, { color: theme.colors.text }]}
-                            />
-                            <TableWrapper style={styles.wrapper}>
-                                <Col
-                                    data={this.afternoon}
-                                    style={(isDark)? styles.titleDark: styles.title}
-                                    heightArr={[this.height, this.height, this.height, this.height]}
-                                    width={80}
-                                    textStyle={[styles.textTitle, { color: theme.colors.text }]}
-                                />
-                                <Rows
-                                    data={this.state.rows2}
-                                    widthArr={[this.width, this.width, this.width, this.width, this.width]}
-                                    heightArr={[this.height, this.height, this.height, this.height]}
-                                />
-                            </TableWrapper>
-                        </Table>
+                                <TableWrapper style={styles.wrapper}>
+                                    <Col
+                                        data={this.afternoon}
+                                        style={(isDark)? styles.titleDark: styles.title}
+                                        heightArr={[this.height, this.height, this.height, this.height]}
+                                        width={80}
+                                        textStyle={[styles.textTitle, { color: theme.colors.text }]}
+                                    />
+                                    <Rows
+                                        data={this.state.rows2}
+                                        widthArr={[this.width, this.width, this.width, this.width, this.width]}
+                                        heightArr={[this.height, this.height, this.height, this.height]}
+                                    />
+                                </TableWrapper>
+                            </Table>
                         </View>
                     </ScrollContent>
                     <DialogDetails ref={this.refDialogDetails} />
@@ -245,13 +256,20 @@ class ScrollContent extends PureComponent {
         super(props);
     }
     render(): React.ReactNode {
-        return(<View style={styles.content}>
+        return(<ScrollView>
+            <ScrollView horizontal={true}>
+                <ReactNativeZoomableViewWithGestures minZoom={1} maxZoom={3} zoomStep={3} visualTouchFeedbackEnabled={false}>
+                    {this.props.children}
+                </ReactNativeZoomableViewWithGestures>
+            </ScrollView>
+        </ScrollView>);
+        /*return(<View style={styles.content}>
             <ScrollView>
                 <ScrollView horizontal={true}>
                     {this.props.children}
                 </ScrollView>
             </ScrollView>
-        </View>);
+        </View>);*/
     }
 }
 
@@ -310,15 +328,18 @@ type IProps2 = {
     title: string;
     text: string;
     icon?: string;
+    viewStyle?: StyleProp<ViewStyle>;
 };
 class TextView extends PureComponent<IProps2> {
     constructor(props: IProps2) {
         super(props);
     }
     render(): React.ReactNode {
-        return(<View style={styles.itemContent}>
-            <Text style={styles.item0}>⦿</Text>
-            <Text style={styles.item1}>{`${this.props.title}:`}</Text>
+        return(<View style={[styles.itemContent, this.props.viewStyle]}>
+            <View style={styles.subItemContent}>
+                <Text style={styles.item0}>⦿</Text>
+                <Text style={styles.item1}>{`${this.props.title}:`}</Text>
+            </View>
             <Text style={styles.item2}>{this.props.text}</Text>
         </View>);
     }
@@ -381,8 +402,12 @@ const styles = StyleSheet.create({
     },
     itemContent: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         marginTop: 4
+    },
+    subItemContent: {
+        alignItems: 'center',
+        flexDirection: 'row'
     },
     item0: {
         marginLeft: 14
@@ -392,6 +417,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     item2: {
+        flex: 2,
         marginLeft: 2
     }
 });

@@ -19,6 +19,7 @@
     "@alessiocancian/react-native-actionsheet": "^3.1.2",
     "@kichiyaki/react-native-barcode-generator": "^0.6.7",
     "@notifee/react-native": "^5.7.0",
+    "@openspacelabs/react-native-zoomable-view": "^2.0.4",
     "@react-native-async-storage/async-storage": "^1.17.10",
     "@react-native-community/datetimepicker": "^6.3.4",
     "@react-native-firebase/app": "^15.6.0",

@@ -48,13 +48,22 @@ export default class FabPage2 extends PureComponent<IProps, IState> {
         this.setState({ visible });
     }
     render(): React.ReactNode {
-        return(<FAB
-            visible={this.state.visible}
-            icon={this.state.icon}
-            animated={true}
-            style={styles.fab}
-            onPress={(this.state.index == 0)? this.props.addNewTimes: this.props.addNewMatter}
-        />);
+        return(<>
+            <FAB
+                visible={this.state.index == 1 && this.state.visible}
+                icon={'magnify'}
+                animated={true}
+                small={true}
+                style={styles.fab2}
+            />
+            <FAB
+                visible={this.state.visible}
+                icon={this.state.icon}
+                animated={true}
+                style={styles.fab}
+                onPress={(this.state.index == 0)? this.props.addNewTimes: this.props.addNewMatter}
+            />
+        </>);
     }
 };
 
@@ -62,6 +71,13 @@ const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
         margin: 16,
+        right: 0,
+        bottom: 0
+    },
+    fab2: {
+        position: 'absolute',
+        marginRight: 24,
+        marginBottom: 88,
         right: 0,
         bottom: 0
     }

@@ -9,6 +9,7 @@ import ItemStudent from "../Components/Elements/CustomItem";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { urlBase } from "../Scripts/ApiTecnica";
 import { StudentsData } from "../Scripts/ApiTecnica/types";
+import { orderArray } from "../Scripts/Utils";
 
 type IProps = {
     openDetails: (data: StudentsData)=>any;
@@ -60,13 +61,14 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
         this.setState({ listShow: search });
     }
     goSearchForName({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
-        const formattedQuery = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trimStart().trimEnd();
+        /*const formattedQuery = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trimStart().trimEnd();
         const search = this.state.list.filter((user)=>{
             var name1 = decode(user.name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             const similarity = stringSimilarity.compareTwoStrings(name1, formattedQuery);
             return name1.indexOf(formattedQuery) !== -1 || parseFloat(similarity.toFixed(2)) > 0.3;
         });
-        this.setState({ listShow: search });
+        this.setState({ listShow: search });*/
+        this.setState({ listShow: orderArray(this.state.list, 'name', text) });
     }
     reSearch() {
         this.goSearch({

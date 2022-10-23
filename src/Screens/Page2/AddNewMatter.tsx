@@ -60,7 +60,10 @@ export default class AddNewMatter extends PureComponent<IProps, IState> {
             listTeachers: [{ id: '-1', name: encode('Cargando...') }],
             // Form
             formName: '',
-            formTeacher: '-1'
+            formTeacher: '-1',
+            // Erros
+            errorFormName: false,
+            errorFormTeacher: false
         }, this.close);
     }
 

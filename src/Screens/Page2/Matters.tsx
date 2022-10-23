@@ -202,7 +202,7 @@ type IState2 = {
     visible: boolean;
 };
 
-class DialogDeleteMatter extends PureComponent<IProps2, IState2> {
+export class DialogDeleteMatter extends PureComponent<IProps2, IState2> {
     constructor(props: IProps2) {
         super(props);
         this.state = {

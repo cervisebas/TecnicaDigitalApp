@@ -9,15 +9,21 @@ import { Drawer } from "./CustomDrawer";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
 import ImageLazyLoad from "./Elements/ImageLazyLoad";
 import RNFS from "react-native-fs";
+import { ThemeContext } from "./ThemeProvider";
+import Color from "color";
+import { isDateBetween } from "../Scripts/Utils";
 // Images
 import AnimationTop from "../Assets/DrawerAnims/anim1.webp";
 import AnimationTop1 from "../Assets/DrawerAnims/anim2.webp";
 import AnimationTop1Dark from "../Assets/DrawerAnims/anim2-dark.webp";
 import AnimationTop2 from "../Assets/DrawerAnims/anim3.webp";
 import AnimationTop3 from "../Assets/DrawerAnims/anim4.webp";
+import HalloweenAnimationTop1 from "../Assets/DrawerAnims/anim5.webp";
+import HalloweenAnimationTop2 from "../Assets/DrawerAnims/anim6.webp";
+import HalloweenAnimationTop3 from "../Assets/DrawerAnims/anim7.webp";
+import HalloweenAnimationTop4 from "../Assets/DrawerAnims/anim8.webp";
 import ProfilePicture from "../Assets/profile.webp";
-import { ThemeContext } from "./ThemeProvider";
-import Color from "color";
+import moment from "moment";
 //import ParticleBackground from "./ParticleBackground";
 
 type IState = {
@@ -76,7 +82,13 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     }
     changeBackgroundImage() {
         const { isDark } = this.context;
-        var random = Math.floor(Math.random() * (10 - 0) + 0);
+        const random = Math.floor(Math.random() * (10 - 0) + 0);
+        
+        /* ##### Halloween Animations ##### */
+        const isHalloween = isDateBetween('20/10', '31/10', moment().format('DD/MM'));
+        const startHalloween = Math.floor(Math.random() * (2 - 1) + 1);
+        if (isHalloween && startHalloween == 2) return this.changeBackgroundImageHalloween();
+
         if (random == 3 || random == 4) {
             this.numImage = 2;
             return this.setState({ backgroundImage: AnimationTop2 });
@@ -91,6 +103,22 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         }
         this.numImage = 0;
         this.setState({ backgroundImage: AnimationTop });
+    }
+    changeBackgroundImageHalloween() {
+        const random = Math.floor(Math.random() * (11 - 0) + 0);
+        if (random >= 1 && random <= 3) {
+            this.numImage = 4;
+            return this.setState({ backgroundImage: HalloweenAnimationTop1 });
+        }
+        if (random >= 4 && random <= 7) {
+            this.numImage = 5;
+            return this.setState({ backgroundImage: HalloweenAnimationTop2 });
+        }
+        if (random >= 8 && random <= 10) {
+            this.numImage = 5;
+            return this.setState({ backgroundImage: HalloweenAnimationTop3 });
+        }
+        return this.setState({ backgroundImage: HalloweenAnimationTop4 });
     }
     async loadData() {
         var userData = await Directive.getDataLocal();

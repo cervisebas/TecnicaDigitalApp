@@ -1,4 +1,5 @@
 import { decode } from "base-64";
+import moment from "moment";
 import stringSimilarity from "string-similarity";
 
 export function orderArray<T>(array: T[], value: string, text: string): T[] {
@@ -59,4 +60,10 @@ export function capitalizeString(str: string, lower?: boolean) {
 }
 export function capitalizeArrayString(arr: string[]): string[] {
     return arr.map((v)=>capitalizeString(v));
+}
+export function isDateBetween(dateFrom: string, dateTo: string, dateCheck: string) {
+    const from = moment(dateFrom, 'DD/MM').valueOf();
+    const to = moment(dateTo, 'DD/MM').valueOf();
+    const check = moment(dateCheck, 'DD/MM').valueOf();
+    return check >= from && check <= to;
 }

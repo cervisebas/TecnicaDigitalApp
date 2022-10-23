@@ -25,6 +25,10 @@ export function orderArray<T>(array: T[], value: string, text: string): T[] {
     const orderPrediction = prediction.sort(functionOrder);
     return orderPrediction.map((v)=>array[v.index]);
 }
+export function orderArrayAlphabeticallyTwo<T>(array: T[], value: string, value2: string): T[] {
+    return Object.values(array)
+        .sort((a: any, b: any)=>a[value][value2].localeCompare(b[value][value2]));
+}
 export function orderArraySingle<T>(array: T[], text: string, isEncode?: boolean): T[] {
     type prediction = { index: number; value: number; };
     function functionOrder(a: prediction, b: prediction) {

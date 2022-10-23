@@ -8,9 +8,10 @@ import { Matters } from "../../Scripts/ApiTecnica";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
 import EditMatter from "./EditMatter";
 import { ThemeContext } from "../../Components/ThemeProvider";
-import { orderArray } from "../../Scripts/Utils";
 import SelectorTeacher from "./SelectorTeacher";
 import SelectorMatter from "./SelectorMatter";
+import SearchMatter from "./SearchMatter";
+import { DialogDeleteMatter } from "./DialogDeleteMatter";
 
 type IProps = {
     handlerLoad: (status: boolean)=>any;
@@ -36,6 +37,8 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
         };
         this.loadData = this.loadData.bind(this);
         this.goDelete = this.goDelete.bind(this);
+        this._setDelete = this._setDelete.bind(this);
+        this.onEdit = this.onEdit.bind(this);
         this._refreshNow = this._refreshNow.bind(this);
         this._renderItem = this._renderItem.bind(this);
         this._goSnackbar = this._goSnackbar.bind(this);
@@ -53,6 +56,7 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
     private refEditMatter = createRef<EditMatter>();
     private refSelectorTeacher = createRef<SelectorTeacher>();
     private refSelectorMatter = createRef<SelectorMatter>();
+    public refSearchMatter = createRef<SearchMatter>();
 
     componentDidMount(): void {
         this.event = DeviceEventEmitter.addListener('p2-matters-reload', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
@@ -71,6 +75,7 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
                 .then((datas)=>{
                     this.setState({ datas, isLoading: false, isRefresh: false });
                     this.props.handlerLoad(true);
+                    this.refSearchMatter.current?.update();
                 })
                 .catch((error)=>this.setState({ isLoading: false, isError: true, messageError: error.cause }))
         );
@@ -87,6 +92,9 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
                 this.refCustomSnackbar.current?.open(error.cause);
                 this.props.goLoading(false);
             })
+    }
+    _setDelete(id: string) {
+        this.idDelete = id;
     }
     onDelete(id: string) {
         this.refDialogDelete.current?.open();
@@ -191,48 +199,16 @@ export default class Page2Matters extends PureComponent<IProps, IState> {
             />
             <SelectorTeacher ref={this.refSelectorTeacher} onSelect={this._updateTeacherAddMatter} />
             <SelectorMatter ref={this.refSelectorMatter} onSelect={this._updateMatterAddMatter} />
+
+            <SearchMatter
+                ref={this.refSearchMatter}
+                matters={this.state.datas}
+                isLoading={this.state.isLoading || this.state.isRefresh}
+                onEdit={this.onEdit}
+                setDelete={this._setDelete}
+                goDelete={this.goDelete}
+            />
         </View>);
-    }
-}
-
-type IProps2 = {
-    onConfirm: ()=>any;
-};
-type IState2 = {
-    visible: boolean;
-};
-
-export class DialogDeleteMatter extends PureComponent<IProps2, IState2> {
-    constructor(props: IProps2) {
-        super(props);
-        this.state = {
-            visible: false
-        };
-        this.close = this.close.bind(this);
-        this.confirm = this.confirm.bind(this);
-    }
-    open() {
-        this.setState({ visible: true });
-    }
-    close() {
-        this.setState({ visible: false });
-    }
-    confirm() {
-        this.setState({ visible: false }, this.props.onConfirm);
-    }
-    render(): React.ReactNode {
-        return(<Portal>
-            <Dialog visible={this.state.visible} onDismiss={this.close}>
-                <Dialog.Title>Espere por favor...</Dialog.Title>
-                <Dialog.Content>
-                    <Paragraph>{"¿Estás seguro que quieres realizar esta acción?\n\nUna vez borrado la materia, se eliminarán tambien todos los datos que contiene. Esta acción es irreversible."}</Paragraph>
-                </Dialog.Content>
-                <Dialog.Actions>
-                    <Button onPress={this.close}>Cancelar</Button>
-                    <Button onPress={this.confirm}>Aceptar</Button>
-                </Dialog.Actions>
-            </Dialog>
-        </Portal>);
     }
 }
 

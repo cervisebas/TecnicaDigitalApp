@@ -2,8 +2,9 @@ import React, { createRef, PureComponent } from "react";
 import { ListRenderItemInfo, NativeSyntheticEvent, Platform, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
 import CustomModal from "../../Components/CustomModal";
 import { ThemeContext } from "../../Components/ThemeProvider";
-import { Appbar, Avatar, Divider, List, overlay, Provider as PaperProvider } from "react-native-paper";
+import { Appbar, Avatar, Divider, List, overlay, Provider as PaperProvider, Text } from "react-native-paper";
 import { FlatList } from "react-native-gesture-handler";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { decode, encode } from "base-64";
 import { CustomSearchbar } from "../../Pages/SearchStudents";
 import { orderArray, removeItem } from "../../Scripts/Utils";
@@ -128,8 +129,9 @@ export default class SelectorTeacher extends PureComponent<IProps, IState> {
                             extraData={this.state}
                             keyExtractor={this._keyExtractor}
                             getItemLayout={this._getItemLayout}
-                            contentContainerStyle={{ paddingBottom: 12 }}
+                            contentContainerStyle={{ flex: (this.state.listShow.length == 0)? 2: undefined, paddingBottom: 12 }}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
+                            ListEmptyComponent={()=><View style={styles.emptyContent}><Icon name={'playlist-remove'} color={theme.colors.text} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningun docente</Text></View>}
                             renderItem={this._renderItem}
                         />
                     </View>
@@ -142,6 +144,12 @@ export default class SelectorTeacher extends PureComponent<IProps, IState> {
 const styles = StyleSheet.create({
     item: {
         height: 50
+    },
+    emptyContent: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column'
     },
     viewSearchbar: {
         marginTop: -8,

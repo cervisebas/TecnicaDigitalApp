@@ -5,6 +5,7 @@ import { FAB } from "react-native-paper";
 type IProps = {
     addNewMatter?: ()=>any;
     addNewTimes?: ()=>any;
+    openSearch?: ()=>any;
 };
 type IState = {
     visible: boolean;
@@ -55,6 +56,7 @@ export default class FabPage2 extends PureComponent<IProps, IState> {
                 animated={true}
                 small={true}
                 style={styles.fab2}
+                onPress={this.props.openSearch}
             />
             <FAB
                 visible={this.state.visible}

@@ -36,6 +36,7 @@ export default class Page2 extends Component<IProps, IState> {
         this._openMatterSelector = this._openMatterSelector.bind(this);
         this._updateTeacherAddMatter = this._updateTeacherAddMatter.bind(this);
         this._updateMatterAddMatter = this._updateMatterAddMatter.bind(this);
+        this._openSearchMatter = this._openSearchMatter.bind(this);
     }
     private tabOptions: MaterialTopTabNavigationOptions = {
         tabBarScrollEnabled: false,
@@ -51,6 +52,7 @@ export default class Page2 extends Component<IProps, IState> {
     private refOpenAddNewSchedule = createRef<OpenAddNewSchedule>();
     private refSelectorTeacher = createRef<SelectorTeacher>();
     private refSelectorMatter = createRef<SelectorMatter>();
+    private refPage2Matters = createRef<Page2Matters>();
 
     _setStatusMatterPage(status: boolean) {
         this.refFabPage2.current?.updateStatuses(2, status);
@@ -90,6 +92,9 @@ export default class Page2 extends Component<IProps, IState> {
     _updateMatterAddMatter(matter: string) {
         this.refAddNewMatter.current?.updateMatter(matter);
     }
+    _openSearchMatter() {
+        this.refPage2Matters.current?.refSearchMatter.current?.open();
+    }
 
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
@@ -103,13 +108,14 @@ export default class Page2 extends Component<IProps, IState> {
                     <View style={{ flex: 2 }}>
                         <Tab.Navigator initialRouteName={'Listas'} screenOptions={{ ...this.tabOptions, tabBarStyle: { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary } }} screenListeners={{ state: this._onChangeTab }}>
                             <Tab.Screen name={'Listas'} children={()=><Page2Lists handlerLoad={this._setStatusSchedulePage} goLoading={this._goLoading} />} />
-                            <Tab.Screen name={'Materias'} children={()=><Page2Matters handlerLoad={this._setStatusMatterPage} goLoading={this._goLoading} />} />
+                            <Tab.Screen name={'Materias'} children={()=><Page2Matters ref={this.refPage2Matters} handlerLoad={this._setStatusMatterPage} goLoading={this._goLoading} />} />
                         </Tab.Navigator>
                     </View>
                     <FabPage2
                         ref={this.refFabPage2}
                         addNewTimes={this._openAddSchedule}
                         addNewMatter={this._openAddNewMatter}
+                        openSearch={this._openSearchMatter}
                     />
                 </PaperProvider>
             </NavigationContainer>

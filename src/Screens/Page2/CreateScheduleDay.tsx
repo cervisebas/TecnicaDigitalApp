@@ -200,7 +200,7 @@ class ElementHour extends PureComponent<IProps2, IState2> {
                 <Picker.Item label={'Libre'} value={'none'} color={'#000000'} />
                 {this.props.matters.map((value, index)=><Picker.Item
                     key={index.toString()}
-                    label={`${decode(value.name)} - ${decode(value.teacher.name)}`}
+                    label={`${decode(value.teacher.name)} - ${decode(value.name)}`}
                     value={value.id}
                     color={'#000000'}
                 />)}
@@ -219,7 +219,7 @@ class ElementHour extends PureComponent<IProps2, IState2> {
                 <Picker.Item label={'- Seleccionar -'} value={''} color={'#000000'} />
                 {this.props.matters.map((value, index)=><Picker.Item
                     key={index.toString()}
-                    label={`${decode(value.name)} - ${decode(value.teacher.name)}`}
+                    label={`${decode(value.teacher.name)} - ${decode(value.name)}`}
                     value={value.id}
                     color={'#000000'}
                 />)}

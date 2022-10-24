@@ -19,6 +19,7 @@ function getHTML(curse: string, rows1: string[][], rows2: string[][]) {
                 left: 0;
                 width: 595px;
                 height: 842px;*/
+                position: relative;
                 width: 100%;
                 height: 100%;
                 overflow: visible;
@@ -88,6 +89,12 @@ function getHTML(curse: string, rows1: string[][], rows2: string[][]) {
             }
             table td p {
                 font-size: 12px;
+            }
+            h4#brand {
+                margin-top: 18px;
+                opacity: 0.6;
+                font-size: 18px;
+                color: #000000;
             }
         </style>
     </head>
@@ -180,6 +187,7 @@ function getHTML(curse: string, rows1: string[][], rows2: string[][]) {
                     <td><p class="matter">${rows2[3][4]}</p></td>
                 </tr>
             </table>
+            <h4 id="brand">SCApps Productions</h4>
         </div>
     </body>
     </html>`);

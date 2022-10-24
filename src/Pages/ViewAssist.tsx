@@ -7,7 +7,6 @@ import CustomModal from "../Components/CustomModal";
 import { Annotation, Assist, GeneratePDF, urlBase } from "../Scripts/ApiTecnica";
 import { AnnotationList, AssistUserData } from "../Scripts/ApiTecnica/types";
 import RNFS from "react-native-fs";
-import Theme from "../Themes";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { ThemeContext } from "../Components/ThemeProvider";
 

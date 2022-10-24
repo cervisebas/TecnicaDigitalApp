@@ -1,5 +1,5 @@
 import React, { createRef, PureComponent } from "react";
-import { ScrollView, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { PermissionsAndroid, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { Appbar, Button, Dialog, Portal, Text, TouchableRipple, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -7,6 +7,9 @@ import { DataSchedule, Matter, Schedule } from "../Scripts/ApiTecnica/types";
 import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
 import { decode } from "base-64";
 import { ReactNativeZoomableViewWithGestures } from "@openspacelabs/react-native-zoomable-view";
+import CreatePDFSchedule from "../Scripts/CreatePDFSchedule";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
+import FileViewer from "react-native-file-viewer";
 
 type IProps = {};
 type IState = {
@@ -26,6 +29,7 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
             curse: '0°0'
         };
         this.close = this.close.bind(this);
+        this.convertPDF = this.convertPDF.bind(this);
     }
     static contextType = ThemeContext;
     private days = ['', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
@@ -34,6 +38,10 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
     private height: number = 80;
     private width: number = 120;
     private refDialogDetails = createRef<DialogDetails>();
+    private refCustomSnackbar = createRef<CustomSnackbar>();
+
+    private row1PDF: string[][] = [];
+    private row2PDF: string[][] = [];
 
     private openDialog(isGroups: boolean, datas?: Schedule | Schedule[]) {
         if (isGroups) {
@@ -99,6 +107,7 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
         });
 
         const rows1_2: string[][] = [];
+        const _rows1_2: string[][] = [];
         const useIndex1: number[] = [];
         morning.forEach((data, index)=>{
             if (useIndex1.findIndex((v)=>v == index) !== -1) return;
@@ -110,22 +119,35 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
             var isGroup = group2 !== -1;
 
             var text: string | React.ReactNode = '';
+            var normalText: string = '';
             if (isGroup) {
                 text = this.getItemGroup(
                     data.group, (data.matter == 'none')? /*'Libre'*/'': decode(data.matter.name), data,
                     morning[group2].group, (morning[group2].matter == 'none')? /*'Libre'*/'': decode((morning[group2].matter as any).name), morning[group2]
                 );
+                normalText = `Grupo ${decode(data.group)}: ${(data.matter == 'none')? '': decode(data.matter.name)}<br>Grupo ${morning[group2].group}: ${(morning[group2].matter == 'none')? '': decode((morning[group2].matter as Matter).name)}`;
                 useIndex1.push(group2);
-            } else text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
+            } else {
+                text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
+                normalText = `${(data.matter == 'none')? '': decode(data.matter.name)}`;
+            }
 
             if (rows1_2[dayIndex] == undefined) {
                 const newArray: string[] = [];
                 newArray[timeIndex] = text as any;
-                return rows1_2[dayIndex] = newArray;
+                rows1_2[dayIndex] = newArray;
+                
+                const newArray2: string[] = [];
+                newArray2[timeIndex] = normalText;
+                _rows1_2[dayIndex] = newArray2;
+                
+                return;
             }
             rows1_2[dayIndex][timeIndex] = text as any;
+            _rows1_2[dayIndex][timeIndex] = normalText;
         });
         const rows1: string[][] = [];
+        const _rows1: string[][] = [];
         for (let i = 0; i < 4; i++) {
             rows1[i] = [
                 rows1_2[0][i],
@@ -134,9 +156,17 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
                 rows1_2[3][i],
                 rows1_2[4][i]
             ];
+            _rows1[i] = [
+                _rows1_2[0][i],
+                _rows1_2[1][i],
+                _rows1_2[2][i],
+                _rows1_2[3][i],
+                _rows1_2[4][i]
+            ];
         }
 
         const rows2_2: string[][] = [];
+        const _rows2_2: string[][] = [];
         const useIndex2: number[] = [];
         afternoon.forEach((data, index)=>{
             if (useIndex2.findIndex((v)=>v == index) !== -1) return;
@@ -148,22 +178,35 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
             var isGroup = group2 !== -1;
 
             var text: string | React.ReactNode = '';
+            var normalText: string = '';
             if (isGroup) {
                 text = this.getItemGroup(
                     data.group, (data.matter == 'none')? /*'Libre'*/'': decode(data.matter.name), data,
                     afternoon[group2].group, (afternoon[group2].matter == 'none')? /*'Libre'*/'': decode((afternoon[group2].matter as any).name), afternoon[group2]
                 );
+                normalText = `Grupo ${decode(data.group)}: ${(data.matter == 'none')? '': decode(data.matter.name)}<br>Grupo ${morning[group2].group}: ${(morning[group2].matter == 'none')? '': decode((morning[group2].matter as Matter).name)}`;
                 useIndex2.push(group2);
-            } else text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
+            } else {
+                text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
+                normalText = `${(data.matter == 'none')? '': decode(data.matter.name)}`;
+            }
 
             if (rows2_2[dayIndex] == undefined) {
                 const newArray: string[] = [];
                 newArray[timeIndex] = text as any;
-                return rows2_2[dayIndex] = newArray;
+                rows2_2[dayIndex] = newArray;
+
+                const newArray2: string[] = [];
+                newArray2[timeIndex] = normalText;
+                _rows2_2[dayIndex] = newArray2;
+
+                return;
             }
             rows2_2[dayIndex][timeIndex] = text as any;
+            _rows2_2[dayIndex][timeIndex] = normalText;
         });
         const rows2: string[][] = [];
+        const _rows2: string[][] = [];
         for (let i = 0; i < 4; i++) {
             rows2[i] = [
                 rows2_2[0][i],
@@ -172,9 +215,34 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
                 rows2_2[3][i],
                 rows2_2[4][i]
             ];
+            _rows2[i] = [
+                _rows2_2[0][i],
+                _rows2_2[1][i],
+                _rows2_2[2][i],
+                _rows2_2[3][i],
+                _rows2_2[4][i]
+            ];
         }
 
+        this.row1PDF = _rows1;
+        this.row2PDF = _rows2;
         this.setState({ rows1, rows2 });
+    }
+    async convertPDF() {
+        try {
+            const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+                title: "Atención",
+                message: "Para guardar la imagen se necesita acceder al almacenamiento de su dispositivo, por favor acepte los permisos que se requieren.",
+                buttonNegative: "Cancelar",
+                buttonPositive: "Aceptar"
+            });
+            if (permission == PermissionsAndroid.RESULTS.DENIED) return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
+            const path = await CreatePDFSchedule(this.state.curse, this.row1PDF, this.row2PDF);
+            FileViewer.open(path, { showOpenWithDialog: true, showAppsSuggestions: true })
+                .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'))
+        } catch {
+            this.refCustomSnackbar.current?.open('Ocurrió un error inesperado durante el proceso.');
+        }
     }
 
     // Controller
@@ -195,6 +263,7 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
                         <Appbar.Content title={`Horario ${this.state.curse}`} />
+                        <Appbar.Action icon={'file-pdf-box'} onPress={this.convertPDF} />
                     </Appbar.Header>
                     <ScrollContent>
                         <View style={styles.container}>
@@ -245,6 +314,7 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
                         </View>
                     </ScrollContent>
                     <DialogDetails ref={this.refDialogDetails} />
+                    <CustomSnackbar ref={this.refCustomSnackbar} />
                 </View>
             </PaperProvider>
         </CustomModal>);

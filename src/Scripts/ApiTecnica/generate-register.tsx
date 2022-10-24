@@ -1,7 +1,6 @@
 import { Image } from "react-native";
 import { decode } from "base-64";
 import RNHTMLtoPDF from "react-native-html-to-pdf";
-import RNFS from "react-native-fs";
 
 type student = {
     name: string;

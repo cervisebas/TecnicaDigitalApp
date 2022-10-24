@@ -1,5 +1,5 @@
 import React, { createRef, PureComponent } from "react";
-import { PermissionsAndroid, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { PermissionsAndroid, ScrollView, StyleProp, StyleSheet, ToastAndroid, View, ViewStyle } from "react-native";
 import { Appbar, Button, Dialog, Portal, Text, TouchableRipple, Provider as PaperProvider } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -10,6 +10,7 @@ import { ReactNativeZoomableViewWithGestures } from "@openspacelabs/react-native
 import CreatePDFSchedule from "../Scripts/CreatePDFSchedule";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import FileViewer from "react-native-file-viewer";
+import RNFS from "react-native-fs";
 
 type IProps = {};
 type IState = {
@@ -238,6 +239,9 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
             });
             if (permission == PermissionsAndroid.RESULTS.DENIED) return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
             const path = await CreatePDFSchedule(this.state.curse, this.row1PDF, this.row2PDF);
+            RNFS.copyFile(path, `${RNFS.DownloadDirectoryPath}/Horarios ${this.state.curse}.pdf`)
+                .then(()=>ToastAndroid.show('El archivo se copio correctamente en la carpeta de descargas', ToastAndroid.SHORT))
+                .catch(()=>ToastAndroid.show('Ocurrió un error al copiar el archivo a la carpeta de descargas', ToastAndroid.SHORT));
             FileViewer.open(path, { showOpenWithDialog: true, showAppsSuggestions: true })
                 .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'))
         } catch {

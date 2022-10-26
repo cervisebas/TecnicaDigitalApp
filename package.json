@@ -9,7 +9,6 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "sync": "node sync-git.js",
-    "gensplash": "node create-splash-images.js",
     "clean": "cd android && ./gradlew clean && cd ..",
     "buildRelease": "cd android && ./gradlew bundleRelease && cd ..",
     "openapp": "adb shell am start -n com.tecnicadigital/com.tecnicadigital.MainActivity"

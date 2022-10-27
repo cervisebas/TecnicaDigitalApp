@@ -79,9 +79,11 @@ export default class ViewDetails extends Component<IProps, IState> {
     loadAssist() {
         var id = '';
         for (let i = 0; i < 5 - this.state.data!.id.length; i++) { id += '0'; }
+        const actualID: number = parseInt(this.state.data.id);
         this.setState({ isLoadAssist: true, idStudent: `#${id}${this.state.data!.id}` }, ()=>
             Assist.getIndividual(this.state.data?.id!)
                 .then((data)=>{
+                    if (actualID.toString() !== this.state.data.id) return;
                     var assists: number = 0;
                     var notAssists: number = 0;
                     data.forEach((v)=>(v.status)? assists += 1: notAssists += 1);
@@ -104,7 +106,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.refCustomSnackbar.current?.open('La lista de asistencia está vacía.');
     }
     closeAndClear() {
-        if (this.state.isLoadAssist) return ToastAndroid.show('No se puede cerrar esta ventana en este momento.', ToastAndroid.SHORT);
+        //if (this.state.isLoadAssist) return ToastAndroid.show('No se puede cerrar esta ventana en este momento.', ToastAndroid.SHORT);
         this.setState({
             isLoadAssist: false,
             dataAssist: [],

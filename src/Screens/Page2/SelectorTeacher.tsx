@@ -42,8 +42,6 @@ export default class SelectorTeacher extends PureComponent<IProps, IState> {
         this.close = this.close.bind(this);
     }
     static contextType = ThemeContext;
-    // Ref's
-    private refSearchBar = createRef<CustomSearchbar>();
 
     goSearch({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
         const processList = removeItem(this.state.listTeachers, 0);
@@ -66,6 +64,7 @@ export default class SelectorTeacher extends PureComponent<IProps, IState> {
     }
     _renderItem({ item }: ListRenderItemInfo<{ id: string; name: string; }>) {
         return(<List.Item
+            key={`item-selector-teacher-${item.id}`}
             style={styles.item}
             title={decode(item.name)}
             onPress={()=>this.select(item.id)}
@@ -117,9 +116,9 @@ export default class SelectorTeacher extends PureComponent<IProps, IState> {
                     <View style={{ flex: 3 }}>
                         <View style={[styles.viewSearchbar, { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary, borderBottomColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary }]}>
                             <CustomSearchbar
-                                ref={this.refSearchBar}
                                 visible={this.state.visible}
                                 disableTextExamples={true}
+                                disableAutoFocus={true}
                                 onEmpty={this._onEmpty}
                                 onSubmit={this.goSearch}
                             />

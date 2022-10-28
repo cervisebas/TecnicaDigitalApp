@@ -180,6 +180,7 @@ class ListEmpty extends PureComponent {
 type IProps2 = {
     visible: boolean;
     disableTextExamples?: boolean;
+    disableAutoFocus?: boolean;
     onEmpty: ()=>any;
     onSubmit: (event: NativeSyntheticEvent<TextInputSubmitEditingEventData>)=>any;
 };
@@ -246,7 +247,7 @@ export class CustomSearchbar extends PureComponent<IProps2, IState2> {
         const { isDark, theme } = this.context;
         return(<Searchbar
             ref={this.ref}
-            autoFocus={true}
+            autoFocus={(this.props.disableAutoFocus)? false: true}
             value={this.state.searchQuery}
             style={[styles.searchbar, (isDark)? { backgroundColor: theme.colors.background }: undefined]}
             placeholder={this.state.placeholder}

@@ -33,8 +33,6 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
         this.close = this.close.bind(this);
     }
     static contextType = ThemeContext;
-    // Ref's
-    private refSearchBar = createRef<CustomSearchbar>();
 
     goSearch({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
         this.setState({
@@ -65,8 +63,9 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
     _keyExtractor(_item: string, index: number) {
         return `item-selector-matter-${index}`;
     }
-    _renderItem({ item }: ListRenderItemInfo<string>) {
+    _renderItem({ item, index }: ListRenderItemInfo<string>) {
         return(<List.Item
+            key={`item-selector-matter-${index}`}
             style={styles.item}
             title={item}
             onPress={()=>this.select(item)}
@@ -113,9 +112,9 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
                     <View style={{ flex: 3 }}>
                         <View style={[styles.viewSearchbar, { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary, borderBottomColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary }]}>
                             <CustomSearchbar
-                                ref={this.refSearchBar}
                                 visible={this.state.visible}
                                 disableTextExamples={true}
+                                disableAutoFocus={true}
                                 onEmpty={this._onEmpty}
                                 onSubmit={this.goSearch}
                             />

@@ -6,7 +6,7 @@ import { Appbar, Divider, IconButton, List, overlay, ProgressBar, Provider as Pa
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { FlatList } from "react-native-gesture-handler";
 import { CustomSearchbar } from "../../Pages/SearchStudents";
-import { orderArray, orderArrayAlphabeticallyTwo, orderArraySingle } from "../../Scripts/Utils";
+import { orderArray, orderArrayAlphabeticallyTwo, orderArraySingle, waitTo } from "../../Scripts/Utils";
 import { Matter } from "../../Scripts/ApiTecnica/types";
 import { decode } from "base-64";
 import { DialogDeleteMatter } from "./DialogDeleteMatter";
@@ -22,6 +22,7 @@ type IState = {
     visible: boolean;
     activeFilter: boolean;
     listShow: Matter[];
+    loadingFilter: boolean;
 };
 
 export default class SearchMatter extends PureComponent<IProps, IState> {
@@ -30,7 +31,8 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
         this.state = {
             visible: false,
             activeFilter: false,
-            listShow: []
+            listShow: [],
+            loadingFilter: false
         };
         this.goSearch = this.goSearch.bind(this);
         this._onEmpty = this._onEmpty.bind(this);
@@ -76,6 +78,7 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
         return(<List.Item
             key={`matter-item-${item.id}-teacher-${item.teacher.id}`}
             title={decode(item.name)}
+            titleNumberOfLines={2}
             description={(item.teacher.id == '-1')? "Sin profesor": decode(item.teacher.name)}
             style={styles.item}
             descriptionStyle={styles.itemDescription}
@@ -85,19 +88,21 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
                     {...props}
                     icon={'pencil-outline'}
                     onPress={()=>this.props.onEdit(item)}
+                    disabled={this.state.loadingFilter}
                 />
                 <IconButton
                     {...props}
                     icon={'delete-outline'}
                     onPress={()=>this.onDelete(item.id)}
+                    disabled={this.state.loadingFilter}
                 />
             </>}
         />);
     }
     _getItemLayout(_data: Matter[] | null | undefined, index: number) {
         return {
-            length: 64,
-            offset: 64 * index,
+            length: 68,
+            offset: 68 * index,
             index
         };
     }
@@ -105,9 +110,14 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
         return(<Divider />);
     }
     controlFilter() {
-        if (this.isFilter) this.isFilter = false; else this.isFilter = true;
-        this.setState({ activeFilter: this.isFilter });
-        this.update();
+        if (this.state.loadingFilter) return;
+        this.setState({ loadingFilter: true }, async()=>{
+            if (this.isFilter) this.isFilter = false; else {
+                this.isFilter = true;
+                await waitTo(512);
+            }
+            this.setState({ activeFilter: this.isFilter, loadingFilter: false }, this.update);
+        });
     }
 
     // Controller
@@ -139,7 +149,11 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} borderless={Platform.Version > 25} />
                         <Appbar.Content title={'Buscar materia'} />
-                        <Appbar.Action icon={(this.state.activeFilter)? 'filter-outline': 'filter-off-outline'} onPress={this.controlFilter} />
+                        <Appbar.Action
+                            icon={(this.state.activeFilter)? 'filter-outline': 'filter-off-outline'}
+                            disabled={this.state.loadingFilter}
+                            onPress={this.controlFilter}
+                        />
                     </Appbar.Header>
                     <View style={{ flex: 3 }}>
                         <View style={[styles.viewSearchbar, { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary, borderBottomColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary }]}>
@@ -151,7 +165,11 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
                                 onSubmit={this.goSearch}
                             />
                         </View>
-                        <ProgressBar indeterminate={true} style={{ opacity: (this.props.isLoading)? 1: 0 }} />
+                        <ProgressBar
+                            indeterminate={true}
+                            style={{ opacity: (this.props.isLoading || this.state.loadingFilter)? 1: 0 }}
+                            color={(!isDark)? theme.colors.accent: undefined}
+                        />
                         <FlatList
                             data={this.state.listShow}
                             extraData={this.state}
@@ -172,7 +190,7 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
 
 const styles = StyleSheet.create({
     item: {
-        height: 64
+        height: 68
     },
     viewSearchbar: {
         marginTop: -8,

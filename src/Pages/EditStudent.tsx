@@ -18,6 +18,7 @@ import ImageProfile from "../Assets/profile.webp";
 
 type IProps = {
     goEditActionSheet: ()=>any;
+    showSnackbar: (message: string)=>any;
 };
 type IState = {
     visible: boolean;
@@ -254,7 +255,8 @@ export default class EditStudent extends Component<IProps, IState> {
                 if (!verify) return this.setState({ isLoading: false }, ()=>this.refCustomSnackbar.current?.open('Por favor revise los datos ingresados.'));
                 Student.modify(form).then(()=>{
                     const snack: string = (this.state.formCourse == 'Docente')? 'Docente editado con exito.': 'Estudiante editado con exito.';
-                    this.refCustomSnackbar.current?.open(snack);
+                    this.props.showSnackbar(snack);
+                    //this.refCustomSnackbar.current?.open(snack);
                     this.setState({
                         isLoading: false,
                         formName: '',

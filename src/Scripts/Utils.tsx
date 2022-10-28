@@ -26,8 +26,10 @@ export function orderArray<T>(array: T[], value: string, text: string): T[] {
     return orderPrediction.map((v)=>array[v.index]);
 }
 export function orderArrayAlphabeticallyTwo<T>(array: T[], value: string, value2: string): T[] {
-    return Object.values(array)
-        .sort((a: any, b: any)=>a[value][value2].localeCompare(b[value][value2]));
+    function funct(a: any, b: any) {
+        return a[value][value2].localeCompare(b[value][value2]);
+    }
+    return Object.values(array).sort(funct);
 }
 export function orderArraySingle<T>(array: T[], text: string, isEncode?: boolean): T[] {
     type prediction = { index: number; value: number; };
@@ -70,4 +72,7 @@ export function isDateBetween(dateFrom: string, dateTo: string, dateCheck: strin
     const to = moment(dateTo, 'DD/MM').valueOf();
     const check = moment(dateCheck, 'DD/MM').valueOf();
     return check >= from && check <= to;
+}
+export function waitTo(time: number): Promise<void> {
+    return new Promise((resolve)=>setTimeout(resolve, time));
 }

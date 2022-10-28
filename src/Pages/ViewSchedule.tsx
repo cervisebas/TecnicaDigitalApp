@@ -239,7 +239,7 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
             });
             if (permission == PermissionsAndroid.RESULTS.DENIED) return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
             const path = await CreatePDFSchedule(this.state.curse, this.row1PDF, this.row2PDF);
-            RNFS.copyFile(path, `${RNFS.DownloadDirectoryPath}/Horarios ${this.state.curse}.pdf`)
+            RNFS.copyFile(path, `${RNFS.DownloadDirectoryPath}/horarios-${this.state.curse.replace('°', '-')}.pdf`)
                 .then(()=>ToastAndroid.show('El archivo se copio correctamente en la carpeta de descargas', ToastAndroid.SHORT))
                 .catch(()=>ToastAndroid.show('Ocurrió un error al copiar el archivo a la carpeta de descargas', ToastAndroid.SHORT));
             FileViewer.open(path, { showOpenWithDialog: true, showAppsSuggestions: true })

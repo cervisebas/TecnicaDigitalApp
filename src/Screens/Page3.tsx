@@ -68,6 +68,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
         this._setIndexActionSheet2 = this._setIndexActionSheet2.bind(this);
         this._openActionSheet2 = this._openActionSheet2.bind(this);
         this._onChangeCurseInGenerateMultipleCredentials = this._onChangeCurseInGenerateMultipleCredentials.bind(this);
+        this._showSnackbar = this._showSnackbar.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -250,6 +251,10 @@ export default class Page3 extends PureComponent<IProps, IState> {
         const setDesign = (designIsVip)? (isVip)? this.designCardElection: undefined: this.designCardElection;
         this.designCardElection2 = setDesign;
     }
+    _showSnackbar(message: string, visible?: boolean) {
+        if (visible == false) return this.refCustomSnackbar.current?.close();
+        this.refCustomSnackbar.current?.open(message);
+    }
 
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
@@ -355,6 +360,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
                 />
                 <EditStudent
                     ref={this.refEditStudent}
+                    showSnackbar={this._showSnackbar}
                     goEditActionSheet={this._openActionSheet2}
                 />
                 <ViewDetails

@@ -1,4 +1,4 @@
-import React, { createRef, PureComponent } from "react";
+import React, { PureComponent } from "react";
 import { ListRenderItemInfo, NativeSyntheticEvent, Platform, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
 import CustomModal from "../../Components/CustomModal";
 import { ThemeContext } from "../../Components/ThemeProvider";
@@ -63,26 +63,23 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
     _keyExtractor(_item: string, index: number) {
         return `item-selector-matter-${index}`;
     }
+    _leftItem(props: { color: string; style: { marginLeft: number; marginRight: number; marginVertical?: number | undefined; }; }) {
+        return(<Avatar.Icon
+            {...props}
+            size={36}
+            color={'#FFFFFF'}
+            icon={'google-classroom'}
+        />);
+    }
     _renderItem({ item, index }: ListRenderItemInfo<string>) {
         return(<List.Item
             key={`item-selector-matter-${index}`}
             style={styles.item}
             title={item}
+            titleNumberOfLines={2}
             onPress={()=>this.select(item)}
-            left={(props)=><Avatar.Icon
-                {...props}
-                size={36}
-                color={'#FFFFFF'}
-                icon={'google-classroom'}
-            />}
+            left={this._leftItem}
         />);
-    }
-    _getItemLayout(_data: string[] | null | undefined, index: number) {
-        return {
-            length: 50,
-            offset: 50 * index,
-            index
-        };
     }
     _ItemSeparatorComponent() {
         return(<Divider />);
@@ -123,7 +120,6 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
                             data={this.state.listShow}
                             extraData={this.state}
                             keyExtractor={this._keyExtractor}
-                            getItemLayout={this._getItemLayout}
                             contentContainerStyle={{ flex: (this.state.listShow.length == 0)? 2: undefined, paddingBottom: 12 }}
                             ItemSeparatorComponent={this._ItemSeparatorComponent}
                             ListEmptyComponent={()=><View style={styles.emptyContent}><Icon name={'playlist-remove'} color={theme.colors.text} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ninguna materia</Text></View>}
@@ -137,9 +133,7 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
 }
 
 const styles = StyleSheet.create({
-    item: {
-        height: 50
-    },
+    item: {},
     emptyContent: {
         flex: 1,
         alignItems: 'center',

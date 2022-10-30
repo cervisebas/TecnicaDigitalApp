@@ -1,4 +1,4 @@
-import React, { createRef, PureComponent } from "react";
+import React, { PureComponent } from "react";
 import { ListRenderItemInfo, NativeSyntheticEvent, Platform, StyleSheet, TextInputSubmitEditingEventData, View } from "react-native";
 import CustomModal from "../../Components/CustomModal";
 import { ThemeContext } from "../../Components/ThemeProvider";

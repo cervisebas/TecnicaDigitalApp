@@ -6,7 +6,7 @@ import { Appbar, Divider, IconButton, List, overlay, ProgressBar, Provider as Pa
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { FlatList } from "react-native-gesture-handler";
 import { CustomSearchbar } from "../../Pages/SearchStudents";
-import { orderArray, orderArrayAlphabeticallyTwo, orderArraySingle, waitTo } from "../../Scripts/Utils";
+import { orderArray, orderArrayAlphabeticallyTwo, waitTo } from "../../Scripts/Utils";
 import { Matter } from "../../Scripts/ApiTecnica/types";
 import { decode } from "base-64";
 import { DialogDeleteMatter } from "./DialogDeleteMatter";

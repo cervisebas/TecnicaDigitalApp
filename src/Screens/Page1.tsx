@@ -23,6 +23,7 @@ import SetGroup from "../Pages/SetGroup";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../Components/ThemeProvider";
 import color from "color";
+import { isTempSession } from "../Scripts/ApiTecnica/tempsession";
 
 type IProps = {
     navigation: any;
@@ -115,7 +116,8 @@ export default class Page1 extends Component<IProps, IState> {
             Groups.getAll().then((groups)=>
                 Assist.getGroups()
                     .then(async(v)=>{
-                        messaging().subscribeToTopic("directives");
+                        const isSessionTemp = await isTempSession();
+                        if (!isSessionTemp) messaging().subscribeToTopic("directives");
                         if (this._isMount) {
                             const dataGroups = await this.filterData(v);
                             const noConfirm = dataGroups.filter((value)=>value.status !== '1').length;

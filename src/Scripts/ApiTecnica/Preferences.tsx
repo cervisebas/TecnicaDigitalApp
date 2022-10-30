@@ -5,6 +5,7 @@ import moment from "moment";
 import qs from "qs";
 import { DirectiveData, PreferencesAssist, TypicalRes } from "./types";
 import notifee, { AndroidImportance, AndroidVisibility } from "@notifee/react-native";
+import { getTempSession, isTempSession } from "./tempsession";
 
 export default class PreferencesSystem {
     private urlBase: string = '';
@@ -67,8 +68,10 @@ export default class PreferencesSystem {
         });
         return !!find;
     }
-    private getDataLocal(): Promise<DirectiveData> {
+    getDataLocal(): Promise<DirectiveData> {
         return new Promise(async(resolve, reject)=>{
+            const isTemp = await isTempSession();
+            if (isTemp) return resolve(await getTempSession());
             AsyncStorage.getItem('DataSession').then((value)=>{
                 try {
                     if (!value) return reject({ ok: false, cause: 'No se encontraron datos de inicio de sesión. '});

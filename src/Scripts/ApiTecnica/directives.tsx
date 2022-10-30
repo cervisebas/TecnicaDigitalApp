@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode, encode } from "base-64";
 import axios from "axios";
 import qs from "qs";
+import { getTempSession, isTempSession, setTempSession } from "./tempsession";
 
 export default class DirectiveSystem {
     private urlBase: string = '';
@@ -13,14 +14,18 @@ export default class DirectiveSystem {
     }
 
     public openSession: boolean = false;
-    open(username: string, password: string): Promise<boolean> {
+    open(username: string, password: string, temp?: boolean): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
                 var postData = { openSessionDirectives: '1', username: encode(username), password: encode(password) };
                 axios.post(`${this.urlBase}/index.php`, qs.stringify(postData), this.header_access).then(async(value)=>{
                     var result: ResponseDirectiveData = value.data;
                     if (result.ok) {
-                        (result.datas) && await this.saveDataLocal(result.datas);
+                        if (result.datas)
+                            if (temp)
+                                setTempSession(result.datas);
+                            else
+                                await this.saveDataLocal(result.datas);
                         this.openSession = true;
                         return resolve(true);
                     }
@@ -37,6 +42,8 @@ export default class DirectiveSystem {
     }
     getDataLocal(): Promise<DirectiveData> {
         return new Promise(async(resolve, reject)=>{
+            const isTemp = await isTempSession();
+            if (isTemp) return resolve(await getTempSession());
             AsyncStorage.getItem('DataSession').then((value)=>{
                 try {
                     if (!value) return reject({ ok: false, cause: 'No se encontraron datos de inicio de sesión. '});
@@ -48,16 +55,17 @@ export default class DirectiveSystem {
         });
     }
     verify() {
-        return new Promise((resolve, reject)=>{
+        return new Promise(async(resolve, reject)=>{
+            const isTemp = await isTempSession();
             this.getDataLocal().then((local)=>
-                this.open(decode(local.username), decode(local.password))
+                this.open(decode(local.username), decode(local.password), isTemp)
                     .then(()=>resolve(true))
                     .catch((e)=>reject({ ok: false, relogin: e.relogin, cause: e.cause }))
             ).catch((error)=>reject({ ok: false, relogin: true, cause: error.cause }));
         });
     }
     async closeSession() {
-        await AsyncStorage.multiRemove(['DataSession', 'DataSession', 'PreferencesAssist'])
+        await AsyncStorage.multiRemove(['DataSession', 'DataSession', 'PreferencesAssist']);
     }
 
     /* ########################################################################### */

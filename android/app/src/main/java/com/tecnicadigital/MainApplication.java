@@ -32,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new MyReactNativePackage());
           packages.add(new SharedStoragePackager());
           packages.add(new ThemeModePackager());
+          packages.add(new TempSessionPackager());
           return packages;
         }
 

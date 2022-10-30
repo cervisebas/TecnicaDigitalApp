@@ -1,10 +1,12 @@
 import React, { Component, createRef, PureComponent } from "react";
-import { Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet, BackHandler } from "react-native";
-import { Text, TextInput, Button, Colors, Snackbar, IconButton } from "react-native-paper";
+import { Keyboard, StyleProp, TouchableWithoutFeedback, View, ViewStyle, TextInput as NativeTextInput, StyleSheet, BackHandler, Pressable, Platform } from "react-native";
+import { Text, TextInput, Button, Colors, Snackbar, IconButton, Checkbox } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { Directive, Family } from "../Scripts/ApiTecnica";
 import CustomBackgroundSession from "../Components/CustomBackgroundSession";
 import { ThemeContext } from "../Components/ThemeProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import DeviceInfo from "react-native-device-info";
 
 type IProps = {
     reVerifySession: ()=>any;
@@ -14,6 +16,7 @@ type IState = {
     // Form
     formUserName: string;
     formPassword: string;
+    formTemporal: boolean;
     // Errors
     formErrorUserName: boolean;
     formErrorPassword: boolean;
@@ -40,6 +43,7 @@ export default class Session extends Component<IProps, IState> {
             // Forms
             formUserName: '',
             formPassword: '',
+            formTemporal: false,
             // Errors
             formErrorUserName: false,
             formErrorPassword: false,
@@ -61,6 +65,7 @@ export default class Session extends Component<IProps, IState> {
         this.changePanel = this.changePanel.bind(this);
         this.student_changeTextDNI = this.student_changeTextDNI.bind(this);
         this.goLogInStudent = this.goLogInStudent.bind(this);
+        this._onChangeTemp = this._onChangeTemp.bind(this);
     }
     private input1 = createRef<NativeTextInput>();
     private input2 = createRef<NativeTextInput>();
@@ -68,8 +73,9 @@ export default class Session extends Component<IProps, IState> {
     logInNow() {
         if (!this.verifyInputs()) return;
         this.setState({ isLoading: true }, ()=>
-            Directive.open(this.state.formUserName, this.state.formPassword)
+            Directive.open(this.state.formUserName, this.state.formPassword, this.state.formTemporal)
                 .then(()=>this.setState({ isLoading: false }, async()=>{
+                    await AsyncStorage.multiRemove(['DataSession', 'DataSession', 'PreferencesAssist']);
                     this.props.reVerifySession();
                     setTimeout(()=>this.setState({
                         formUserName: '',
@@ -82,7 +88,7 @@ export default class Session extends Component<IProps, IState> {
                     isLoading: false,
                     snackbarShow: true,
                     snackbarText: value.cause
-                }))
+                }, ()=>console.log(value)))
         );
     }
     componentDidUpdate() {
@@ -142,9 +148,18 @@ export default class Session extends Component<IProps, IState> {
     }
     /* ############ */
 
+    _onChangeTemp() {
+        this.setState({ formTemporal: !this.state.formTemporal });
+    }
+
     // Controller
-    open() {
-        this.setState({ visible: true });
+    async open() {
+        const autoSessionTemp = DeviceInfo.isTablet() || await DeviceInfo.isEmulator();
+        if (autoSessionTemp) this.setState({ snackbarShow: true, snackbarText: 'Dispositivo detectado: se activó la sesión temporal.' });
+        this.setState({
+            visible: true,
+            formTemporal: autoSessionTemp
+        });
     }
     close() {
         this.setState({ visible: false });
@@ -214,6 +229,23 @@ export default class Session extends Component<IProps, IState> {
                                     }}
                                 />}
                             />
+                            <Pressable style={{ flexDirection: 'row', marginTop: 4, alignItems: 'center' }} onPress={this._onChangeTemp}>
+                                <Checkbox
+                                    status={(this.state.formTemporal)? 'checked': 'unchecked'}
+                                    color={theme.colors.primary}
+                                    onPress={this._onChangeTemp}
+                                />
+                                <Text
+                                    style={(!isDark)? {
+                                        textShadowColor: 'rgba(255, 255, 255, 0.75)',
+                                        textShadowOffset: {
+                                            width: -1,
+                                            height: 1
+                                        },
+                                        textShadowRadius: 4
+                                    }: undefined}
+                                >Sesión temporal</Text>
+                            </Pressable>
                             <View style={{ width: '100%', alignItems: 'center', marginTop: 16 }}>
                                 <Button
                                     mode={'contained'}

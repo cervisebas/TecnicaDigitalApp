@@ -14,10 +14,10 @@ import android.util.Log;
 public class MainActivity extends ReactActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    this.clearSessionTemp();
     // ThemeMode
     SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ThemePref", Context.MODE_PRIVATE);
     String appTheme = sharedPref.getString("appTheme", "default");
-    //getTheme().applyStyle((appTheme.equals("dark"))? R.style.BootThemeDark: R.style.BootTheme, true);
     setTheme((appTheme.equals("dark"))? R.style.AppThemeDark: R.style.AppThemeLight);
 
     SplashScreen.show(this, (appTheme.equals("dark"))? R.style.SplashScreenThemeDark: R.style.SplashScreenThemeLight, false);
@@ -25,10 +25,19 @@ public class MainActivity extends ReactActivity {
     //super.onCreate(savedInstanceState);
     super.onCreate(null);
   }
-  public void updateTheme() {
-    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("ThemePref", Context.MODE_PRIVATE);
-    String appTheme = sharedPref.getString("appTheme", "default");
-    setTheme((appTheme.equals("dark"))? R.style.AppThemeDark: R.style.AppThemeLight);
+  @Override
+  protected void onDestroy() {
+    this.clearSessionTemp();
+    super.onDestroy(null);
+  }
+
+  private void clearSessionTemp() {
+    // TempSession
+    SharedPreferences sessionPref = getApplicationContext().getSharedPreferences("TempSession", Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = sessionPref.edit();
+    editor.remove("TempSession");
+    editor.clear(); 
+    editor.commit();
   }
 
   /**

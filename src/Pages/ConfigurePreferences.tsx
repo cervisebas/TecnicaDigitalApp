@@ -74,6 +74,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
             try {
                 await Prefences.setAssist(newSaves);                
             } catch (err) {
+                this.setState({ isLoading: false });
                 return ToastAndroid.show(err as any, ToastAndroid.SHORT);
             }
             setTimeout(this.finishLoad, 1000);

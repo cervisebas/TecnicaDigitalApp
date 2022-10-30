@@ -18,11 +18,13 @@ import ImageCropPicker from "react-native-image-crop-picker";
 import { ThemeContext } from "./Components/ThemeProvider";
 import LoadingComponent from "./Components/LoadingComponent";
 import Page7 from "./Screens/Page7";
+import { isTempSession } from "./Scripts/ApiTecnica/tempsession";
 
 type IProps = {};
 type IState = {
     viewLogOut: boolean;
     viewClearCache: boolean;
+    viewNotLogOut: boolean;
 };
 
 const Drawer = createDrawerNavigator();
@@ -32,10 +34,12 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
         super(props);
         this.state = {
             viewLogOut: false,
-            viewClearCache: false
+            viewClearCache: false,
+            viewNotLogOut: false
         };
         this.clearNowCache = this.clearNowCache.bind(this);
         this.closeSession = this.closeSession.bind(this);
+        this._actionLogOut = this._actionLogOut.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -44,12 +48,17 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
     private refLoadingComponent = createRef<LoadingComponent>();
 
     componentDidMount() {
-        this.event = DeviceEventEmitter.addListener('CloseSessionAdmin', ()=>this.setState({ viewLogOut: true }));
+        this.event = DeviceEventEmitter.addListener('CloseSessionAdmin', this._actionLogOut);
         this.event2 = DeviceEventEmitter.addListener('ClearNowCache', ()=>this.setState({ viewClearCache: true }));
     }
     componentWillUnmount() {
         this.event?.remove();
         this.event2?.remove();
+    }
+    async _actionLogOut() {
+        const isSessionTemp = await isTempSession();
+        if (isSessionTemp) return this.setState({ viewNotLogOut: true });
+        this.setState({ viewLogOut: true });
     }
     wait(time: number) {
         return new Promise((resolve)=>setTimeout(resolve, time));
@@ -147,6 +156,15 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
                     <Dialog.Actions>
                         <Button onPress={()=>this.setState({ viewClearCache: false })}>Cancelar</Button>
                         <Button onPress={this.clearNowCache}>Aceptar</Button>
+                    </Dialog.Actions>
+                </Dialog>
+                <Dialog visible={this.state.viewNotLogOut} onDismiss={()=>this.setState({ viewNotLogOut: false })}>
+                    <Dialog.Title>No puedes cerrar sesión</Dialog.Title>
+                    <Dialog.Content>
+                        <Paragraph>La sesión iniciada es temporal, para cerrar sesión debes de cerrar y volver a abrir la aplicación para eliminar los datos de la cuenta actual.</Paragraph>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>this.setState({ viewNotLogOut: false })}>Aceptar</Button>
                     </Dialog.Actions>
                 </Dialog>
             </Portal>

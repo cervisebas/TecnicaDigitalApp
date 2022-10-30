@@ -137,8 +137,8 @@
 -dontwarn org.devio.rn.splashscreen.**
 
 # @shopify/react-native-skia
--keep class com.shopify.reactnative.skia.** { *; }
--dontwarn com.shopify.reactnative.skia.**
+#-keep class com.shopify.reactnative.skia.** { *; }
+#-dontwarn com.shopify.reactnative.skia.**
 
 # @adrianso/react-native-device-brightness
 -keep class org.capslock.RNDeviceBrightness.** { *; }

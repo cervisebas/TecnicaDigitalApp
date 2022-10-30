@@ -23,7 +23,7 @@ type IState = {
     // Interface
     isLoading: boolean;
     snackbarShow: boolean;
-    snackbarText: string;
+    snackbarText: string | React.ReactNode;
     // TextInput
     iconTextInputPassword: string;
     showIconTextInputPassword: boolean;
@@ -155,7 +155,10 @@ export default class Session extends Component<IProps, IState> {
     // Controller
     async open() {
         const autoSessionTemp = DeviceInfo.isTablet() || await DeviceInfo.isEmulator();
-        if (autoSessionTemp) this.setState({ snackbarShow: true, snackbarText: 'Dispositivo detectado: se activó la sesión temporal.' });
+        if (autoSessionTemp) this.setState({
+            snackbarShow: true,
+            snackbarText: <><Text style={{ fontWeight: '700' }}>Dispositivo detectado:</Text><Text> se activó la sesión temporal en el modo directivo.</Text></>
+        });
         this.setState({
             visible: true,
             formTemporal: autoSessionTemp

@@ -28,7 +28,7 @@ public class MainActivity extends ReactActivity {
   @Override
   protected void onDestroy() {
     this.clearSessionTemp();
-    super.onDestroy(null);
+    super.onDestroy();
   }
 
   private void clearSessionTemp() {

@@ -76,6 +76,7 @@ export default class Others extends Component<IProps, IState> {
     }
     verify() {
         Actions.verifySession().then((opt: number)=>{
+            console.log(opt);
             if (opt == 0) {
                 this.props.changeScreen('Admin');
                 Directive.verify()

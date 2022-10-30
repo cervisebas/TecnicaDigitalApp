@@ -75,7 +75,7 @@ export default class Session extends Component<IProps, IState> {
         this.setState({ isLoading: true }, ()=>
             Directive.open(this.state.formUserName, this.state.formPassword, this.state.formTemporal)
                 .then(()=>this.setState({ isLoading: false }, async()=>{
-                    await AsyncStorage.multiRemove(['DataSession', 'DataSession', 'PreferencesAssist']);
+                    await AsyncStorage.multiRemove(['PreferencesAssist']);
                     this.props.reVerifySession();
                     setTimeout(()=>this.setState({
                         formUserName: '',

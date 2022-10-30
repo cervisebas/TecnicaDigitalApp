@@ -21,11 +21,12 @@ export default class DirectiveSystem {
                 axios.post(`${this.urlBase}/index.php`, qs.stringify(postData), this.header_access).then(async(value)=>{
                     var result: ResponseDirectiveData = value.data;
                     if (result.ok) {
-                        if (result.datas)
+                        if (result.datas) {
                             if (temp)
                                 setTempSession(result.datas);
                             else
                                 await this.saveDataLocal(result.datas);
+                        }
                         this.openSession = true;
                         return resolve(true);
                     }
@@ -65,7 +66,7 @@ export default class DirectiveSystem {
         });
     }
     async closeSession() {
-        await AsyncStorage.multiRemove(['DataSession', 'DataSession', 'PreferencesAssist']);
+        await AsyncStorage.multiRemove(['DataSession', 'PreferencesAssist']);
     }
 
     /* ########################################################################### */

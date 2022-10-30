@@ -15,6 +15,7 @@ type IProps = {
     openDetails: (data: StudentsData)=>any;
     onEdit: (data: StudentsData)=>any;
     onDelete: (userId: string)=>any;
+    isLoading?: boolean;
 };
 type IState = {
     visible: boolean;
@@ -144,8 +145,8 @@ export default class SearchStudents extends PureComponent<IProps, IState> {
                                 onEmpty={()=>this.setState({ listShow: this.state.list })}
                                 onSubmit={this.goSearch}
                             />
-                            <ProgressBar indeterminate style={[styles.progressBar, { opacity: 0 }]} color={'#FFFFFF'} />
                         </View>
+                        <ProgressBar indeterminate style={{ opacity: (this.props.isLoading)? 1: 0 }} color={theme.colors.accent} />
                         <FlatList
                             data={this.state.listShow}
                             extraData={this.state}
@@ -283,9 +284,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column'
-    },
-    progressBar: {
-        width: '100%',
-        height: 4
     }
 });

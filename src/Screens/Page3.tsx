@@ -346,6 +346,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
                     openDetails={this._openViewDetails}
                     onEdit={this._openEditStudent}
                     onDelete={(studentId)=>this.setState({ showConfirmDelete: true, dataConfirmDelete: studentId })}
+                    isLoading={this.state.isLoading || this.state.isRefresh}
                 />
                 <OpenGenerateMultipleCards
                     ref={this.refOpenGenerateMultipleCards}

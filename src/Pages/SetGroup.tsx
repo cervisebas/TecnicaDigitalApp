@@ -101,7 +101,7 @@ export default class SetGroup extends PureComponent<IProps, IState> {
                 <Provider theme={theme}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
-                        <Appbar.Content title={'Preferencias de registros'} />
+                        <Appbar.Content title={'Elije el grupo a utilizar'} />
                     </Appbar.Header>
                     <FlatList
                         data={this.state.datas}

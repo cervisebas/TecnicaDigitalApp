@@ -85,8 +85,8 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         const random = Math.floor(Math.random() * (10 - 0) + 0);
         
         /* ##### Halloween Animations ##### */
-        const isHalloween = isDateBetween('20/10', '31/10', moment().format('DD/MM'));
-        const startHalloween = Math.floor(Math.random() * (2 - 1) + 1);
+        const isHalloween = isDateBetween('20/10', '5/11', moment().format('DD/MM'));
+        const startHalloween = Math.floor(Math.random() * (3 - 1) + 1);
         if (isHalloween && startHalloween == 2) return this.changeBackgroundImageHalloween();
 
         if (random == 3 || random == 4) {

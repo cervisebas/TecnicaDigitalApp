@@ -185,7 +185,10 @@ export default class ViewAssist extends Component<IProps, IState> {
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.close} />
-                        <Appbar.Content title={`Ver registro: ${this.state.select.curse}`}  />
+                        <Appbar.Content
+                            title={`Ver registro: ${this.state.select.curse}`}
+                            subtitle={this.state.select.date}
+                        />
                         <Appbar.Action icon={'pencil'} onPress={this.openEditAssist} />
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: theme.colors.background }}>

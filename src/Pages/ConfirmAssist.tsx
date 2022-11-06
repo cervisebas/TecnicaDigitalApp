@@ -213,7 +213,10 @@ export default class ConfirmAssist extends Component<IProps, IState> {
                 <View style={{ flex: 1 }}>
                     <Appbar.Header>
                         <Appbar.BackAction onPress={this.closeAndClean} />
-                        <Appbar.Content title={`Registro: ${this.state.select.curse}`}  />
+                        <Appbar.Content
+                            title={`Registro: ${this.state.select.curse}`}
+                            subtitle={this.state.select.date}
+                        />
                         <MenuComponent
                             disable={this.state.isLoading}
                             isFilter={this.state.isFilter}

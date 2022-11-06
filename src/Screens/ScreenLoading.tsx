@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { View, ImageSourcePropType, StyleSheet } from 'react-native';
+import React, { Component, createRef } from 'react';
+import { View, ImageSourcePropType, StyleSheet, LayoutChangeEvent } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import LinearGradient from 'react-native-linear-gradient';
 import { ActivityIndicator, Text } from 'react-native-paper';
@@ -9,6 +9,7 @@ import logo from '../Assets/logo.webp';
 import newLogoAnim1 from '../Assets/ScreenAnims/animation1.webp';
 import newLogoAnim2 from '../Assets/ScreenAnims/animation2.webp';
 import { ThemeContext } from '../Components/ThemeProvider';
+import ScreenLoadingDirective, { ScreenLoadingDirectiveRef } from './ScreenLoadingDirective';
 
 type IProps = {
     setTimeout?: (time: number)=>any;
@@ -32,8 +33,12 @@ export default class ScreenLoading extends Component<IProps, IState> {
             message: '',
             logo: logo
         };
+        this._onLayout = this._onLayout.bind(this);
     }
     static contextType = ThemeContext;
+    // Ref's
+    public refScreenLoadingDirective = createRef<ScreenLoadingDirectiveRef>();
+
     componentDidMount() {
         this.setLogo();
     }
@@ -60,6 +65,9 @@ export default class ScreenLoading extends Component<IProps, IState> {
             return logo;
         };
         this.setState({ logo: showLogo() });
+    }
+    private _onLayout({ nativeEvent: { layout: { width, height } } }: LayoutChangeEvent) {
+        this.refScreenLoadingDirective.current?.setSize(width, height);
     }
 
     // Controller
@@ -109,13 +117,13 @@ export default class ScreenLoading extends Component<IProps, IState> {
             hideLoadinginMessage: true,
             showMessage: false,
             message: ''
-        });
+        }, ()=>setTimeout(()=>this.refScreenLoadingDirective.current?.hide(), 1000));
     }
 
     render(): React.ReactNode {
         const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>
-            <View style={[styles.background, { backgroundColor: theme.colors.background }]}>
+            <View style={[styles.background, { backgroundColor: theme.colors.background }]} onLayout={this._onLayout}>
                 <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={styles.gradient}>
                     {(this.state.logo)&&<FastImage
                         source={this.state.logo as any}
@@ -132,6 +140,7 @@ export default class ScreenLoading extends Component<IProps, IState> {
                         </Text>}
                     </View>
                 </LinearGradient>
+                <ScreenLoadingDirective ref={this.refScreenLoadingDirective} message={this.state.message} />
             </View>
         </CustomModal>);
     }

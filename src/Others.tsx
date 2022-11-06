@@ -4,6 +4,7 @@ import ScreenLoading from "./Screens/ScreenLoading";
 import Session from "./Screens/Session";
 import SplashScreenAnimation from "./Screens/SplashScreenAnimation";
 import { Actions, Directive, Family, Prefences } from "./Scripts/ApiTecnica";
+import { waitTo } from "./Scripts/Utils";
 
 type IProps = {
     goCheckUpdate: ()=>any;
@@ -75,14 +76,19 @@ export default class Others extends Component<IProps, IState> {
         });
     }
     verify() {
-        Actions.verifySession().then((opt: number)=>{
+        Actions.verifySession().then(async(opt: number)=>{
             if (opt == 0) {
+                await waitTo(500);
+                this.refScreenLoading.current?.refScreenLoadingDirective.current?.start();
+                await waitTo(1000);
                 this.props.changeScreen('Admin');
                 Directive.verify()
                     .then(async()=>{
                         await this.syncPreferences();
                         this._goTipical();
                         await this.wait(this.timeout_screenloading);
+                        this.refScreenLoading.current?.updateMessage('');
+                        await waitTo(1000);
                         this.refScreenLoading.current?.close();
                     })
                     .catch(this._catchVerify);

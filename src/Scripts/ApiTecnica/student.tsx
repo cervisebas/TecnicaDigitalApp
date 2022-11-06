@@ -53,6 +53,22 @@ export default class StudentSystem {
             }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
         });
     }
+    archive(idStudent: string): Promise<boolean> {
+        return new Promise((resolve, reject)=>{
+            var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            Directives.getDataLocal().then((value)=>{
+                const postData = { archiveStudent: true, id: idStudent, username: value.username, password: value.password };
+                axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{
+                    try {
+                        var res: ResponseGetAllStudents = value.data;
+                        if (res.ok) resolve(true); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                    } catch (error) {
+                        reject({ ok: false, cause: 'Ocurrio un error inesperado.', relogin: true, error });
+                    }
+                }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+            }).catch((error)=>reject({ ok: true, cause: error.cause }));
+        });
+    }
     delete(idStudent: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);

@@ -35,7 +35,7 @@ type IState = {
     messageError: string;
     // Dialogs
     showConfirmDelete: boolean;
-    dataConfirmDelete: string;
+    showConfirmArchive: boolean;
 };
 
 export default class Page3 extends PureComponent<IProps, IState> {
@@ -49,7 +49,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
             isError: false,
             messageError: '',
             showConfirmDelete: false,
-            dataConfirmDelete: ''
+            showConfirmArchive: false
         };
         this.openListGeneratorCredential = this.openListGeneratorCredential.bind(this);
         this._renderItem1 = this._renderItem1.bind(this);
@@ -69,12 +69,15 @@ export default class Page3 extends PureComponent<IProps, IState> {
         this._openActionSheet2 = this._openActionSheet2.bind(this);
         this._onChangeCurseInGenerateMultipleCredentials = this._onChangeCurseInGenerateMultipleCredentials.bind(this);
         this._showSnackbar = this._showSnackbar.bind(this);
+        this.archiveStudent = this.archiveStudent.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
     private designCardElection: number | undefined = undefined;
     private designCardElection2: number | undefined = undefined;
     private delimitesVip: number[] = [5, 23];
+    private dataConfirmDelete: string = '-1';
+    private dataConfirmArchive: string = '-1';
     static contextType = ThemeContext;
     // Refs Components
     private refSearchStudents = createRef<SearchStudents>();
@@ -102,10 +105,23 @@ export default class Page3 extends PureComponent<IProps, IState> {
     }
     deleteStudent() {
         this.refLoadingComponent.current?.open('Espere por favor...');
-        Student.delete(this.state.dataConfirmDelete)
+        Student.delete(this.dataConfirmDelete)
             .then(()=>{
                 this.refLoadingComponent.current?.close();
                 this.refCustomSnackbar.current?.open('Estudiante eliminado con exito');
+                this.setState({ isRefresh: true }, this.loadData);
+            })
+            .catch((error)=>{
+                this.refLoadingComponent.current?.close();
+                this.refCustomSnackbar.current?.open(error.cause);
+            });
+    }
+    archiveStudent() {
+        this.refLoadingComponent.current?.open('Espere por favor...');
+        Student.archive(this.dataConfirmArchive)
+            .then(()=>{
+                this.refLoadingComponent.current?.close();
+                this.refCustomSnackbar.current?.open('Estudiante archivado con exito');
                 this.setState({ isRefresh: true }, this.loadData);
             })
             .catch((error)=>{
@@ -153,11 +169,13 @@ export default class Page3 extends PureComponent<IProps, IState> {
             key={`p3-list-item-${item.id}`}
             source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
             title={decode(item.name)}
+            isArchive={decode(item.curse) == 'Archivados'}
             noLine={true}
             style={styles.marginList2}
             onPress={()=>this._openViewDetails(item)}
             onEdit={()=>this._openEditStudent(item)}
-            onDelete={()=>this.setState({ showConfirmDelete: true, dataConfirmDelete: item.id })}
+            onArchive={()=>this.setState({ showConfirmArchive: true }, ()=>this.dataConfirmArchive = item.id)}
+            onDelete={()=>this.setState({ showConfirmDelete: true }, ()=>this.dataConfirmDelete = item.id)}
         />);
     }
     _getItemLayout2(_data: StudentsData[] | null | undefined, index: number) {
@@ -320,6 +338,16 @@ export default class Page3 extends PureComponent<IProps, IState> {
                             <Button onPress={()=>this.setState({ showConfirmDelete: false }, this.deleteStudent)}>Aceptar</Button>
                         </Dialog.Actions>
                     </Dialog>
+                    <Dialog visible={this.state.showConfirmArchive} onDismiss={()=>this.setState({ showConfirmArchive: false })}>
+                        <Dialog.Title>Espere por favor</Dialog.Title>
+                        <Dialog.Content>
+                            <Paragraph>¿Estás seguro/a que desea realizar esta acción? Esta acción si es reversible.</Paragraph>
+                        </Dialog.Content>
+                        <Dialog.Actions>
+                            <Button onPress={()=>this.setState({ showConfirmArchive: false })}>Cancelar</Button>
+                            <Button onPress={()=>this.setState({ showConfirmArchive: false }, this.archiveStudent)}>Aceptar</Button>
+                        </Dialog.Actions>
+                    </Dialog>
                 </Portal>
 
                 {/*##### Modal's #####*/}
@@ -345,7 +373,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
                     ref={this.refSearchStudents}
                     openDetails={this._openViewDetails}
                     onEdit={this._openEditStudent}
-                    onDelete={(studentId)=>this.setState({ showConfirmDelete: true, dataConfirmDelete: studentId })}
+                    onDelete={(studentId)=>this.setState({ showConfirmDelete: true }, ()=>this.dataConfirmDelete = studentId)}
                     isLoading={this.state.isLoading || this.state.isRefresh}
                 />
                 <OpenGenerateMultipleCards

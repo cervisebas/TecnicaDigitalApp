@@ -6,9 +6,11 @@ import ImageLazyLoad from "./ImageLazyLoad";
 type IProps2 = {
     source: { uri: string; },
     title: string;
+    isArchive: boolean;
     onPress?: ()=>any;
     noLine?: boolean;
     onEdit?: ()=>any;
+    onArchive?: ()=>any;
     onDelete?: ()=>any;
     style?: StyleProp<ViewStyle>;
 };
@@ -34,6 +36,7 @@ export default class ItemStudent extends PureComponent<IProps2, IState2> {
         this.rightMenu = this.rightMenu.bind(this);
         this.showMenu = this.showMenu.bind(this);
         this.onEdit = this.onEdit.bind(this);
+        this.onArchive = this.onArchive.bind(this);
         this.onDelete = this.onDelete.bind(this);
     }
     showMenu() {
@@ -41,6 +44,9 @@ export default class ItemStudent extends PureComponent<IProps2, IState2> {
     }
     onEdit() {
         this.setState({ menuVisible: false }, (this.props.onEdit)&&this.props.onEdit);
+    }
+    onArchive() {
+        this.setState({ menuVisible: false }, (this.props.onArchive)&&this.props.onArchive);
     }
     onDelete() {
         this.setState({ menuVisible: false }, (this.props.onDelete)&&this.props.onDelete);
@@ -58,8 +64,23 @@ export default class ItemStudent extends PureComponent<IProps2, IState2> {
             visible={this.state.menuVisible}
             onDismiss={()=>this.setState({ menuVisible: false })}
             anchor={<IconButton icon={'dots-vertical'} onPress={this.showMenu} />}>
-            <Menu.Item onPress={this.onEdit} title="Editar" />
-            <Menu.Item onPress={this.onDelete} style={styles.deleteBackground} title={<Text style={styles.deleteText}>Eliminar</Text>} />
+            <Menu.Item
+                onPress={this.onEdit}
+                title={'Editar'}
+            />
+            {(!this.props.isArchive)&&<>
+                <Divider />
+                <Menu.Item
+                    onPress={this.onArchive}
+                    title={'Archivar'}
+                />
+            </>}
+            <Divider />
+            <Menu.Item
+                onPress={this.onDelete}
+                style={styles.deleteBackground}
+                title={<Text style={styles.deleteText}>Eliminar</Text>}
+            />
         </Menu>);
     }
     render(): React.ReactNode {

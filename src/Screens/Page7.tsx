@@ -136,12 +136,12 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 <Appbar.Header>
                     <Appbar.Action icon={'menu'} onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros de docentes'} />
-                    <Appbar.Action disabled icon={'plus'} onPress={this._openCreateRegist} />
+                    <Appbar.Action disabled={this.state.isLoading} icon={'plus'} onPress={this._openCreateRegist} />
                 </Appbar.Header>
-                <View style={styles.content}>
+                {/* <View style={styles.content}>
                     <InWorking />
-                </View>
-                {/*<>
+                </View> */}
+                <>
                 <View style={styles.content}>
                     {(!this.state.isLoading)? (!this.state.isError)?
                     <FlatList
@@ -180,7 +180,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 } } openSetGroup={function () {
                     throw new Error("Function not implemented.");
                 } } />
-                </>*/}
+                </>
             </PaperProvider>
         </View>);
     }

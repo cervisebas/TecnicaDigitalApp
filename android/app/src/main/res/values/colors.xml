@@ -16,6 +16,7 @@
     <color name="background">#FFFFFF</color>
     <color name="foreground">#000000</color>
     <color name="highlight">#FF3232</color>
+    <color name="scroll">#B3FF3232</color>
 
     <!-- Dark Colors -->
 

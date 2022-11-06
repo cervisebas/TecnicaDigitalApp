@@ -26,6 +26,8 @@
         <item name="colorPrimary">@color/colorPrimary_dark</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark_dark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:scrollbarThumbVertical">@color/scroll</item>
+        <item name="android:scrollbarThumbHorizontal">@color/scroll</item>
         
         <item name="android:statusBarColor">@color/status_bar_color_dark</item>
         <item name="android:windowLightStatusBar">false</item>
@@ -36,6 +38,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:scrollbarThumbVertical">@color/scroll</item>
+        <item name="android:scrollbarThumbHorizontal">@color/scroll</item>
         
         <item name="android:statusBarColor">@color/status_bar_color</item>
         <item name="android:windowLightStatusBar">false</item>

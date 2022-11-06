@@ -51,7 +51,6 @@ export default class SelectorTeacher extends PureComponent<IProps, IState> {
         const listShow = (this.state.listTeachers.findIndex((v)=>v.id == '-1') == -1)? [{ id: '-1', name: encode('- Seleccionar -') }].concat(this.state.listTeachers): this.state.listTeachers;
         this.setState({ listShow });
     }
-
     select(value: string) {
         if (!this.props.onSelect) return;
         this.props.onSelect(value);

@@ -57,31 +57,54 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
     }
     private getItemGroup(group1: string, matter1: string, data1: Schedule, group2: string, matter2: string, data2: Schedule) {
         const { theme } = this.context;
+        const isNullMatter1 = (data1.matter as Matter).name == null;
+        const showMatter1 = (isNullMatter1)? 'Desconocido': matter1;
+        const isNullMatter2 = (data2.matter as Matter).name == null;
+        const showMatter2 = (isNullMatter2)? 'Desconocido': matter2;
         return(<TouchableRipple style={{ flexDirection: 'column' }} onPress={()=>this.openDialog(true, [data1, data2])}>
             <View>
                 <View style={{ width: '100%', height: 39, borderBottomWidth: 1, borderBottomColor: theme.colors.text, justifyContent: 'center', paddingLeft: 4, paddingRight: 2 }}>
-                    <Text numberOfLines={1} style={{ fontSize: 12 }}>Grupo {group1}: {matter1}</Text>
+                    <Text numberOfLines={1} style={[{ fontSize: 12 }, (isNullMatter1)&&{ color: '#FF0000' }]}><Text style={{ fontWeight: '700' }}>Grupo {group1}</Text>: {showMatter1}</Text>
                 </View>
                 <View style={{ width: '100%', height: 39, borderTopWidth: 1, borderTopColor: theme.colors.text, justifyContent: 'center', paddingLeft: 4, paddingRight: 2 }}>
-                    <Text numberOfLines={1} style={{ fontSize: 12 }}>Grupo {group2}: {matter2}</Text>
+                    <Text numberOfLines={1} style={[{ fontSize: 12 }, (isNullMatter2)&&{ color: '#FF0000' }]}><Text style={{ fontWeight: '700' }}>Grupo {group2}</Text>: {showMatter2}</Text>
+                </View>
+            </View>
+        </TouchableRipple>);
+    }
+    private getItemOnlyGroup(group: string, matter: string, data: Schedule) {
+        const isNullMatter = (data.matter as Matter).name == null;
+        const showMatter = (isNullMatter)? 'Desconocido': matter;
+        return(<TouchableRipple style={{ flexDirection: 'column' }} onPress={()=>this.openDialog(false, data)}>
+            <View>
+                <View style={{ width: '100%', height: '100%', justifyContent: 'center' }}>
+                    <Text
+                        style={[{
+                            fontSize: 14,
+                            paddingLeft: 4,
+                            paddingRight: 4,
+                            textAlign: 'center',
+                            flexWrap: 'wrap'
+                        }, (isNullMatter)&&{ color: '#FF0000' }]}><Text style={{ fontWeight: '700' }}>Grupo {group}</Text>: {showMatter}</Text>
                 </View>
             </View>
         </TouchableRipple>);
     }
     private getItem(matter: string, data: Schedule) {
+        const isNullMatter = (data.matter as Matter).name == null;
+        const showMatter = (isNullMatter)? 'Desconocido': matter;
         return(<TouchableRipple style={{ flexDirection: 'column' }} onPress={()=>this.openDialog(false, data)}>
             <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                 <Text
-                    style={{
+                    style={[{
                         fontSize: 16,
                         paddingLeft: 4,
                         paddingRight: 4,
                         textAlign: 'center',
                         flexWrap: 'wrap'
-                    }}
-                    
+                    }, (isNullMatter)&&{ color: '#FF0000' }]}
                     numberOfLines={3}
-                >{matter}</Text>
+                >{showMatter}</Text>
             </View>
         </TouchableRipple>);
     }
@@ -118,19 +141,28 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
 
             var group2 = morning.findIndex((data2, index2)=>data.hour == data2.hour && index !== index2 && data2.group !== 'none' && data.day == data2.day);
             var isGroup = group2 !== -1;
+            var isOnlyGroup = !isGroup && data.group != 'none';
 
             var text: string | React.ReactNode = '';
             var normalText: string = '';
             if (isGroup) {
                 text = this.getItemGroup(
-                    data.group, (data.matter == 'none')? /*'Libre'*/'': decode(data.matter.name), data,
-                    morning[group2].group, (morning[group2].matter == 'none')? /*'Libre'*/'': decode((morning[group2].matter as any).name), morning[group2]
+                    data.group, (data.matter == 'none')? '': decode(data.matter.name), data,
+                    morning[group2].group, (morning[group2].matter == 'none')? '': decode((morning[group2].matter as any).name), morning[group2]
                 );
-                normalText = `Grupo ${decode(data.group)}: ${(data.matter == 'none')? '': decode(data.matter.name)}<br>Grupo ${morning[group2].group}: ${(morning[group2].matter == 'none')? '': decode((morning[group2].matter as Matter).name)}`;
+                normalText = `Grupo ${data.group}: ${(data.matter == 'none')? '': (data.matter.name == null)? '<span class="null-group">Desconocido</span>': decode(data.matter.name)}`;
+                normalText += `<br>Grupo ${morning[group2].group}: ${(morning[group2].matter == 'none')? '': ((morning[group2].matter as Matter).name == null)? '<span class="null-group">Desconocido</span>': decode((morning[group2].matter as Matter).name)}`;
                 useIndex1.push(group2);
+            } else if(isOnlyGroup) {
+                text = this.getItemOnlyGroup(
+                    data.group,
+                    (data.matter == 'none')? '': decode(data.matter.name),
+                    data
+                );
+                normalText = `Grupo ${data.group}: ${(data.matter == 'none')? '': (data.matter.name == null)? '<p class="null">Desconocido</p>': decode(data.matter.name)}`;
             } else {
-                text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
-                normalText = `${(data.matter == 'none')? '': decode(data.matter.name)}`;
+                text = (data.matter == 'none')? this.getItemDefault(''): this.getItem(decode(data.matter.name), data);
+                normalText = `${(data.matter == 'none')? '': (data.matter.name == null)? '<p class="null">Desconocido</p>': decode(data.matter.name)}`;
             }
 
             if (rows1_2[dayIndex] == undefined) {
@@ -177,6 +209,7 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
 
             var group2 = afternoon.findIndex((data2, index2)=>data.hour == data2.hour && index !== index2 && data2.group !== 'none' && data.day == data2.day);
             var isGroup = group2 !== -1;
+            var isOnlyGroup = !isGroup && data.group != 'none';
 
             var text: string | React.ReactNode = '';
             var normalText: string = '';
@@ -185,11 +218,19 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
                     data.group, (data.matter == 'none')? /*'Libre'*/'': decode(data.matter.name), data,
                     afternoon[group2].group, (afternoon[group2].matter == 'none')? /*'Libre'*/'': decode((afternoon[group2].matter as any).name), afternoon[group2]
                 );
-                normalText = `Grupo ${decode(data.group)}: ${(data.matter == 'none')? '': decode(data.matter.name)}<br>Grupo ${morning[group2].group}: ${(morning[group2].matter == 'none')? '': decode((morning[group2].matter as Matter).name)}`;
+                normalText = `Grupo ${data.group}: ${(data.matter == 'none')? '': (data.matter.name == null)? '<span class="null-group">Desconocido</span>': decode(data.matter.name)}`;
+                normalText += `<br>Grupo ${afternoon[group2].group}: ${(afternoon[group2].matter == 'none')? '': ((afternoon[group2].matter as Matter).name == null)? '<span class="null-group">Desconocido</span>': decode((afternoon[group2].matter as Matter).name)}`;
                 useIndex2.push(group2);
+            } else if(isOnlyGroup) {
+                text = this.getItemOnlyGroup(
+                    data.group,
+                    (data.matter == 'none')? '': decode(data.matter.name),
+                    data
+                );
+                normalText = `Grupo ${data.group}: ${(data.matter == 'none')? '': (data.matter.name == null)? '<p class="null">Desconocido</p>': decode(data.matter.name)}`;
             } else {
                 text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
-                normalText = `${(data.matter == 'none')? '': decode(data.matter.name)}`;
+                normalText = `${(data.matter == 'none')? '': (data.matter.name)? '<p class="null">Desconocido</p>': decode(data.matter.name)}`;
             }
 
             if (rows2_2[dayIndex] == undefined) {
@@ -367,7 +408,7 @@ class DialogDetails extends PureComponent<any, IState2> {
         if (!isGroup) this.setState({
             visible: true,
             paragraph: (<View style={{ flexDirection: 'column' }}>
-                <TextView title={'Materia'} text={decode(matter1.name)} />
+                <TextView title={'Materia'} text={(matter1.name == null)? 'Desconocido': decode(matter1.name)} />
                 <TextView title={'Profesor'} text={decode(matter1.teacher.name)} />
             </View>)
         });
@@ -375,10 +416,10 @@ class DialogDetails extends PureComponent<any, IState2> {
             visible: true,
             paragraph: (<View style={{ flexDirection: 'column', paddingLeft: 14 }}>
                 <Text style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>Grupo {group1}</Text>
-                <TextView title={'Materia'} text={decode(matter1.name)} />
+                <TextView title={'Materia'} text={(matter1.name == null)? 'Desconocido': decode(matter1.name)} />
                 <TextView title={'Profesor'} text={decode(matter1.teacher.name)} />
                 <Text style={{ fontSize: 14, fontWeight: '700', marginBottom: 8, marginTop: 14 }}>Grupo {group2!}</Text>
-                <TextView title={'Materia'} text={decode(matter2!.name)} />
+                <TextView title={'Materia'} text={(matter2?.name == null)? 'Desconocido': decode(matter2!.name)} />
                 <TextView title={'Profesor'} text={decode(matter2!.teacher.name)} />
             </View>)
         });

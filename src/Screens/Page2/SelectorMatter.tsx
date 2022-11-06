@@ -29,6 +29,7 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
         };
         this.goSearch = this.goSearch.bind(this);
         this._onEmpty = this._onEmpty.bind(this);
+        this.cleanBeforeShow = this.cleanBeforeShow.bind(this);
         this._renderItem = this._renderItem.bind(this);
         this.close = this.close.bind(this);
     }
@@ -44,11 +45,17 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
             listShow: this.state.listMatter
         });
     }
-
     select(value: string) {
         if (!this.props.onSelect) return;
         this.props.onSelect(value);
         this.close();
+    }
+    cleanBeforeShow() {
+        const list = capitalizeArrayString(MatterList as string[]);
+        this.setState({
+            listMatter: list,
+            listShow: list
+        });
     }
 
     componentDidMount(): void {
@@ -99,7 +106,7 @@ export default class SelectorMatter extends PureComponent<IProps, IState> {
 
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
-        return(<CustomModal visible={this.state.visible} onRequestClose={this.close} style={{ padding: 16 }} animationIn={'zoomIn'} animationOut={'zoomOut'}>
+        return(<CustomModal visible={this.state.visible} onRequestClose={this.close} onShow={this.cleanBeforeShow} style={{ padding: 16 }} animationIn={'zoomIn'} animationOut={'zoomOut'}>
             <PaperProvider theme={theme}>
                 <View style={{ flex: 2, backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background, borderRadius: 12, overflow: 'hidden' }}>
                     <Appbar.Header>

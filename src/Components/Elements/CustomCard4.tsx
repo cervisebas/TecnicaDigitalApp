@@ -20,11 +20,13 @@ export default class CustomCard4 extends PureComponent<IProps, IState> {
     }
     getMargin(): StyleProp<ViewStyle> {
         if (this.props.position == undefined) return {};
+        if (this.props.numColumns == 1) return { paddingLeft: 10, paddingRight: 10 };
         if (this.props.position == 'left') return { paddingLeft: 10, paddingRight: 5 };
         if (this.props.position == 'right') return { paddingLeft: 5, paddingRight: 10 };
     }
     getWidth(): StyleProp<ViewStyle> {
         if (this.props.numColumns == undefined) return {};
+        if (this.props.numColumns == 1) return { width: '100%' };
         return { width: `${100/this.props.numColumns}%` };
     }
     render(): ReactNode {

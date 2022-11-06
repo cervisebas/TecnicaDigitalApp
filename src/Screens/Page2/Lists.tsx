@@ -101,6 +101,7 @@ export default class Page2Lists extends PureComponent<IProps, IState> {
             title={`Curso ${decode(item.curse)}`}
             subtitle={''}
             position={(index%2 == 0)? 'left': 'right'}
+            numColumns={this.state.numColumns}
             onPress={()=>this.openSchedule(item)}
             onEdit={()=>this.refEditShedule.current?.open(item)}
             onDelete={()=>this.onDelete(item.id)}

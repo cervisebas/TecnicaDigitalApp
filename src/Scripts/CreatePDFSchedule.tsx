@@ -90,6 +90,17 @@ function getHTML(curse: string, rows1: string[][], rows2: string[][]) {
             table td p {
                 font-size: 12px;
             }
+            table td p.null {
+                width: 100%;
+                height: 100%;
+                text-align: center;
+                color: #FF0000;
+            }
+            table td span.null-group {
+                margin: 0;
+                padding: 0;
+                color: #FF0000;
+            }
             h4#brand {
                 margin-top: 18px;
                 opacity: 0.6;

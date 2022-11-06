@@ -309,7 +309,11 @@ export default class Page1 extends Component<IProps, IState> {
                 <Appbar.Header>
                     <Appbar.Action icon="menu" onPress={this.props.navigation.openDrawer} />
                     <Appbar.Content title={'Registros'}  />
-                    <Appbar.Action icon={'plus'} disabled={this.state.isLoading || this.state.isError} onPress={this._openAddGroup} />
+                    <Appbar.Action
+                        icon={'plus'}
+                        disabled={this.state.isLoading || this.state.isError}
+                        onPress={this._openAddGroup}
+                    />
                     <MenuComponent
                         disable={this.state.isLoading || this.state.isError}
                         openPreferences={this._openConfigurePreferences}
@@ -433,7 +437,12 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
         return(<Menu
             visible={this.state.isMenuOpen}
             onDismiss={this._close}
-            anchor={<Appbar.Action color={'#FFFFFF'} disabled={this.props.disable} icon={'dots-vertical'} onPress={this._open} />}>
+            anchor={<Appbar.Action
+                color={'#FFFFFF'}
+                disabled={this.props.disable}
+                icon={'dots-vertical'}
+                onPress={this._open}
+            />}>
             <Menu.Item icon={'account-cog-outline'} title={"Preferencias"} onPress={this._openPreferences} />
             <Menu.Item icon={'archive-search-outline'} title={"Buscar registro"} onPress={this._openSearch} />
             <Divider />

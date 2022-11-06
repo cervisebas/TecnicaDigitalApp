@@ -120,8 +120,11 @@ export default class EditShedule extends PureComponent<IProps, IState> {
         this.setState({ isLoading: true }, ()=>
             Matters.getAll()
                 .then((matters)=>this.setState({ matters, isLoading: false }, ()=>{
-                    this.setElements(data);
-                    this.props.goLoading(false);
+                    this.props.goLoading(true, 'Reestableciendo...');
+                    setTimeout(()=>{
+                        this.setElements(data);
+                        this.props.goLoading(false);
+                    }, 1500);
                 }))
                 .catch((error)=>this.setState({ isLoading: false, visible: false }, ()=>{
                     this.props.goLoading(false);

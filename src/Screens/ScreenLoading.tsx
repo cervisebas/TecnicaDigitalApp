@@ -41,6 +41,7 @@ export default class ScreenLoading extends Component<IProps, IState> {
 
     componentDidMount() {
         this.setLogo();
+        //this.refScreenLoadingDirective.current?.start();
     }
     componentDidUpdate() {
         if (this.state.visible) {

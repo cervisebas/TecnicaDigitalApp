@@ -1,6 +1,6 @@
-import React, { forwardRef, memo, PureComponent, useContext, useEffect, useImperativeHandle, useState } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
-import { Text, Title } from "react-native-paper";
+import React, { forwardRef, memo, useContext, useEffect, useImperativeHandle, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -13,6 +13,7 @@ import { decode } from "base-64";
 import FastImage from "react-native-fast-image";
 import logo from '../Assets/miniLogo.webp';
 import logoDark from '../Assets/miniLogoDark.webp';
+import CogsAanimations from "../Components/Animations/CogsAanimations";
 
 type IProps = {
     message: string;
@@ -101,6 +102,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
 
     return(<Animated.View style={[styles.content, contentStyle, { backgroundColor: context.theme.colors.background }]}>
         <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={[{ position: 'absolute', bottom: 0 }, size]}>
+            <CogsAanimations />
             <FastImage source={(context.isDark)? logoDark: logo} style={styles.logo} />
             <Animated.View style={[styles.content2, content2Style]}>
                 <View style={styles.contentShow}>

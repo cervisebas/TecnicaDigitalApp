@@ -78,7 +78,7 @@ export default class Others extends Component<IProps, IState> {
     verify() {
         Actions.verifySession().then(async(opt: number)=>{
             if (opt == 0) {
-                this.refScreenLoading.current?.updateMessage('Iniciando sesión...')
+                this.refScreenLoading.current?.updateMessage('Iniciando sesión...', false)
                 await waitTo(500);
                 this.refScreenLoading.current?.refScreenLoadingDirective.current?.start();
                 await waitTo(1000);
@@ -88,7 +88,7 @@ export default class Others extends Component<IProps, IState> {
                         await this.syncPreferences();
                         this._goTipical();
                         //await this.wait(this.timeout_screenloading);
-                        this.refScreenLoading.current?.updateMessage('Cargando...');
+                        this.refScreenLoading.current?.updateMessage('Cargando...', false);
                         await waitTo(1000);
                         this.refScreenLoading.current?.close();
                     })

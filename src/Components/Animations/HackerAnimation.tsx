@@ -4,10 +4,12 @@ import { StyleSheet } from "react-native";
 
 
 export default memo(function HackerAnimation() {
-    const refCanvas = createRef<SkiaView>();
+    /*const refCanvas = createRef<SkiaView>();
+
     return(<Canvas ref={refCanvas}>
-        
-    </Canvas>);
+
+    </Canvas>);*/
+    return(<></>);
 });
 
 const styles = StyleSheet.create({

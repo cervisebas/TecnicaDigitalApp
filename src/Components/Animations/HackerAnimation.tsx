@@ -1,10 +1,13 @@
-import { Canvas } from "@shopify/react-native-skia";
-import React, { memo, useEffect, useState } from "react";
+import { Canvas, SkiaView } from "@shopify/react-native-skia";
+import React, { createRef, memo, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
 
 export default memo(function HackerAnimation() {
-    return(<></>);
+    const refCanvas = createRef<SkiaView>();
+    return(<Canvas ref={refCanvas}>
+        
+    </Canvas>);
 });
 
 const styles = StyleSheet.create({

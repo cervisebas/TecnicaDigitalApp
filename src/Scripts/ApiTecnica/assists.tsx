@@ -136,6 +136,56 @@ export default class AssistSystem {
         });
     }
 
+    // Teacher
+    addTeacherAssist(idGroup: string, idTeacher: string): Promise<void> {
+        return new Promise((resolve, reject)=>{
+            try {
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                Directives.getDataLocal().then((session)=>{
+                    const dataPost = { addTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher };
+                    axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
+                        const res: TypicalRes = result.data;
+                        if (res.ok) resolve(); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+                }).catch((error)=>reject({ ok: true, cause: error.cause }));
+            } catch (error) {
+                reject({ ok: false, cause: 'Ocurrio un error inesperado.', error });
+            }
+        });
+    }
+    removeTeacherAssist(idGroup: string, idTeacher: string): Promise<void> {
+        return new Promise((resolve, reject)=>{
+            try {
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                Directives.getDataLocal().then((session)=>{
+                    const dataPost = { removeTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher };
+                    axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
+                        const res: TypicalRes = result.data;
+                        if (res.ok) resolve(); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+                }).catch((error)=>reject({ ok: true, cause: error.cause }));
+            } catch (error) {
+                reject({ ok: false, cause: 'Ocurrio un error inesperado.', error });
+            }
+        });
+    }
+    modifyTeacherAssist(idGroup: string, idTeacher: string, status: boolean): Promise<void> {
+        return new Promise((resolve, reject)=>{
+            try {
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                Directives.getDataLocal().then((session)=>{
+                    const dataPost = { modifyTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher, session: (status)? '1': '0' };
+                    axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
+                        const res: TypicalRes = result.data;
+                        if (res.ok) resolve(); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+                }).catch((error)=>reject({ ok: true, cause: error.cause }));
+            } catch (error) {
+                reject({ ok: false, cause: 'Ocurrio un error inesperado.', error });
+            }
+        });
+    }
+
     getCalcHour(date?: Date): string | boolean {
         var now: { hour: number, minutes: number } = { hour: parseInt(moment(date).format('HH')), minutes: parseInt(moment(date).format('mm')) };
         var times: TimesAccept[] = [

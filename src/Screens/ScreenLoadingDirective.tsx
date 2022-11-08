@@ -14,6 +14,7 @@ import FastImage from "react-native-fast-image";
 import logo from '../Assets/miniLogo.webp';
 import logoDark from '../Assets/miniLogoDark.webp';
 import CogsAanimations from "../Components/Animations/CogsAanimations";
+import HackerAnimation from "../Components/Animations/HackerAnimation";
 
 type IProps = {
     message: string;
@@ -102,7 +103,8 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
 
     return(<Animated.View style={[styles.content, contentStyle, { backgroundColor: context.theme.colors.background }]}>
         <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={[{ position: 'absolute', bottom: 0 }, size]}>
-            <CogsAanimations />
+            {/*<CogsAanimations />*/}
+            <HackerAnimation />
             <FastImage source={(context.isDark)? logoDark: logo} style={styles.logo} />
             <Animated.View style={[styles.content2, content2Style]}>
                 <View style={styles.contentShow}>
@@ -153,7 +155,8 @@ const styles = StyleSheet.create({
     text: {
         fontFamily: 'Roboto-Medium',
         fontSize: 28,
-        marginTop: 24
+        marginTop: 24,
+        color: '#FFFFFF'
     },
     contentLoading: {
         position: 'absolute',

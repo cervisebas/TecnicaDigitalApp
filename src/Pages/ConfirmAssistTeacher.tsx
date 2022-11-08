@@ -5,15 +5,11 @@ import { DeviceEventEmitter, FlatList, ListRenderItemInfo, Pressable, StyleSheet
 import { Appbar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
+import ItemAssitTeacher from "../Components/Elements/CustomItem3";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { Assist, urlBase } from "../Scripts/ApiTecnica";
 import { AssistUserData, DataList } from "../Scripts/ApiTecnica/types";
-
-type Modify<T, R> = Omit<T, keyof R> & R;
-type DataList2 = Modify<DataList, {
-    check: '0' | '1' | '2';
-}>;
 
 type IProps = {
     showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
@@ -36,7 +32,7 @@ type IState = {
 
     data: AssistUserData[];
     dataBackup: AssistUserData[];
-    dataLog: DataList2[];
+    dataLog: DataList[];
     notify: boolean;
 
     isFilter: boolean;
@@ -73,7 +69,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
     checkAction(idStudent: string, index: number) {
         let dataLog = this.state.dataLog;
         dataLog[index] = {
-            check: (dataLog[index])? (dataLog[index].check)? '0': '1': '2',
+            check: !dataLog[index].check,
             idStudent,
             idAssist: dataLog[index].idAssist,
             exist: dataLog[index].exist
@@ -85,7 +81,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
             data: this.state.setData,
             dataBackup: this.state.setData,
             dataLog: this.state.setData.map((s)=>({
-                check: (!s.exist)? '2': (s.status)? '1': '0',
+                check: (s.exist)? s.status: false,
                 idStudent: s.id,
                 idAssist: s.idAssist,
                 exist: s.exist
@@ -127,7 +123,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         return `confirm-assist-${id}`;
     }
     _renderItem({ item, index }: ListRenderItemInfo<AssistUserData>) {
-        return(<List.Item
+        /*return(<List.Item
             key={`conf-assist-${item.id}`}
             title={decode(item.name)}
             description={(item.exist)? `${decode(item.time)} • Ingreso con credencial`: undefined}
@@ -150,6 +146,16 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                     status={(this.state.dataLog[index])? (this.state.dataLog[index].check)? 'checked': 'unchecked': 'unchecked'}
                 />
             </View>}
+        />);*/
+        return(<ItemAssitTeacher
+            item={item}
+            //status={(item.exist)? (item.status)? 'checked': 'unchecked': 'unchecked'}
+            status={(this.state.dataLog[index].check)? 'checked': 'unchecked'}
+            isLoading={this.state.isLoading}
+            onPressImage={this.props.openImage}
+            onPress={()=>undefined}
+            onPressAdd={()=>undefined}
+            onPressRemove={()=>undefined}
         />);
     }
     _getItemLayout(_data: AssistUserData[] | null | undefined, index: number) {
@@ -198,7 +204,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         this.setState({
             dataLog: this.state.dataLog.map((val)=>({
                 ...val,
-                check: (!this.state.isAllMark)? '1': '0'
+                check: (!this.state.isAllMark)? true: false
             })),
             isAllMark: !this.state.isAllMark
         });
@@ -248,13 +254,6 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                             renderItem={this._renderItem}
                         />
                     </View>
-                    <FAB
-                        icon={'send'}
-                        label={(this.state.isLoading)? 'ENVIANDO': 'ENVIAR'}
-                        onPress={()=>(!this.state.isLoading)? this.send(): undefined}
-                        loading={this.state.isLoading}
-                        style={styles.floatButton}
-                    />
                     <Portal>
                         <Dialog visible={this.state.alertVisible} onDismiss={()=>this.setState({ alertVisible: false })}>
                             <Dialog.Title>¡¡¡Atención!!!</Dialog.Title>
@@ -351,14 +350,5 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
 const styles = StyleSheet.create({
     items: {
         height: 64
-    },
-    floatButton: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        marginBottom: 16,
-        marginLeft: 96,
-        marginRight: 96
     }
 });

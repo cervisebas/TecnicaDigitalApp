@@ -9,3 +9,8 @@ declare module '*.jpg';
 declare module '*.webp';
 declare module '*.gif';
 declare module '*.svg';
+declare module '*.ttf' {
+    import Rect from 'react-native-svg';
+    const content: DataSourceParam;
+    export default content;
+};

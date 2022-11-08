@@ -61,6 +61,7 @@ type AssistUserData = {
     status: boolean;
     idAssist: string;
     exist: boolean;
+    existRow: boolean;
     time: string;
 };
 type ResponseGetAssistList = {

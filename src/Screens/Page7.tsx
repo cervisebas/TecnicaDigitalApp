@@ -1,5 +1,5 @@
 import React, { createRef, PureComponent } from "react";
-import { Dimensions, FlatList, ListRenderItemInfo, Platform, RefreshControl, StyleSheet, View } from "react-native";
+import { DeviceEventEmitter, Dimensions, EmitterSubscription, FlatList, ListRenderItemInfo, Platform, RefreshControl, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Appbar, Button, Dialog, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import { SketchCanvas } from "rn-perfect-sketch-canvas";
 import { SketchCanvasRef } from "rn-perfect-sketch-canvas/src/components";
@@ -50,6 +50,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
         this._showSnackbar = this._showSnackbar.bind(this);
     }
     static contextType = ThemeContext;
+    private event: EmitterSubscription | null = null;
     // Ref's
     private refDialogCreate = createRef<DialogCreate>();
     private refLoadingComponent = createRef<LoadingComponent>();
@@ -80,6 +81,10 @@ export default class Page7 extends PureComponent<IProps, IState> {
     componentDidMount(): void {
         this.loadData();
         //console.log(DeviceInfo.getVersion().replace(/\./gi, ''));
+        this.event = DeviceEventEmitter.addListener('p7-reload', (isReload?: boolean)=>(isReload)? this.setState({ isRefresh: true }, this.loadData): this.loadData);
+    }
+    componentWillUnmount(): void {
+        this.event?.remove();
     }
     loadData() {
         if (!this.state.isRefresh) this.setState({ isLoading: true, datas: [] });
@@ -96,6 +101,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 this.refCustomSnackbar.current?.open('El registro se creó correctamente.');
                 this.refLoadingComponent.current?.close();
                 this.setState({ isRefresh: true }, this.loadData);
+                this.openRegist(id);
             })
             .catch((error)=>{
                 this.refLoadingComponent.current?.close();

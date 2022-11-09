@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { Component, createRef, PureComponent, ReactNode } from "react";
-import { FlatList, ListRenderItemInfo, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, FlatList, ListRenderItemInfo, ToastAndroid, View } from "react-native";
 import { Appbar, Button, Dialog, Divider, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
@@ -77,14 +77,18 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         this.close();
     }
     delete() {
-        /*this.props.showLoading(true, 'Eliminando registro...', ()=>
-            Assist.deleteAssist(this.state.select.id)
-                .then(()=>this.props.showLoading(false, 'Eliminando registro...', ()=>{
-                    DeviceEventEmitter.emit('p1-reload', undefined, true);
-                    this.props.showSnackbar(true, `Se elimino el registro de "${this.state.select.curse}".`, ()=>this.closeAndClean());
-                }))
-                .catch((error)=>this.props.showLoading(false, 'Eliminando registro...', ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
-        );*/
+        this.props.showLoading(true, 'Eliminando registro...');
+        Assist.deleteAssist(this.state.select)
+            .then(()=>{
+                this.props.showLoading(false);
+                DeviceEventEmitter.emit('p7-reload', true);
+                this.props.showSnackbar(true, `Se elimino el registro #"${this.state.select}".`);
+                this.closeAndClean();
+            })
+            .catch((error)=>{
+                this.props.showLoading(false, 'Eliminando registro...');
+                this.refComponentDialogs.current?.setState({ alertVisible: true, alertMessage: error.cause });
+            });
     }
 
     // Flatlist

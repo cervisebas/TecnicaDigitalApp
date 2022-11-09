@@ -1,5 +1,5 @@
 import React, { createRef, PureComponent } from "react";
-import { Dimensions, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
+import { Dimensions, FlatList, ListRenderItemInfo, Platform, RefreshControl, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Appbar, Button, Dialog, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import { SketchCanvas } from "rn-perfect-sketch-canvas";
 import { SketchCanvasRef } from "rn-perfect-sketch-canvas/src/components";
@@ -15,6 +15,7 @@ import moment from "moment";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import ConfirmAssistTeacher from "../Pages/ConfirmAssistTeacher";
 import { InWorking } from "../Components/InWorking";
+import DeviceInfo from "react-native-device-info";
 
 type IProps = {
     navigation: any;
@@ -42,6 +43,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
         this._openCreateRegist = this._openCreateRegist.bind(this);
         this.createRegist = this.createRegist.bind(this);
         this._renderItem = this._renderItem.bind(this);
+        this._goLoading = this._goLoading.bind(this);
     }
     static contextType = ThemeContext;
     // Ref's
@@ -71,6 +73,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
     */
     componentDidMount(): void {
         this.loadData();
+        //console.log(DeviceInfo.getVersion().replace(/\./gi, ''));
     }
     loadData() {
         if (!this.state.isRefresh) this.setState({ isLoading: true, datas: [] });
@@ -129,6 +132,13 @@ export default class Page7 extends PureComponent<IProps, IState> {
     _keyExtractor(item: DataGroup, _index: number) {
         return `card-teacher-${item.id}`;
     }
+
+    _goLoading(visible: boolean, message?: string) {
+        if (!visible) return this.refLoadingComponent.current?.close();
+        if (this.refLoadingComponent.current?.state.visible) this.refLoadingComponent.current?.update(message!);
+        this.refLoadingComponent.current?.open(message!);
+    }
+
     render(): React.ReactNode {
         const { theme } = this.context;
         return(<View style={{ flex: 1 }}>
@@ -174,9 +184,10 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 <CustomSnackbar ref={this.refCustomSnackbar} />
 
                 <LoadingComponent ref={this.refLoadingComponent} />
-                <ConfirmAssistTeacher ref={this.refConfirmAssistTeacher} showLoading={function (v: boolean, t: string, a?: (() => any) | undefined) {
-                    throw new Error("Function not implemented.");
-                } } showSnackbar={function (v: boolean, t: string, a?: (() => any) | undefined) {
+                <ConfirmAssistTeacher
+                    ref={this.refConfirmAssistTeacher}
+                    showLoading={this._goLoading}
+                    showSnackbar={function (v: boolean, t: string, a?: (() => any) | undefined) {
                     throw new Error("Function not implemented.");
                 } } openImage={function (source: string, text: string) {
                     throw new Error("Function not implemented.");

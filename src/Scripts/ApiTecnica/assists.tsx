@@ -137,7 +137,7 @@ export default class AssistSystem {
     }
 
     // Teacher
-    addTeacherAssist(idGroup: string, idTeacher: string): Promise<void> {
+    addTeacherAssist(idGroup: string, idTeacher: string): Promise<string> {
         return new Promise((resolve, reject)=>{
             try {
                 var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
@@ -145,7 +145,7 @@ export default class AssistSystem {
                     const dataPost = { addTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
                         const res: TypicalRes = result.data;
-                        if (res.ok) resolve(); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                        if (res.ok) resolve(res.datas); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
                     }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
                 }).catch((error)=>reject({ ok: true, cause: error.cause }));
             } catch (error) {

@@ -1,18 +1,19 @@
 import { decode } from "base-64";
 import moment from "moment";
-import React, { Component, PureComponent, ReactNode } from "react";
+import React, { Component, createRef, PureComponent, ReactNode } from "react";
 import { DeviceEventEmitter, FlatList, ListRenderItemInfo, Pressable, StyleSheet, ToastAndroid, View } from "react-native";
 import { Appbar, Button, Checkbox, Colors, Dialog, Divider, FAB, List, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
 import ItemAssitTeacher from "../Components/Elements/CustomItem3";
+import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { Assist, urlBase } from "../Scripts/ApiTecnica";
 import { AssistUserData, DataList } from "../Scripts/ApiTecnica/types";
 
 type IProps = {
-    showLoading: (v: boolean, t: string, a?: ()=>any)=>any;
+    showLoading: (v: boolean, t?: string)=>any;
     showSnackbar: (v: boolean, t: string, a?: ()=>any)=>any;
     openImage: (source: string, text: string)=>any;
     openAddAnnotation: ()=>any;
@@ -37,6 +38,8 @@ type IState = {
 
     isFilter: boolean;
     isAllMark: boolean;
+
+    deleteRowAssist: boolean;
 };
 
 export default class ConfirmAssistTeacher extends Component<IProps, IState> {
@@ -56,7 +59,8 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
             dataLog: [],
             notify: true,
             isFilter: false,
-            isAllMark: false
+            isAllMark: false,
+            deleteRowAssist: false
         };
         this.closeAndClean = this.closeAndClean.bind(this);
         this.loadData = this.loadData.bind(this);
@@ -64,8 +68,13 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         this._changeNotifyState = this._changeNotifyState.bind(this);
         this._openDelete = this._openDelete.bind(this);
         this._goSelectAll = this._goSelectAll.bind(this);
+        this._deleteRowNow = this._deleteRowNow.bind(this);
     }
     static contextType = ThemeContext;
+    private idDeleteRow: string = '-1';
+    // Ref's
+    private refCustomSnackbar = createRef<CustomSnackbar>();
+
     checkAction(idStudent: string, index: number) {
         let dataLog = this.state.dataLog;
         dataLog[index] = {
@@ -93,17 +102,6 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         this.setState({ dataLog: [], data: [], notify: true });
         this.close();
     }
-    send() {
-        /*if (this.state.setData.length == 0) return ToastAndroid.show('Opción no disponible, no se encontró ningún estudiante en la lista...', ToastAndroid.SHORT);
-        this.setState({ isLoading: true }, ()=>
-            Assist.confirmAssist(this.state.select.id, this.state.notify, this.state.dataLog, this.state.isFilter)
-                .then(()=>this.setState({ isLoading: false }, ()=>{
-                    DeviceEventEmitter.emit('p1-reload', undefined, true);
-                    this.props.showSnackbar(true, `Se confirmo el registro de "${this.state.select.curse}".`, ()=>this.closeAndClean());
-                }))
-                .catch((error)=>this.setState({ isLoading: false }, ()=>this.setState({ alertVisible: true, alertMessage: error.cause })))
-        );*/
-    }
     delete() {
         /*this.props.showLoading(true, 'Eliminando registro...', ()=>
             Assist.deleteAssist(this.state.select.id)
@@ -123,30 +121,6 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         return `confirm-assist-${id}`;
     }
     _renderItem({ item, index }: ListRenderItemInfo<AssistUserData>) {
-        /*return(<List.Item
-            key={`conf-assist-${item.id}`}
-            title={decode(item.name)}
-            description={(item.exist)? `${decode(item.time)} • Ingreso con credencial`: undefined}
-            disabled={this.state.isLoading}
-            onPress={()=>this.checkAction(item.id, index)}
-            onLongPress={()=>undefined}
-            style={styles.items}
-            left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.openImage(`${urlBase}/image/${decode(item.picture)}`, decode(item.name))}>
-                <ImageLazyLoad
-                    size={48}
-                    circle
-                    source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
-                />
-            </Pressable>}
-            right={()=><View style={{ justifyContent: 'center' }}>
-                <Checkbox
-                    color={Colors.blue500}
-                    uncheckedColor={Colors.red500}
-                    disabled={this.state.isLoading}
-                    status={(this.state.dataLog[index])? (this.state.dataLog[index].check)? 'checked': 'unchecked': 'unchecked'}
-                />
-            </View>}
-        />);*/
         return(<ItemAssitTeacher
             item={item}
             //status={(item.exist)? (item.status)? 'checked': 'unchecked': 'unchecked'}
@@ -154,8 +128,8 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
             isLoading={this.state.isLoading}
             onPressImage={this.props.openImage}
             onPress={()=>undefined}
-            onPressAdd={()=>undefined}
-            onPressRemove={()=>undefined}
+            onPressAdd={()=>this._addRowNow(item.id)}
+            onPressRemove={()=>this._onDeleteRow(item.id)}
         />);
     }
     _getItemLayout(_data: AssistUserData[] | null | undefined, index: number) {
@@ -222,6 +196,59 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         }
     }
 
+    // Row's Functions
+    _onDeleteRow(idAssist: string) {
+        this.idDeleteRow = idAssist;
+        this.setState({ deleteRowAssist: true });
+    }
+    _deleteRowNow() {
+        this.props.showLoading(true, 'Removiendo docente....');
+        Assist.removeTeacherAssist(this.state.select, this.idDeleteRow)
+            .then(()=>{
+                this.props.showLoading(true, 'Regenerando registro...');
+                const dataLog = this.state.dataLog.map((elm)=>{
+                    if (elm.idStudent == this.idDeleteRow) return { ...elm, exist: false };
+                    return elm;
+                });
+                const data = this.state.data.map((elm)=>{
+                    if (elm.id == this.idDeleteRow) return { ...elm, id: '-1', existRow: false };
+                    return elm;
+                });
+                this.setState({ dataLog, data }, ()=>{
+                    this.props.showLoading(false);
+                    this.refCustomSnackbar.current?.open('El docente fue retirado del registro de forma exitosa.');
+                });
+            })
+            .catch((error)=>{
+                this.props.showLoading(false);
+                this.refCustomSnackbar.current?.open(error.cause);
+            });
+    }
+    _addRowNow(idTeacher: string) {
+       this.props.showLoading(true, 'Añadiendo docente....');
+        Assist.addTeacherAssist(this.state.select, idTeacher)
+            .then((newId)=>{
+                console.log(newId);
+                this.props.showLoading(true, 'Regenerando registro...');
+                const dataLog = this.state.dataLog.map((elm)=>{
+                    if (elm.idStudent == idTeacher) return { ...elm, exist: true };
+                    return elm;
+                });
+                const data = this.state.data.map((elm)=>{
+                    if (elm.id == idTeacher) return { ...elm, id: newId, existRow: true };
+                    return elm;
+                });
+                this.setState({ dataLog, data }, ()=>{
+                    this.props.showLoading(false);
+                    this.refCustomSnackbar.current?.open('El docente fue añadido al registro de forma exitosa.');
+                });
+            })
+            .catch((error)=>{
+                this.props.showLoading(false);
+                this.refCustomSnackbar.current?.open(error.cause);
+            }); 
+    }
+
     render(): ReactNode {
         const { theme } = this.context;
         return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.closeAndClean}>
@@ -274,6 +301,17 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                                 <Button onPress={()=>this.setState({ deleteVisible: false }, ()=>this.delete())}>Aceptar</Button>
                             </Dialog.Actions>
                         </Dialog>
+                        <Dialog visible={this.state.deleteRowAssist} onDismiss={()=>this.setState({ deleteRowAssist: false })}>
+                            <Dialog.Title>Confirmar</Dialog.Title>
+                            <Dialog.Content>
+                                <Paragraph>Estas seguro/a que quiere remover el docente seleccionado del registro?</Paragraph>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={()=>this.setState({ deleteRowAssist: false })}>Cancelar</Button>
+                                <Button onPress={()=>this.setState({ deleteRowAssist: false }, this._deleteRowNow)}>Aceptar</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                        <CustomSnackbar ref={this.refCustomSnackbar} />
                     </Portal>
                 </View>
             </PaperProvider>

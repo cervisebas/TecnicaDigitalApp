@@ -1,6 +1,6 @@
 import React, { Component, createRef } from "react";
 import { DeviceEventEmitter, EmitterSubscription } from "react-native";
-import ScreenLoading from "./Screens/ScreenLoading";
+import ScreenLoading, { ScreenLoadingRef } from "./Screens/ScreenLoading";
 import Session from "./Screens/Session";
 import SplashScreenAnimation from "./Screens/SplashScreenAnimation";
 import { Actions, Directive, Family, Prefences } from "./Scripts/ApiTecnica";
@@ -29,7 +29,7 @@ export default class Others extends Component<IProps, IState> {
     private event4: EmitterSubscription | null = null;
     // Components
     private refSession = createRef<Session>();
-    private refScreenLoading = createRef<ScreenLoading>();
+    private refScreenLoading = createRef<ScreenLoadingRef>();
     
     componentDidMount() {
         this.event1 = DeviceEventEmitter.addListener('turnScreenLoading', (visible: boolean)=>(visible)? this.refScreenLoading.current?.open(): this.refScreenLoading.current?.close());
@@ -80,7 +80,8 @@ export default class Others extends Component<IProps, IState> {
             if (opt == 0) {
                 this.refScreenLoading.current?.updateMessage('Iniciando sesión...', false)
                 await waitTo(500);
-                this.refScreenLoading.current?.refScreenLoadingDirective.current?.start();
+                //this.refScreenLoading.current?.refScreenLoadingDirective.current?.start();
+                this.refScreenLoading.current?.openAnimation();
                 await waitTo(1000);
                 this.props.changeScreen('Admin');
                 Directive.verify()

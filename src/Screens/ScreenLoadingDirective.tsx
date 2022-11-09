@@ -10,11 +10,8 @@ import LinearGradient from "react-native-linear-gradient";
 import ProgressBar from "../Components/CustomProgressBar";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
 import { decode } from "base-64";
-import FastImage from "react-native-fast-image";
-import logo from '../Assets/miniLogo.webp';
-import logoDark from '../Assets/miniLogoDark.webp';
 import CogsAanimations from "../Components/Animations/CogsAanimations";
-import HackerAnimation from "../Components/Animations/HackerAnimation";
+//import HackerAnimation from "../Components/Animations/HackerAnimation";
 
 type IProps = {
     message: string;
@@ -105,7 +102,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
         <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={[{ position: 'absolute', bottom: 0 }, size]}>
             <CogsAanimations />
             {/*<HackerAnimation />*/}
-            <FastImage source={(context.isDark)? logoDark: logo} style={styles.logo} />
+            {/*<FastImage source={(context.isDark)? logoDark: logo} style={styles.logo} />*/}
             <Animated.View style={[styles.content2, content2Style]}>
                 <View style={styles.contentShow}>
                     <ImageLazyLoad style={styles.contentImage} size={200} circle={true} source={{ uri: image }} />
@@ -133,7 +130,8 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         width: '100%',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        zIndex: 9
     },
     content2: {
         width: '100%',

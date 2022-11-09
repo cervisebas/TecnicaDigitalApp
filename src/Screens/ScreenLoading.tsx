@@ -1,13 +1,11 @@
-import React, { Component, createRef } from 'react';
-import { View, ImageSourcePropType, StyleSheet, LayoutChangeEvent } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import React, { createRef, memo, useEffect, useImperativeHandle, useState } from 'react';
+import { View, ImageSourcePropType, StyleSheet, LayoutChangeEvent, Dimensions } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import CustomModal from '../Components/CustomModal';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 // Images
 import logo from '../Assets/logo.webp';
-import newLogoAnim1 from '../Assets/ScreenAnims/animation1.webp';
-import newLogoAnim2 from '../Assets/ScreenAnims/animation2.webp';
 import { ThemeContext } from '../Components/ThemeProvider';
 import ScreenLoadingDirective, { ScreenLoadingDirectiveRef } from './ScreenLoadingDirective';
 
@@ -22,130 +20,136 @@ type IState = {
     
     logo: ImageSourcePropType | undefined;
 };
+type IRef = {
+    open: (message?: string, hideLoadinginMessage?: boolean)=>void;
+    close: ()=>void;
+    updateMessage: (message: string, hideLoadinginMessage?: boolean)=>void;
+    hideMessage: ()=>void;
+    openAnimation: ()=>void;
+};
 
-export default class ScreenLoading extends Component<IProps, IState> {
-    constructor(props: IProps) {
-        super(props);
-        this.state = {
-            visible: true,
-            showMessage: false,
-            hideLoadinginMessage: true,
-            message: '',
-            logo: logo
-        };
-        this._onLayout = this._onLayout.bind(this);
-    }
-    static contextType = ThemeContext;
+export type { IRef as ScreenLoadingRef };
+export default memo(React.forwardRef(function ScreenLoading(props: IProps, ref: React.Ref<IRef>) {
+    // State's
+    const [visible, setVisible] = useState(true);
+    const [showMessage, setShowMessage] = useState(false);
+    const [hideLoadinginMessage, setHideLoadinginMessage] = useState(true);
+    const [message, setMessage] = useState('');
+    const [imageTop, setImageTop] = useState(0);
+    const [imageLeft, setImageLeft] = useState(0);
+    
     // Ref's
-    public refScreenLoadingDirective = createRef<ScreenLoadingDirectiveRef>();
+    const refScreenLoadingDirective = createRef<ScreenLoadingDirectiveRef>();
 
-    componentDidMount() {
-        this.setLogo();
-        //this.refScreenLoadingDirective.current?.start();
-    }
-    componentDidUpdate() {
-        if (this.state.visible) {
-            if (this.state.logo == undefined) this.setLogo();
-        } else {
-            if (this.state.logo !== undefined) this.setState({ logo: undefined });
-        }
-    }
-    setLogo() {
-        var probability: number = Math.floor(Math.random() * (1000 - 0)) + 0;
-        const showLogo = ()=>{
-            switch (probability) {
-                case 100 || 200 || 300:
-                    (this.props.setTimeout)&&this.props.setTimeout(4000);
-                    setTimeout(()=>this.setState({ logo: logo }), 3000);
-                    return newLogoAnim1;
-                case 400 || 500 || 600:
-                    (this.props.setTimeout)&&this.props.setTimeout(6000);
-                    setTimeout(()=>this.setState({ logo: logo }), 5000);
-                    return newLogoAnim2;
-            }
-            return logo;
-        };
-        this.setState({ logo: showLogo() });
-    }
-    private _onLayout({ nativeEvent: { layout: { width, height } } }: LayoutChangeEvent) {
-        this.refScreenLoadingDirective.current?.setSize(width, height);
+    // Context
+    const { theme, isDark } = React.useContext(ThemeContext);
+
+    // Animation
+    const scaleImage = useSharedValue(1);
+    const topImage = useSharedValue<undefined | number>(undefined);
+    const leftImage = useSharedValue<undefined | number>(undefined);
+    const animationImage = useAnimatedStyle(()=>({
+        transform: [{ scale: withSpring(scaleImage.value) }],
+        top: (topImage.value)? topImage.value: undefined,
+        left: (leftImage.value)? leftImage.value: undefined
+    }));
+
+    // Position Image
+    function setPositionImage() {
+        const deviceSize = Dimensions.get('window');
+        const top = (deviceSize.height / 2) - 150;
+        const left = (deviceSize.width / 2) - 100;
+        setImageTop(top);
+        setImageLeft(left);
+        topImage.value = top;
+        leftImage.value = left;
     }
 
-    // Controller
-    open(message?: string, hideLoadinginMessage?: boolean) {
+    // Layout Animation
+    function _onLayout({ nativeEvent: { layout: { width, height } } }: LayoutChangeEvent) {
+        refScreenLoadingDirective.current?.setSize(width, height);
+    }
+
+    // Ref Functions
+    function open(message?: string, hideLoadinginMessage?: boolean) {
         if (message) {
             if (hideLoadinginMessage !== undefined) {
-                return this.setState({
-                    visible: true,
-                    showMessage: false,
-                    message,
-                    hideLoadinginMessage
-                });
+                setVisible(true);
+                setShowMessage(false);
+                setMessage(message);
+                setHideLoadinginMessage(hideLoadinginMessage);
+                return;
             }
-            return this.setState({
-                visible: true,
-                showMessage: false,
-                message
-            });
+            setVisible(true);
+            setShowMessage(false);
+            setMessage(message);
+            return;
         }
-        this.setState({
-            visible: true,
-            showMessage: false,
-            message: ''
-        });
+        setVisible(true);
+        setShowMessage(false);
+        setMessage('');
     }
-    updateMessage(message: string, hideLoadinginMessage?: boolean) {
-        if (hideLoadinginMessage !== undefined) return this.setState({
-            showMessage: true,
-            message,
-            hideLoadinginMessage
-        });
-        this.setState({
-            showMessage: true,
-            message
-        });
+    function updateMessage(message: string, hideLoadinginMessage?: boolean) {
+        if (hideLoadinginMessage !== undefined) {
+            setShowMessage(true);
+            setMessage(message);
+            setHideLoadinginMessage(hideLoadinginMessage);
+            return;
+        }
+        setShowMessage(true);
+        setMessage(message);
     }
-    hideMessage() {
-        this.setState({
-            showMessage: false,
-            hideLoadinginMessage: true,
-            message: ''
-        });
+    function hideMessage() {
+        setShowMessage(false);
+        setHideLoadinginMessage(true);
+        setMessage('');
     }
-    close() {
-        this.setState({
-            visible: false,
-            hideLoadinginMessage: true,
-            showMessage: false,
-            message: ''
-        }, ()=>setTimeout(()=>this.refScreenLoadingDirective.current?.hide(), 1000));
+    function close() {
+        setVisible(false);
+        setHideLoadinginMessage(true);
+        setShowMessage(false);
+        setMessage('');
+        setTimeout(()=>{
+            scaleImage.value = 1;
+            setPositionImage();
+        }, 300);
     }
+    function openAnimation(): void {
+        topImage.value = withTiming(-61, { duration: 512 });
+        leftImage.value = withTiming(-61, { duration: 512 });
+        scaleImage.value = 0.21;
+        setTimeout(()=>refScreenLoadingDirective.current?.start(), 300);
+    }
+    useImperativeHandle(ref, ()=>({ open, updateMessage, hideMessage, close, openAnimation }));
 
-    render(): React.ReactNode {
-        const { theme } = this.context;
-        return(<CustomModal visible={this.state.visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>
-            <View style={[styles.background, { backgroundColor: theme.colors.background }]} onLayout={this._onLayout}>
-                <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={styles.gradient}>
-                    {(this.state.logo)&&<FastImage
-                        source={this.state.logo as any}
+    useEffect(()=>{
+        setPositionImage();
+    }, []);
+
+    return(<CustomModal visible={visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>
+        <View style={[styles.background, { backgroundColor: theme.colors.background }]} onLayout={_onLayout}>
+            <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={styles.gradient}>
+                <Animated.View style={[styles.viewLogo, { top: imageTop, left: imageLeft }, animationImage]}>
+                    <Animated.Image
+                        source={logo}
                         style={styles.logo}
-                    />}
-                    <View style={styles.contentLoading}>
-                        {(!this.state.showMessage || !this.state.hideLoadinginMessage)&&<ActivityIndicator size={'large'} animating={true} />}
-                        {(this.state.showMessage)&&<Text
-                            style={[styles.text, (!this.state.hideLoadinginMessage)&&{
-                                fontSize: 14,
-                                marginTop: 16
-                            }]}>
-                            {this.state.message}
-                        </Text>}
-                    </View>
-                </LinearGradient>
-                <ScreenLoadingDirective ref={this.refScreenLoadingDirective} message={this.state.message} />
-            </View>
-        </CustomModal>);
-    }
-}
+                    />
+                </Animated.View>
+                <View style={styles.contentLoading}>
+                    {(!showMessage || !hideLoadinginMessage)&&<ActivityIndicator size={'large'} animating={true} />}
+                    {(showMessage)&&<Text
+                        style={[styles.text, (!hideLoadinginMessage)&&{
+                            fontSize: 14,
+                            marginTop: 16
+                        }]}>
+                        {message}
+                    </Text>}
+                </View>
+            </LinearGradient>
+            <ScreenLoadingDirective ref={refScreenLoadingDirective} message={message} />
+        </View>
+    </CustomModal>);
+}));
 
 const styles = StyleSheet.create({
     background: {
@@ -157,10 +161,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         flex: 2
     },
-    logo: {
+    viewLogo: {
+        position: 'absolute',
         width: 200,
         height: 200,
-        marginTop: -180
+        overflow: 'visible',
+        zIndex: 10
+    },
+    logo: {
+        width: '100%',
+        height: '100%',
+        marginTop: -40
     },
     contentLoading: {
         position: 'absolute',

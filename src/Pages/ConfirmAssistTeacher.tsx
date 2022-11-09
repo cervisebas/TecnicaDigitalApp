@@ -14,7 +14,7 @@ import { waitTo } from "../Scripts/Utils";
 
 type IProps = {
     showLoading: (v: boolean, t?: string)=>any;
-    showSnackbar: (v: boolean, t: string, a?: ()=>any)=>any;
+    showSnackbar: (v: boolean, t: string)=>any;
     openImage: (source: string, text: string)=>any;
     openAddAnnotation: ()=>any;
 };
@@ -59,22 +59,12 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
     private refCustomNoInvasiveLoading = createRef<CustomNoInvasiveLoading>();
     private refComponentDialogs = createRef<ComponentDialogs>();
 
-    checkAction(idStudent: string, index: number) {
-        let dataLog = this.state.dataLog;
-        dataLog[index] = {
-            check: !dataLog[index].check,
-            idStudent,
-            idAssist: dataLog[index].idAssist,
-            exist: dataLog[index].exist
-        };
-        this.setState({ dataLog: dataLog });
-    }
     loadData() {
         this.setState({
             data: this.state.setData,
             dataBackup: this.state.setData,
             dataLog: this.state.setData.map((s)=>({
-                check: (s.exist)? s.status: false,
+                check: (s.existRow)? s.status: false,
                 idStudent: s.id,
                 idAssist: s.idAssist,
                 exist: s.exist
@@ -111,7 +101,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
             status={(this.state.dataLog[index].check)? 'checked': 'unchecked'}
             isLoading={this.state.isLoading}
             onPressImage={this.props.openImage}
-            onPress={()=>undefined}
+            onPress={(state, finish)=>this._updateRowNow(item.id, state, finish)}
             onPressAdd={(finish)=>this._addRowNow(item.id, finish)}
             onPressRemove={()=>this._onDeleteRow(item.id)}
         />);
@@ -174,11 +164,11 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
             .then(()=>{
                 this.props.showLoading(true, 'Regenerando registro...');
                 const dataLog = this.state.dataLog.map((elm)=>{
-                    if (elm.idStudent == this.idDeleteRow) return { ...elm, exist: false };
+                    if (elm.idStudent == this.idDeleteRow) return { ...elm, exist: false, check: false };
                     return elm;
                 });
                 const data = this.state.data.map((elm)=>{
-                    if (elm.id == this.idDeleteRow) return { ...elm, idAssist: '-1', existRow: false };
+                    if (elm.id == this.idDeleteRow) return { ...elm, idAssist: '-1', status: false, existRow: false };
                     return elm;
                 });
                 this.setState({ dataLog, data }, ()=>{
@@ -216,6 +206,38 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                 });
             })
             .catch((error)=>{
+                this.numProcess -= 1;
+                this._goNoInvasiveLoading(false);
+                this.refCustomSnackbar.current?.open(error.cause);
+                (finish)&&finish();
+            }); 
+    }
+    _updateRowNow(idTeacher: string, state: boolean, finish?: ()=>void) {
+        this.numProcess += 1;
+        if (this.numProcess == 1) this._goNoInvasiveLoading(true, `Aplicando estado "${(state)? 'presente': 'ausente'}"...`); else this._goNoInvasiveLoading(true, `Ejecutando ${this.numProcess} procesos...`);
+        Assist.modifyTeacherAssist(this.state.select, idTeacher, state)
+            .then(()=>{
+                this.numProcess -= 1;
+                if (this.numProcess == 0) this._goNoInvasiveLoading(true, 'Regenerando registro...'); else this._goNoInvasiveLoading(true, (this.numProcess == 1)? 'Ejecutando 1 proceso...': `Ejecutando ${this.numProcess} procesos...`);
+                const dataLog = this.state.dataLog.map((elm)=>{
+                    if (elm.idStudent == idTeacher) return { ...elm, check: state };
+                    return elm;
+                });
+                const data = this.state.data.map((elm)=>{
+                    if (elm.id == idTeacher) return { ...elm, status: state };
+                    return elm;
+                });
+                this.setState({ dataLog, data }, async()=>{
+                    if (this.numProcess == 0) {
+                        await waitTo(500);
+                        if (this.numProcess == 0) this._goNoInvasiveLoading(false);
+                    }
+                    (finish)&&finish();
+                    //this.refCustomSnackbar.current?.open('El docente fue añadido al registro de forma exitosa.');
+                });
+            })
+            .catch((error)=>{
+                this.numProcess -= 1;
                 this._goNoInvasiveLoading(false);
                 this.refCustomSnackbar.current?.open(error.cause);
                 (finish)&&finish();

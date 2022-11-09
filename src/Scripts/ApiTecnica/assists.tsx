@@ -174,7 +174,7 @@ export default class AssistSystem {
             try {
                 var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
                 Directives.getDataLocal().then((session)=>{
-                    const dataPost = { modifyTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher, session: (status)? '1': '0' };
+                    const dataPost = { modifyTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher, status: (status)? '1': '0' };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
                         const res: TypicalRes = result.data;
                         if (res.ok) resolve(); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });

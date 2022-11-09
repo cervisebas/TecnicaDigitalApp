@@ -17,6 +17,7 @@ import ConfirmAssistTeacher from "../Pages/ConfirmAssistTeacher";
 import { InWorking } from "../Components/InWorking";
 import DeviceInfo from "react-native-device-info";
 import CustomNoInvasiveLoading from "../Components/CustomNoInvasiveLoading";
+import ImageViewerText from "../Pages/ImageViewerText";
 
 type IProps = {
     navigation: any;
@@ -45,6 +46,8 @@ export default class Page7 extends PureComponent<IProps, IState> {
         this.createRegist = this.createRegist.bind(this);
         this._renderItem = this._renderItem.bind(this);
         this._goLoading = this._goLoading.bind(this);
+        this._openImage = this._openImage.bind(this);
+        this._showSnackbar = this._showSnackbar.bind(this);
     }
     static contextType = ThemeContext;
     // Ref's
@@ -52,6 +55,8 @@ export default class Page7 extends PureComponent<IProps, IState> {
     private refLoadingComponent = createRef<LoadingComponent>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private refConfirmAssistTeacher = createRef<ConfirmAssistTeacher>();
+    private refImageViewerText = createRef<ImageViewerText>();
+
     /*private refSketchCanvas = createRef<SketchCanvasRef>();
     async convertToImage() {
         const base64 = this.refSketchCanvas.current?.toImage()?.encodeToBase64();
@@ -134,10 +139,18 @@ export default class Page7 extends PureComponent<IProps, IState> {
         return `card-teacher-${item.id}`;
     }
 
+    // Functions
     _goLoading(visible: boolean, message?: string) {
         if (!visible) return this.refLoadingComponent.current?.close();
         if (this.refLoadingComponent.current?.state.visible) this.refLoadingComponent.current?.update(message!);
         this.refLoadingComponent.current?.open(message!);
+    }
+    _openImage(source: string, text: string) {
+        this.refImageViewerText.current?.open(source, text);
+    }
+    _showSnackbar(visible: boolean, message?: string) {
+        if (!visible) this.refCustomSnackbar.current?.close();
+        this.refCustomSnackbar.current?.open(message!);
     }
 
     render(): React.ReactNode {
@@ -183,18 +196,18 @@ export default class Page7 extends PureComponent<IProps, IState> {
                 </View>
                 <DialogCreate ref={this.refDialogCreate} goCreateRegist={this.createRegist} />
                 <CustomSnackbar ref={this.refCustomSnackbar} />
+                <ImageViewerText ref={this.refImageViewerText} />
 
                 <LoadingComponent ref={this.refLoadingComponent} />
                 <ConfirmAssistTeacher
                     ref={this.refConfirmAssistTeacher}
                     showLoading={this._goLoading}
-                    showSnackbar={function (v: boolean, t: string, a?: (() => any) | undefined) {
-                    throw new Error("Function not implemented.");
-                } } openImage={function (source: string, text: string) {
-                    throw new Error("Function not implemented.");
-                } } openAddAnnotation={function () {
-                    throw new Error("Function not implemented.");
-                } } />
+                    showSnackbar={this._showSnackbar}
+                    openImage={this._openImage}
+                    openAddAnnotation={function () {
+                        throw new Error("Function not implemented.");
+                    } }
+                />
 
                 </>
             </PaperProvider>

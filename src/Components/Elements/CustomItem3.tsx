@@ -12,7 +12,7 @@ type IProps2 = {
     item: AssistUserData;
     status: "checked" | "unchecked" | "indeterminate";
     isLoading: boolean;
-    onPress?: ()=>any;
+    onPress?: (status: boolean, finish: ()=>void)=>any;
     onPressAdd?: (finish: ()=>void)=>any;
     onPressRemove?: ()=>any;
     onPressImage: (source: string, message: string)=>any;
@@ -28,12 +28,19 @@ export default class ItemAssitTeacher extends PureComponent<IProps2, IState2> {
             disable: false
         };
         this._onPressAdd = this._onPressAdd.bind(this);
+        this._onPress = this._onPress.bind(this);
     }
     static contextType = ThemeContext;
     _onPressAdd() {
         this.setState({ disable: true }, ()=>{
             if (this.props.onPressAdd)
                 this.props.onPressAdd(()=>this.setState({ disable: false }))
+        });
+    }
+    _onPress() {
+        this.setState({ disable: true }, ()=>{
+            if (this.props.onPress)
+                this.props.onPress(!this.props.item.status, ()=>this.setState({ disable: false }))
         });
     }
     render(): React.ReactNode {
@@ -43,7 +50,7 @@ export default class ItemAssitTeacher extends PureComponent<IProps2, IState2> {
             title={decode(this.props.item.name)}
             description={(this.props.item.exist)? `${decode(this.props.item.time)} • Ingreso con credencial`: undefined}
             disabled={this.props.isLoading || !this.props.item.existRow || this.state.disable}
-            onPress={this.props.onPress}
+            onPress={this._onPress}
             style={[styles.items, (!this.props.item.existRow)&&{ backgroundColor: Color(theme.colors.background as string).negate().alpha((isDark)? 0.25: 0.1).rgb().string() }]}
             left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.onPressImage(`${urlBase}/image/${decode(this.props.item.picture)}`, decode(this.props.item.name))}>
                 <ImageLazyLoad

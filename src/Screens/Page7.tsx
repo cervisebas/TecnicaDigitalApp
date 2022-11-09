@@ -16,6 +16,7 @@ import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import ConfirmAssistTeacher from "../Pages/ConfirmAssistTeacher";
 import { InWorking } from "../Components/InWorking";
 import DeviceInfo from "react-native-device-info";
+import CustomNoInvasiveLoading from "../Components/CustomNoInvasiveLoading";
 
 type IProps = {
     navigation: any;
@@ -193,9 +194,8 @@ export default class Page7 extends PureComponent<IProps, IState> {
                     throw new Error("Function not implemented.");
                 } } openAddAnnotation={function () {
                     throw new Error("Function not implemented.");
-                } } openSetGroup={function () {
-                    throw new Error("Function not implemented.");
                 } } />
+
                 </>
             </PaperProvider>
         </View>);

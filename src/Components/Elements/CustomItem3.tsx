@@ -13,25 +13,36 @@ type IProps2 = {
     status: "checked" | "unchecked" | "indeterminate";
     isLoading: boolean;
     onPress?: ()=>any;
-    onPressAdd?: ()=>any;
+    onPressAdd?: (finish: ()=>void)=>any;
     onPressRemove?: ()=>any;
     onPressImage: (source: string, message: string)=>any;
 };
-type IState2 = {};
+type IState2 = {
+    disable: boolean;
+};
 
 export default class ItemAssitTeacher extends PureComponent<IProps2, IState2> {
     constructor(props: IProps2) {
         super(props);
-        this.state = {};
+        this.state = {
+            disable: false
+        };
+        this._onPressAdd = this._onPressAdd.bind(this);
     }
     static contextType = ThemeContext;
+    _onPressAdd() {
+        this.setState({ disable: true }, ()=>{
+            if (this.props.onPressAdd)
+                this.props.onPressAdd(()=>this.setState({ disable: false }))
+        });
+    }
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<List.Item
             key={`conf-assist-${this.props.item.id}`}
             title={decode(this.props.item.name)}
             description={(this.props.item.exist)? `${decode(this.props.item.time)} • Ingreso con credencial`: undefined}
-            disabled={this.props.isLoading || !this.props.item.existRow}
+            disabled={this.props.isLoading || !this.props.item.existRow || this.state.disable}
             onPress={this.props.onPress}
             style={[styles.items, (!this.props.item.existRow)&&{ backgroundColor: Color(theme.colors.background as string).negate().alpha((isDark)? 0.25: 0.1).rgb().string() }]}
             left={(props)=><Pressable {...props} style={{ justifyContent: 'center', alignItems: 'center' }} onPress={()=>this.props.onPressImage(`${urlBase}/image/${decode(this.props.item.picture)}`, decode(this.props.item.name))}>
@@ -46,18 +57,20 @@ export default class ItemAssitTeacher extends PureComponent<IProps2, IState2> {
                     <IconButton
                         icon={'delete-outline'}
                         color={Colors.blue500}
+                        disabled={this.props.isLoading || !this.props.item.existRow || this.state.disable}
                         onPress={this.props.onPressRemove}
                     />
                     <Checkbox
                         color={Colors.blue500}
                         uncheckedColor={Colors.red500}
-                        disabled={this.props.isLoading || !this.props.item.existRow}
+                        disabled={this.props.isLoading || !this.props.item.existRow || this.state.disable}
                         status={this.props.status}
                     />
                 </>: <IconButton
                     icon={'plus'}
                     color={Colors.green500}
-                    onPress={this.props.onPressAdd}
+                    disabled={this.props.isLoading || this.state.disable}
+                    onPress={this._onPressAdd}
                 />}
             </View>}
         />);

@@ -16,6 +16,8 @@ type IProps = {
     animationInTiming?: number;
     animationOutTiming?: number;
     transparent?: boolean;
+    useBackdrop?: boolean;
+    fullScreeen?: boolean;
     style?: StyleProp<ViewStyle>;
 };
 type IState = {};
@@ -64,6 +66,8 @@ export default class CustomModal extends Component<IProps, IState> {
             useNativeDriverForBackdrop={true}
             deviceWidth={width}
             deviceHeight={height}
+            hasBackdrop={this.props.useBackdrop}
+            coverScreen={this.props.fullScreeen}
             //backdropColor={(isDark)? 'gray': 'black'}
             style={[this.props.style, styles.modal]}>
             {this.props.children}

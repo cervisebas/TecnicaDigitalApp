@@ -1,10 +1,8 @@
-import { Picker } from "@react-native-picker/picker";
 import { decode, encode } from "base-64";
 import React, { createRef, PureComponent } from "react";
 import { View, StyleSheet, ToastAndroid, DeviceEventEmitter, TouchableWithoutFeedback, Keyboard, Pressable } from "react-native";
-import { Appbar, TextInput, Button, Provider as PaperProvider, ProgressBar, overlay } from "react-native-paper";
+import { Appbar, TextInput, Button, ProgressBar, overlay } from "react-native-paper";
 import CustomModal from "../../Components/CustomModal";
-import { CustomPicker2 } from "../../Components/Elements/CustomInput";
 import CustomSnackbar from "../../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../../Components/ThemeProvider";
 import { Matters, Student } from "../../Scripts/ApiTecnica";
@@ -57,6 +55,7 @@ export default class EditMatter extends PureComponent<IProps, IState> {
         this.close = this.close.bind(this);
         this.sendData = this.sendData.bind(this);
         this.loadingTeachers = this.loadingTeachers.bind(this);
+        this._openTeacherSelector = this._openTeacherSelector.bind(this);
     }
     private refCustomSnackbar = createRef<CustomSnackbar>();
     static contextType = ThemeContext;

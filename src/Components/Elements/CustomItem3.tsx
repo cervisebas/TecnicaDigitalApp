@@ -48,7 +48,7 @@ export default class ItemAssitTeacher extends PureComponent<IProps2, IState2> {
         return(<List.Item
             key={`conf-assist-${this.props.item.id}`}
             title={decode(this.props.item.name)}
-            description={(this.props.item.exist)? `${decode(this.props.item.time)} • Ingreso con credencial`: undefined}
+            description={(this.props.item.exist)? `${decode(this.props.item.time)} • Ingreso con credencial`: `${decode(this.props.item.time)}`}
             disabled={this.props.isLoading || !this.props.item.existRow || this.state.disable}
             onPress={this._onPress}
             style={[styles.items, (!this.props.item.existRow)&&{ backgroundColor: Color(theme.colors.background as string).negate().alpha((isDark)? 0.25: 0.1).rgb().string() }]}

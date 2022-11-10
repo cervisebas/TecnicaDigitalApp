@@ -6,7 +6,7 @@ import { Appbar, Divider, IconButton, List, overlay, ProgressBar, Provider as Pa
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { FlatList } from "react-native-gesture-handler";
 import { CustomSearchbar } from "../../Pages/SearchStudents";
-import { orderArray, orderArrayAlphabeticallyTwo, waitTo } from "../../Scripts/Utils";
+import { orderArray, orderArrayAlphabeticallyTwo, orderArrayBySelect, waitTo } from "../../Scripts/Utils";
 import { Matter } from "../../Scripts/ApiTecnica/types";
 import { decode } from "base-64";
 import { DialogDeleteMatter } from "./DialogDeleteMatter";
@@ -22,7 +22,6 @@ type IState = {
     visible: boolean;
     activeFilter: boolean;
     listShow: Matter[];
-    loadingFilter: boolean;
 };
 
 export default class SearchMatter extends PureComponent<IProps, IState> {
@@ -31,8 +30,7 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
         this.state = {
             visible: false,
             activeFilter: false,
-            listShow: [],
-            loadingFilter: false
+            listShow: []
         };
         this.goSearch = this.goSearch.bind(this);
         this._onEmpty = this._onEmpty.bind(this);
@@ -47,12 +45,17 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
     // Ref's
     private refSearchBar = createRef<CustomSearchbar>();
     private refDialogDelete = createRef<DialogDeleteMatter>();
+    private refCustomProgressbar = createRef<CustomProgressbar>();
 
-    goSearch({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+    async goSearch({ nativeEvent: { text } }: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+        this.refCustomProgressbar.current?.show(true);
         this.search = text;
-        this.setState({
-            listShow: orderArray(this.setFilter(this.props.matters), 'name', text)
-        });
+        await waitTo(380);
+        orderArrayBySelect(this.setFilter(this.props.matters), ['name', 'teacher.name'], text)
+            .then((listShow)=>{
+                this.setState({ listShow });
+                this.refCustomProgressbar.current?.show(false);
+            });
     }
     setFilter(list: Matter[]) {
         if (this.isFilter) return orderArrayAlphabeticallyTwo(list, 'teacher', 'name');
@@ -68,6 +71,15 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
     onDelete(id: string) {
         this.props.setDelete(id);
         this.refDialogDelete.current?.open();
+    }
+
+    componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any): void {
+        if (this.props.isLoading !== prevProps.isLoading) {
+            if (this.props.isLoading && !this.refCustomProgressbar.current?.isLoading())
+                this.refCustomProgressbar.current?.show(true);
+            else if (this.refCustomProgressbar.current?.isLoading())
+                this.refCustomProgressbar.current.show(false);
+        }
     }
 
     // FlatList
@@ -88,13 +100,11 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
                     {...props}
                     icon={'pencil-outline'}
                     onPress={()=>this.props.onEdit(item)}
-                    disabled={this.state.loadingFilter}
                 />
                 <IconButton
                     {...props}
                     icon={'delete-outline'}
                     onPress={()=>this.onDelete(item.id)}
-                    disabled={this.state.loadingFilter}
                 />
             </>}
         />);
@@ -109,15 +119,15 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
     _ItemSeparatorComponent() {
         return(<Divider />);
     }
-    controlFilter() {
-        if (this.state.loadingFilter) return;
-        this.setState({ loadingFilter: true }, async()=>{
-            if (this.isFilter) this.isFilter = false; else {
-                this.isFilter = true;
-                await waitTo(512);
-            }
-            this.setState({ activeFilter: this.isFilter, loadingFilter: false }, this.update);
-        });
+    async controlFilter() {
+        if (this.refCustomProgressbar.current?.isLoading()) return;
+        this.refCustomProgressbar.current?.show(true);
+        if (this.isFilter) this.isFilter = false; else {
+            this.isFilter = true;
+            await waitTo(512);
+        }
+        this.setState({ activeFilter: this.isFilter }, this.update);
+        this.refCustomProgressbar.current?.show(false);
     }
 
     // Controller
@@ -151,7 +161,6 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
                         <Appbar.Content title={'Buscar materia'} />
                         <Appbar.Action
                             icon={(this.state.activeFilter)? 'filter-outline': 'filter-off-outline'}
-                            disabled={this.state.loadingFilter}
                             onPress={this.controlFilter}
                         />
                     </Appbar.Header>
@@ -165,11 +174,12 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
                                 onSubmit={this.goSearch}
                             />
                         </View>
-                        <ProgressBar
+                        {/*<ProgressBar
                             indeterminate={true}
                             style={{ opacity: (this.props.isLoading || this.state.loadingFilter)? 1: 0 }}
                             color={(!isDark)? theme.colors.accent: undefined}
-                        />
+                        />*/}
+                        <CustomProgressbar ref={this.refCustomProgressbar} />
                         <FlatList
                             data={this.state.listShow}
                             extraData={this.state}
@@ -185,6 +195,34 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
                 <DialogDeleteMatter ref={this.refDialogDelete} onConfirm={this.props.goDelete} />
             </PaperProvider>
         </CustomModal>);
+    }
+}
+
+type IProps2 = {};
+type IState2 = {
+    isLoading: boolean;
+};
+class CustomProgressbar extends PureComponent<IProps2, IState2> {
+    constructor(props: IProps2) {
+        super(props);
+        this.state = {
+            isLoading: false
+        };
+    }
+    static contextType = ThemeContext;
+    show(isLoading: boolean) {
+        this.setState({ isLoading });
+    }
+    isLoading() {
+        return this.state.isLoading;
+    }
+    render(): React.ReactNode {
+        const { isDark, theme } = this.context;
+        return(<ProgressBar
+            indeterminate={true}
+            style={{ opacity: (this.state.isLoading)? 1: 0 }}
+            color={(!isDark)? theme.colors.accent: undefined}
+        />);
     }
 }
 

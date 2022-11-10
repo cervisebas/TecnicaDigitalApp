@@ -167,8 +167,11 @@ export default class ViewDetails extends Component<IProps, IState> {
                             <View style={styles.textProfile}>
                                 <Text numberOfLines={2} style={{ fontSize: 20 }}>{decode(this.state.data.name)}</Text>
                                 <Text style={{ marginTop: 8, marginLeft: 12, color: Color(theme.colors.text).alpha(0.70).rgb().string() }}>
-                                    <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>Curso: </Text>
-                                    {decode(this.state.data.curse)}
+                                    {(decode(this.state.data.curse).toLowerCase().indexOf('docente') !== -1 || decode(this.state.data.curse).toLowerCase().indexOf('profesor') !== -1 || decode(this.state.data.curse).toLowerCase().indexOf('archivado') !== -1)? <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>{decode(this.state.data.curse)}</Text>
+                                    :<>
+                                        <Text style={{ fontWeight: 'bold', color: theme.colors.text }}>Curso: </Text>
+                                        {decode(this.state.data.curse)}
+                                    </>}
                                 </Text>
                             </View>
                         </View>

@@ -4,10 +4,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import CustomModal from '../Components/CustomModal';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-// Images
-import logo from '../Assets/logo.webp';
 import { ThemeContext } from '../Components/ThemeProvider';
 import ScreenLoadingDirective, { ScreenLoadingDirectiveRef } from './ScreenLoadingDirective';
+// Images
+import logo from '../Assets/logo.webp';
 
 type IProps = {
     setTimeout?: (time: number)=>any;
@@ -42,7 +42,7 @@ export default memo(React.forwardRef(function ScreenLoading(props: IProps, ref: 
     const refScreenLoadingDirective = createRef<ScreenLoadingDirectiveRef>();
 
     // Context
-    const { theme, isDark } = React.useContext(ThemeContext);
+    const { theme } = React.useContext(ThemeContext);
 
     // Animation
     const scaleImage = useSharedValue(1);
@@ -124,6 +124,7 @@ export default memo(React.forwardRef(function ScreenLoading(props: IProps, ref: 
 
     useEffect(()=>{
         setPositionImage();
+        //setTimeout(openAnimation, 3000);
     }, []);
 
     return(<CustomModal visible={visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>

@@ -1,10 +1,11 @@
 import { decode } from "base-64";
-import React, { PureComponent } from "react";
+import React, { memo, PureComponent, useContext } from "react";
 import { Dimensions, FlatList, ListRenderItemInfo, StyleSheet, View } from "react-native";
-import { Appbar, Button, Dialog, Divider, List, Paragraph, Portal, Provider } from "react-native-paper";
+import { Appbar, Button, Dialog, Divider, List, Paragraph, Portal, Provider, Text } from "react-native-paper";
 import CustomModal from "../Components/CustomModal";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { Groups } from "../Scripts/ApiTecnica/types";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 type IProps = {
     setFilter: (set: string[])=>any;
@@ -15,6 +16,7 @@ type IState = {
     isLoading: boolean;
     actual: Groups;
     confirmView: boolean;
+    curse: string;
 };
 
 const { width } = Dimensions.get("window");
@@ -27,7 +29,8 @@ export default class SetGroup extends PureComponent<IProps, IState> {
             datas: [],
             isLoading: false,
             actual: this.defaultActual,
-            confirmView: false
+            confirmView: false,
+            curse: ''
         };
         this._renderItem = this._renderItem.bind(this);
         this.close = this.close.bind(this);
@@ -55,18 +58,24 @@ export default class SetGroup extends PureComponent<IProps, IState> {
     _ItemSeparatorComponent() {
         return <Divider />;
     }
+    _leftIcon(props: { color: string; style: { marginLeft: number; marginRight: number; marginVertical?: number | undefined; }; }) {
+        return(<List.Icon {...props} icon={'google-classroom'} />);
+    }
     _renderItem({ item }: ListRenderItemInfo<Groups>) {
+        const length = item.students.length;
         return(<List.Item
             key={`set-group-${item.id}`}
-            title={`Grupo ${decode(item.name_group)} - ${decode(item.curse)}`}
+            title={`Grupo ${decode(item.name_group)}`}
+            description={`${length} ${(length == 1)? 'estudiante': 'estudiantes'}`}
             style={styles.item}
             onPress={()=>this.setNow(item)}
+            left={this._leftIcon}
         />);
     }
     _getItemLayout(_data: Groups[] | null | undefined, index: number) {
         return {
-            length: 50,
-            offset: 50 * index,
+            length: 72,
+            offset: 72 * index,
             index
         }
     }
@@ -74,19 +83,22 @@ export default class SetGroup extends PureComponent<IProps, IState> {
         this.setState({ confirmView: false });
     }
     _goSetGroup() {
-        this.setState({ confirmView: false });
-        this.props.setFilter(this.state.actual.students);
-        this.close();
+        this.setState({ confirmView: false }, ()=>{
+            this.props.setFilter(this.state.actual.students);
+            this.close();
+        });
     }
 
     // Controller
-    open(datas: Groups[]) {
+    open(datas: Groups[], curse: string) {
         this.setState({
             visible: true,
-            datas
+            datas,
+            curse
         });
     }
     close() {
+        if (this.state.confirmView) return this.setState({ confirmView: false });
         this.setState({
             visible: false,
             datas: [],
@@ -108,8 +120,9 @@ export default class SetGroup extends PureComponent<IProps, IState> {
                         extraData={this.state}
                         keyExtractor={this._keyExtractor}
                         getItemLayout={this._getItemLayout}
-                        contentContainerStyle={{ paddingBottom: 76 }}
+                        contentContainerStyle={[{ paddingBottom: 76 }, (this.state.datas.length == 0)&&{ flex: 2 }]}
                         ItemSeparatorComponent={this._ItemSeparatorComponent}
+                        ListEmptyComponent={<EmptyList curse={this.state.curse} />}
                         renderItem={this._renderItem}
                     />
                     <Portal>
@@ -130,19 +143,27 @@ export default class SetGroup extends PureComponent<IProps, IState> {
     }
 }
 
+const EmptyList = memo(function(props: { curse: string }) {
+    const { theme } = useContext(ThemeContext);
+    return(<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+        <Icon name={'playlist-remove'} color={theme.colors.text} size={80} />
+        <Text style={{ marginTop: 8 }}>No se encontraron grupos para el curso {props.curse}</Text>
+    </View>);
+});
+
 const styles = StyleSheet.create({
     content: {
         width: (width - 16),
         marginLeft: 8,
         marginRight: 8,
-        height: '90%',
+        height: '70%',
         //backgroundColor: Theme.colors.background,
         borderRadius: 8,
         overflow: 'hidden',
         position: 'relative'
     },
     item: {
-        height: 50
+        height: 72
     },
     fab: {
         position: 'absolute',

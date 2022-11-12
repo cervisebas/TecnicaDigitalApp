@@ -115,6 +115,7 @@ export default class ConfigurePreferences extends PureComponent<IProps, IState> 
     _renderItem({ item }: ListRenderItemInfo<Curses>) {
         const { isDark, theme } = this.context;
         return(<List.Item
+            key={`item-preference-${item.id}`}
             title={`Curso ${item.label}`}
             style={styles.item}
             disabled={this.state.isLoading}

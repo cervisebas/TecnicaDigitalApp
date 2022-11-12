@@ -296,7 +296,9 @@ export default class Page1 extends Component<IProps, IState> {
         this.refViewAnnotations.current?.open(select, data);
     }
     _openSetGroup() {
-        this.refSetGroup.current?.open(this.state.listGroups);
+        const select = this.refConfirmAssist.current?.state.select;
+        const list = this.state.listGroups.filter((v)=>decode(v.curse) == select?.curse);
+        this.refSetGroup.current?.open(list, select!.curse);
     }
     _setFilterConfirm(filter: string[]) {
         this.refConfirmAssist.current?.setFilter(filter);

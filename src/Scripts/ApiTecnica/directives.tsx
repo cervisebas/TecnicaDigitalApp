@@ -1,4 +1,4 @@
-import { ResponseDirectiveData, DirectiveData, DirectivesList, TypicalRes } from "./types";
+import { ResponseDirectiveData, DirectiveData, DirectivesList, TypicalRes, ApiHeader } from "./types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode, encode } from "base-64";
 import axios from "axios";
@@ -7,17 +7,17 @@ import { getTempSession, isTempSession, setTempSession } from "./tempsession";
 
 export default class DirectiveSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
 
     public openSession: boolean = false;
     open(username: string, password: string, temp?: boolean): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var postData = { openSessionDirectives: '1', username: encode(username), password: encode(password) };
+                const postData = { openSessionDirectives: '1', username: encode(username), password: encode(password) };
                 axios.post(`${this.urlBase}/index.php`, qs.stringify(postData), this.header_access).then(async(value)=>{
                     var result: ResponseDirectiveData = value.data;
                     if (result.ok) {
@@ -73,7 +73,7 @@ export default class DirectiveSystem {
     getAll(): Promise<DirectivesList[]> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { getAllDirectives: true, username: session.username, password: session.password };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -89,7 +89,7 @@ export default class DirectiveSystem {
     delete(idDirective: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { deleteDirective: true, username: session.username, password: session.password, idDirective };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -105,7 +105,7 @@ export default class DirectiveSystem {
     add(name: string, position: string, dni: string, newUsername: string, newPassword: string, permission: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = {
                         addDirective: true,
@@ -131,7 +131,7 @@ export default class DirectiveSystem {
     edit(idEdit: string, name?: string | undefined, position?: string | undefined, dni?: string | undefined, newUsername?: string | undefined, newPassword?: string | undefined, permission?: string | undefined): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = {
                         editDirective: true,

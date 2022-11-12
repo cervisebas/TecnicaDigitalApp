@@ -3,16 +3,16 @@ import axios from "axios";
 import { decode, encode } from "base-64";
 import moment from "moment";
 import qs from "qs";
-import { DirectiveData, PreferencesAssist, TypicalRes } from "./types";
+import { ApiHeader, DirectiveData, PreferencesAssist, TypicalRes } from "./types";
 import notifee, { AndroidImportance, AndroidVisibility } from "@notifee/react-native";
 import { getTempSession, isTempSession } from "./tempsession";
 
 export default class PreferencesSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     private isSyncInProgress: boolean = false;
     private isOtherSync: boolean = false;

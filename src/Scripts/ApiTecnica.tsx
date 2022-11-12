@@ -10,22 +10,22 @@ import PreferencesSystem from "./ApiTecnica/preferences";
 import { RecordSystem } from "./ApiTecnica/records";
 import ScheduleSystem from "./ApiTecnica/schedule";
 import StudentSystem from "./ApiTecnica/student";
-import { keyCodeAdmin } from "./SecurityKeyCodes";
+import { SecurityHeaderAdmin, SecurityHeaderFamily } from "./SecurityKeyCodes";
 
 const urlBase: string = 'https://tecnicadigital.com.ar';
 
-const Student = new StudentSystem(urlBase, keyCodeAdmin);
-const Directive = new DirectiveSystem(urlBase, keyCodeAdmin);
-const Assist = new AssistSystem(urlBase, keyCodeAdmin);
-const Annotation = new AnnotationSystem(urlBase, keyCodeAdmin);
-const Family = new FamilySystem(urlBase, keyCodeAdmin);
-const Records = new RecordSystem(urlBase, keyCodeAdmin);
+const Student = new StudentSystem(urlBase, SecurityHeaderAdmin);
+const Directive = new DirectiveSystem(urlBase, SecurityHeaderAdmin);
+const Assist = new AssistSystem(urlBase, SecurityHeaderAdmin);
+const Annotation = new AnnotationSystem(urlBase, SecurityHeaderAdmin);
+const Family = new FamilySystem(urlBase, SecurityHeaderFamily);
+const Records = new RecordSystem(urlBase, SecurityHeaderAdmin);
 const GeneratePDF = new GenerateRegister();
 const Actions = new ApiActions();
-const Prefences = new PreferencesSystem(urlBase, keyCodeAdmin);
-const Groups = new CursesGroupSystem(urlBase, keyCodeAdmin);
-const Matters = new MatterScheduleSystem(urlBase, keyCodeAdmin);
-const Schedules = new ScheduleSystem(urlBase, keyCodeAdmin);
+const Prefences = new PreferencesSystem(urlBase, SecurityHeaderAdmin);
+const Groups = new CursesGroupSystem(urlBase, SecurityHeaderAdmin);
+const Matters = new MatterScheduleSystem(urlBase, SecurityHeaderAdmin);
+const Schedules = new ScheduleSystem(urlBase, SecurityHeaderAdmin);
 
 export {
     Student,

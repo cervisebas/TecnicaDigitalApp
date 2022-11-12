@@ -2,7 +2,7 @@ import axios from "axios";
 import { encode } from "base-64";
 import QueryString from "qs";
 import DirectiveSystem from "./directives";
-import { DataSchedule, Schedule, TypicalRes } from "./types";
+import { ApiHeader, DataSchedule, TypicalRes } from "./types";
 
 type CreateSchedule = {
     day: string;
@@ -13,14 +13,14 @@ type CreateSchedule = {
 
 export default class ScheduleSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     create(curse: string, data: CreateSchedule[]): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { addSchedule: true, username: value.username, password: value.password, curse: encode(curse), data: encode(JSON.stringify(data)) };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
@@ -32,7 +32,7 @@ export default class ScheduleSystem {
     }
     modify(idSchedule: string, curse: string, data: any): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { editSchedule: true, username: value.username, password: value.password, idSchedule, curse: encode(curse), data: encode(JSON.stringify(data)) };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
@@ -44,7 +44,7 @@ export default class ScheduleSystem {
     }
     delete(idSchedule: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { deleteSchedule: true, username: value.username, password: value.password, idSchedule };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
@@ -56,7 +56,7 @@ export default class ScheduleSystem {
     }
     getAll(): Promise<DataSchedule[]> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { getAllSchedules: true, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{

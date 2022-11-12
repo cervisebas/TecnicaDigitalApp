@@ -1,19 +1,19 @@
 import axios from "axios";
 import qs from "qs";
 import DirectiveSystem from "./directives";
-import { AnnotationList, TypicalRes } from "./types";
+import { AnnotationList, ApiHeader, TypicalRes } from "./types";
 
 export default class AnnotationSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     set(idGroup: string, note: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { setAnnotationAssist: true, idGroup, note, username: session.username, password: session.password };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -29,7 +29,7 @@ export default class AnnotationSystem {
     getAll(idGroup: string): Promise<AnnotationList[]> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { getGroupAnnotationAssist: true, idGroup, username: session.username, password: session.password };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -45,7 +45,7 @@ export default class AnnotationSystem {
     delete(idGroup: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { deleteAnnotationAssist: true, idGroup, username: session.username, password: session.password };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{

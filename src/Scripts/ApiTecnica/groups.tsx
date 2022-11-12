@@ -1,21 +1,19 @@
 import axios from "axios";
-import { Groups, TypicalRes } from "./types";
+import { ApiHeader, Groups, TypicalRes } from "./types";
 import DirectiveSystem from "./directives";
 import QueryString from "qs";
 import { decode } from "base-64";
 
 export default class CursesGroupSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    private header_access2: { headers: { Authorization: string; 'Content-Type': string; } } = { headers: { Authorization: '', 'Content-Type': `multipart/form-data` } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
-        this.header_access2.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     create(curse: string, group: string, students: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { addCurseGroup: true, username: value.username, password: value.password, curse, group, students };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
@@ -27,7 +25,7 @@ export default class CursesGroupSystem {
     }
     modify(idEdit: string, curse?: string | undefined, group?: string | undefined, students?: string | undefined): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = {
                     editCurseGroup: true,
@@ -47,7 +45,7 @@ export default class CursesGroupSystem {
     }
     delete(idGroup: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { deleteCurseGroup: true, idGroup, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{
@@ -63,7 +61,7 @@ export default class CursesGroupSystem {
     }
     getAll(): Promise<Groups[]> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { getAllCursesGroups: true, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{

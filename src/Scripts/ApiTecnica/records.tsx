@@ -1,18 +1,18 @@
 import axios from "axios";
 import qs from "qs";
 import DirectiveSystem from "./directives";
-import { RecordData, TypicalRes } from "./types";
+import { ApiHeader, RecordData, TypicalRes } from "./types";
 
 export class RecordSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     getAll(): Promise<RecordData[]> {
         return new Promise((resolve, reject)=>{
-            var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            var Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 var postData = { getRecords: true, username: value.username, password: value.password };
                 axios.post(this.urlBase, qs.stringify(postData), this.header_access).then((html)=>{

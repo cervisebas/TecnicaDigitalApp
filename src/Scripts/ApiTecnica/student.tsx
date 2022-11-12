@@ -1,17 +1,23 @@
 import axios from "axios";
-import { OrderCurses, ResponseGetAllStudents, StudentsData, TypicalRes } from "./types";
+import { ApiHeader, OrderCurses, ResponseGetAllStudents, StudentsData, TypicalRes } from "./types";
 import DirectiveSystem from "./directives";
 import QueryString from "qs";
 import { decode } from "base-64";
 
 export default class StudentSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    private header_access2: { headers: { Authorization: string; 'Content-Type': string; } } = { headers: { Authorization: '', 'Content-Type': `multipart/form-data` } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    private header_access2: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
-        this.header_access2.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
+        this.header_access2 = {
+            ...setHeaderAccess,
+            headers: {
+                ...setHeaderAccess.headers,
+                'Content-Type': 'multipart/form-data'
+            }
+        };
     }
     private cursesOrder = [
         { l: 'Docente', v: 0},
@@ -55,7 +61,7 @@ export default class StudentSystem {
     }
     archive(idStudent: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            var Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { archiveStudent: true, id: idStudent, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{
@@ -71,7 +77,7 @@ export default class StudentSystem {
     }
     delete(idStudent: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            var Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 var postData = { deleteStudent: true, id: idStudent, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{
@@ -87,7 +93,7 @@ export default class StudentSystem {
     }
     getAll(): Promise<{ curses: OrderCurses[], students: StudentsData[] }> {
         return new Promise((resolve, reject)=>{
-            var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            var Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 var postData = { getAllStudent: true, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{
@@ -117,7 +123,7 @@ export default class StudentSystem {
     }
     getAllTeachers(): Promise<StudentsData[]> {
         return new Promise((resolve, reject)=>{
-            var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            var Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 var postData = { getAllTeachers: true, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{

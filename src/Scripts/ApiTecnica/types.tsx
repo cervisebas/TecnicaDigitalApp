@@ -181,6 +181,14 @@ type DataSchedule = {
     data: Schedule[];
 };
 
+// Header
+type ApiHeader = {
+    headers: {
+        Authorization: string;
+        AppVersion: string;
+    };
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -202,5 +210,6 @@ export type {
     Groups,
     Matter,
     Schedule,
-    DataSchedule
+    DataSchedule,
+    ApiHeader
 };

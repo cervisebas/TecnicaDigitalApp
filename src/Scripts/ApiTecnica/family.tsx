@@ -1,16 +1,16 @@
 import { decode, encode } from "base-64";
 import axios from "axios";
 import qs from "qs";
-import { DataSchedule, FamilyDataAssist, TypicalRes } from "./types";
+import { ApiHeader, DataSchedule, FamilyDataAssist, TypicalRes } from "./types";
 import { StudentsData } from "./types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default class FamilySystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     open(dni: string) : Promise<boolean> {
         return new Promise((resolve, reject)=>{

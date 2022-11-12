@@ -3,7 +3,7 @@ import { encode } from "base-64";
 import moment from "moment";
 import qs from "qs";
 import DirectiveSystem from "./directives";
-import { AssistIndividualData, AssistUserData, DataGroup, DataList, ResponseGetAllDataGroups, ResponseGetAssistList, TypicalRes } from "./types";
+import { ApiHeader, AssistIndividualData, AssistUserData, DataGroup, DataList, ResponseGetAllDataGroups, ResponseGetAssistList, TypicalRes } from "./types";
 
 type TimesAccept = {
     hour: number;
@@ -14,15 +14,15 @@ type TimesAccept = {
 
 export default class AssistSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     create(curse: string, date?: string | undefined, hour?: string | undefined): Promise<string> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var getActual = this.getCalcHour();
                     if (!hour && !getActual) return reject('Fuera de horario');
@@ -42,7 +42,7 @@ export default class AssistSystem {
     getGroups(): Promise<DataGroup[]> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { getAllGroupAssist: true, username: session.username, password: session.password };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -58,7 +58,7 @@ export default class AssistSystem {
     getGroupsTeachers(): Promise<DataGroup[]> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { getAllGroupTeachersAssist: true, username: session.username, password: session.password };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -74,7 +74,7 @@ export default class AssistSystem {
     getGroup(idGroup: string): Promise<AssistUserData[]> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { getGroupAssist: true, username: session.username, password: session.password, id: idGroup };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -90,7 +90,7 @@ export default class AssistSystem {
     confirmAssist(idGroup: string, notify: boolean, datasList: DataList[], isFilter?: boolean): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { confirmGroupAssist: true, username: session.username, password: session.password, idGroup, isFilter: (isFilter)? '1': '0', notify: (notify)? '1': '0', datas: encode(JSON.stringify(datasList)) };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -106,7 +106,7 @@ export default class AssistSystem {
     deleteAssist(idGroup: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { deleteGroupAssist: true, username: session.username, password: session.password, idGroup: idGroup };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -122,7 +122,7 @@ export default class AssistSystem {
     getIndividual(idStudent: string): Promise<AssistIndividualData[]> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     var dataPost = { getIndividualAssist: true, username: session.username, password: session.password, idStudent };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -140,7 +140,7 @@ export default class AssistSystem {
     addTeacherAssist(idGroup: string, idTeacher: string): Promise<string> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     const dataPost = { addTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -156,7 +156,7 @@ export default class AssistSystem {
     removeTeacherAssist(idGroup: string, idTeacher: string): Promise<void> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     const dataPost = { removeTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
@@ -172,7 +172,7 @@ export default class AssistSystem {
     modifyTeacherAssist(idGroup: string, idTeacher: string, status: boolean): Promise<void> {
         return new Promise((resolve, reject)=>{
             try {
-                var Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
                 Directives.getDataLocal().then((session)=>{
                     const dataPost = { modifyTeacherAssist: true, username: session.username, password: session.password, idGroup, idTeacher, status: (status)? '1': '0' };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{

@@ -1,18 +1,18 @@
 import axios from "axios";
 import QueryString from "qs";
 import DirectiveSystem from "./directives";
-import { Matter, TypicalRes } from "./types";
+import { ApiHeader, Matter, TypicalRes } from "./types";
 
 export default class MatterScheduleSystem {
     private urlBase: string = '';
-    private header_access: { headers: { Authorization: string; } } = { headers: { Authorization: '' } };
-    constructor(setUrl: string, setHeaderAccess: string) {
+    private header_access: any;
+    constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
-        this.header_access.headers.Authorization = setHeaderAccess;
+        this.header_access = setHeaderAccess;
     }
     create(idTeacher: string, name: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { addMatter: true, username: value.username, password: value.password, idTeacher, name };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
@@ -24,7 +24,7 @@ export default class MatterScheduleSystem {
     }
     modify(idMatter: string, idTeacher: string, name: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { editMatter: true, username: value.username, password: value.password, idMatter, idTeacher, name };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
@@ -36,7 +36,7 @@ export default class MatterScheduleSystem {
     }
     delete(idMatter: string): Promise<boolean> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { deleteMatter: true, username: value.username, password: value.password, idMatter };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((result)=>{
@@ -48,7 +48,7 @@ export default class MatterScheduleSystem {
     }
     getAll(): Promise<Matter[]> {
         return new Promise((resolve, reject)=>{
-            const Directives = new DirectiveSystem(this.urlBase, this.header_access.headers.Authorization);
+            const Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
                 const postData = { getAllMatters: true, username: value.username, password: value.password };
                 axios.post(`${this.urlBase}/index.php`, QueryString.stringify(postData), this.header_access).then((value)=>{

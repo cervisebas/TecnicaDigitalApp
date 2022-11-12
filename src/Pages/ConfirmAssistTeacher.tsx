@@ -1,3 +1,4 @@
+import { encode } from "base-64";
 import moment from "moment";
 import React, { Component, createRef, PureComponent, ReactNode } from "react";
 import { DeviceEventEmitter, FlatList, ListRenderItemInfo, ToastAndroid, View } from "react-native";
@@ -197,7 +198,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                     return elm;
                 });
                 const data = this.state.data.map((elm)=>{
-                    if (elm.id == idTeacher) return { ...elm, idAssist: newId, existRow: true };
+                    if (elm.id == idTeacher) return { ...elm, idAssist: newId, existRow: true, time: encode(moment().format('HH:mm')) };
                     return elm;
                 });
                 this.setState({ dataLog, data }, async()=>{
@@ -228,7 +229,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                     return elm;
                 });
                 const data = this.state.data.map((elm)=>{
-                    if (elm.id == idTeacher) return { ...elm, status: state };
+                    if (elm.id == idTeacher) return { ...elm, status: state, time: encode(moment().format('HH:mm')) };
                     return elm;
                 });
                 this.setState({ dataLog, data }, async()=>{

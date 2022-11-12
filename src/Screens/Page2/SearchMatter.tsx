@@ -146,8 +146,17 @@ export default class SearchMatter extends PureComponent<IProps, IState> {
             activeFilter: false
         });
     }
-    update() {
-        if (this.search !== '') return this.setState({ listShow: orderArray(this.setFilter(this.props.matters), 'name', this.search) });
+    async update() {
+        if (this.search !== '') {
+            this.refCustomProgressbar.current?.show(true);
+            await waitTo(380);
+            return orderArrayBySelect(this.setFilter(this.props.matters), ['name', 'teacher.name'], this.search)
+                .then((listShow)=>{
+                    this.setState({ listShow: this.setFilter(listShow) });
+                    this.refCustomProgressbar.current?.show(false);
+                });
+        }
+        //if (this.search !== '') return this.setState({ listShow: orderArray(this.setFilter(this.props.matters), 'name', this.search) });
         this.setState({ listShow: this.setFilter(this.props.matters) });
     }
 

@@ -177,7 +177,10 @@ class ElementHour extends PureComponent<IProps2, IState2> {
         let set: any = { slot2 };
         if (this.state.group2 == '') {
             const findIndex = this.listGroup.findIndex((v)=>v == this.state.group1);
-            set['group2'] = this.listGroup[findIndex + 1];
+            if (this.listGroup[findIndex + 1] !== undefined)
+                set['group2'] = this.listGroup[findIndex + 1];
+            else
+                set['group2'] = this.listGroup[0];
         }
         this.setState(set);
     }

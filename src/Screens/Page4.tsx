@@ -55,6 +55,7 @@ export default class Page4 extends Component<IProps, IState> {
         <Text style={styles.optionAction}>Editar información</Text>,
         <Text style={styles.optionAction}>Cambiar contraseña</Text>,
         <Text style={styles.optionAction}>Cambiar permisos</Text>,
+        <Text style={styles.optionAction}>Cambiar imagen</Text>,
         'Cancelar'
     ];
     private idOptionSelect: string = '-1';
@@ -226,8 +227,8 @@ export default class Page4 extends Component<IProps, IState> {
                     userInterfaceStyle={(isDark)? 'dark': 'light'}
                     title={'¿Qué desea editar?'}
                     options={this.optionsMenuEdit}
-                    cancelButtonIndex={3}
-                    destructiveButtonIndex={3}
+                    cancelButtonIndex={4}
+                    destructiveButtonIndex={4}
                     onPress={this.selectEditOptions}
                 />
                 <ViewDirective ref={this.refViewDirective} openImage={this.openImageViewer} />

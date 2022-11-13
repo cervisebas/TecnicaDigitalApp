@@ -174,7 +174,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
     }
     async createPDF() {
         try {
-            this.props.showLoading(true, 'Creando PDF...');
+            this.props.showLoading(true, 'Generando PDF...');
             const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
                 title: "Atención",
                 message: "Para guardar la imagen se necesita acceder al almacenamiento de su dispositivo, por favor acepte los permisos que se requieren.",

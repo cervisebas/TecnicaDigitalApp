@@ -299,17 +299,8 @@ export default class AppFamily extends Component<IProps, IState> {
                 openImage={this._openImageViewer}
                 openDialog={(title, text)=>this.setState({ dialogVisible: true, dialogTitle: title, dialogText: text })}
             />
-            <ViewSchedule ref={this.refViewSchedule} />
+            <ViewSchedule ref={this.refViewSchedule} goLoading={this._openLoading} />
             <LoadingComponent ref={this.refLoadingComponent} />
         </View>);
     }
 }
-
-const styles = StyleSheet.create({
-    target: {
-        overflow: 'hidden',
-        borderWidth: 1.5,
-        borderColor: '#000000',
-        borderRadius: 8
-    }
-});

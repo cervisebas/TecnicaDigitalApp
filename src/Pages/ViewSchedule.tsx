@@ -12,7 +12,9 @@ import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import FileViewer from "react-native-file-viewer";
 import RNFS from "react-native-fs";
 
-type IProps = {};
+type IProps = {
+    goLoading?: (v: boolean, t?: string)=>any;
+};
 type IState = {
     visible: boolean;
     rows1: string[][];
@@ -230,7 +232,7 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
                 normalText = `Grupo ${data.group}: ${(data.matter == 'none')? '': (data.matter.name == null)? '<p class="null">Desconocido</p>': decode(data.matter.name)}`;
             } else {
                 text = (data.matter == 'none')? this.getItemDefault(/*'Libre'*/''): this.getItem(decode(data.matter.name), data);
-                normalText = `${(data.matter == 'none')? '': (data.matter.name)? '<p class="null">Desconocido</p>': decode(data.matter.name)}`;
+                normalText = `${(data.matter == 'none')? '': (data.matter.name == null)? '<p class="null">Desconocido</p>': decode(data.matter.name)}`;
             }
 
             if (rows2_2[dayIndex] == undefined) {
@@ -272,20 +274,26 @@ export default class ViewSchedule extends PureComponent<IProps, IState> {
     }
     async convertPDF() {
         try {
+            (this.props.goLoading)&&this.props.goLoading(true, 'Generando PDF...');
             const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
                 title: "Atención",
                 message: "Para guardar la imagen se necesita acceder al almacenamiento de su dispositivo, por favor acepte los permisos que se requieren.",
                 buttonNegative: "Cancelar",
                 buttonPositive: "Aceptar"
             });
-            if (permission == PermissionsAndroid.RESULTS.DENIED) return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
+            if (permission == PermissionsAndroid.RESULTS.DENIED) {
+                (this.props.goLoading)&&this.props.goLoading(false);
+                return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
+            }
             const path = await CreatePDFSchedule(this.state.curse, this.row1PDF, this.row2PDF);
             RNFS.copyFile(path, `${RNFS.DownloadDirectoryPath}/horarios-${this.state.curse.replace('°', '-')}.pdf`)
                 .then(()=>ToastAndroid.show('El archivo se copio correctamente en la carpeta de descargas', ToastAndroid.SHORT))
                 .catch(()=>ToastAndroid.show('Ocurrió un error al copiar el archivo a la carpeta de descargas', ToastAndroid.SHORT));
             FileViewer.open(path, { showOpenWithDialog: true, showAppsSuggestions: true })
-                .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'))
+                .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'));
+            (this.props.goLoading)&&this.props.goLoading(false);
         } catch {
+            (this.props.goLoading)&&this.props.goLoading(false);
             this.refCustomSnackbar.current?.open('Ocurrió un error inesperado durante el proceso.');
         }
     }

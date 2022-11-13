@@ -145,7 +145,7 @@ export default class Page2Lists extends PureComponent<IProps, IState> {
             <DialogDelete ref={this.refDialogDelete} onDelete={this.goDelete} />
             <CustomSnackbar style={styles.snackbar} ref={this.refCustomSnackbar} />
             {/* ##### Modal's ##### */}
-            <ViewSchedule ref={this.refViewSchedule} />
+            <ViewSchedule ref={this.refViewSchedule} goLoading={this.props.goLoading} />
             <EditShedule ref={this.refEditShedule} goLoading={this.props.goLoading} />
         </View>);
     }

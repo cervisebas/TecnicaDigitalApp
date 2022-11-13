@@ -1,10 +1,7 @@
 import React, { createRef, PureComponent } from "react";
-import { DeviceEventEmitter, Dimensions, EmitterSubscription, FlatList, ListRenderItemInfo, Platform, RefreshControl, StyleSheet, View } from "react-native";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Appbar, Button, Dialog, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
-import { SketchCanvas } from "rn-perfect-sketch-canvas";
-import { SketchCanvasRef } from "rn-perfect-sketch-canvas/src/components";
 import { ThemeContext } from "../Components/ThemeProvider";
-import RNFS from "react-native-fs";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomCard5 from "../Components/Elements/CustomCard5";
 import { DataGroup } from "../Scripts/ApiTecnica/types";
@@ -14,9 +11,6 @@ import LoadingComponent from "../Components/LoadingComponent";
 import moment from "moment";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import ConfirmAssistTeacher from "../Pages/ConfirmAssistTeacher";
-import { InWorking } from "../Components/InWorking";
-import DeviceInfo from "react-native-device-info";
-import CustomNoInvasiveLoading from "../Components/CustomNoInvasiveLoading";
 import ImageViewerText from "../Pages/ImageViewerText";
 
 type IProps = {
@@ -58,26 +52,6 @@ export default class Page7 extends PureComponent<IProps, IState> {
     private refConfirmAssistTeacher = createRef<ConfirmAssistTeacher>();
     private refImageViewerText = createRef<ImageViewerText>();
 
-    /*private refSketchCanvas = createRef<SketchCanvasRef>();
-    async convertToImage() {
-        const base64 = this.refSketchCanvas.current?.toImage()?.encodeToBase64();
-        const filePath = `${RNFS.ExternalCachesDirectoryPath}/assist-${this.getRandomInt(111111, 999999)}-confirm.png`;
-        await RNFS.writeFile(filePath, base64!, 'base64');
-        console.log(filePath);
-        //console.log(this.refSketchCanvas.current?.toBase64(ImageFormat.WEBP, 70));
-    }
-    private getRandomInt(min: number, max: number) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min);
-    }
-    <SketchCanvas
-        ref={this.refSketchCanvas}
-        strokeWidth={8}
-        strokeColor={'#000000'}
-        containerStyle={styles.canvas}
-    />
-    */
     componentDidMount(): void {
         this.loadData();
         //console.log(DeviceInfo.getVersion().replace(/\./gi, ''));

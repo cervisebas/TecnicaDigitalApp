@@ -87,8 +87,11 @@ export default class Page7 extends PureComponent<IProps, IState> {
         this.refLoadingComponent.current?.open('Cargando información...');
         Assist.getGroup(idGroup)
             .then((data)=>{
+                const datas = this.state.datas.find((v)=>v.id == idGroup);
+                if (!datas) return;
+                const turn = (datas.hour == '7:15')? 'Turno mañana': 'Turno tarde';
                 this.refLoadingComponent.current?.close();
-                this.refConfirmAssistTeacher.current?.open(idGroup, data);
+                this.refConfirmAssistTeacher.current?.open(idGroup, datas.date, turn, data);
             })
             .catch((error)=>{
                 this.refLoadingComponent.current?.close();
@@ -148,10 +151,6 @@ export default class Page7 extends PureComponent<IProps, IState> {
                         onPress={this._openCreateRegist}
                     />
                 </Appbar.Header>
-                {/*<View style={styles.content}>
-                    <InWorking />
-                </View>*/}
-                <>
                 <View style={styles.content}>
                     {(!this.state.isLoading)? (!this.state.isError)?
                     <FlatList
@@ -185,12 +184,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
                     showLoading={this._goLoading}
                     showSnackbar={this._showSnackbar}
                     openImage={this._openImage}
-                    openAddAnnotation={function () {
-                        throw new Error("Function not implemented.");
-                    } }
                 />
-
-                </>
             </PaperProvider>
         </View>);
     }

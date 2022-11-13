@@ -1,7 +1,7 @@
-import { encode } from "base-64";
+import { decode, encode } from "base-64";
 import moment from "moment";
 import React, { Component, createRef, PureComponent, ReactNode } from "react";
-import { DeviceEventEmitter, FlatList, ListRenderItemInfo, ToastAndroid, View } from "react-native";
+import { DeviceEventEmitter, FlatList, ListRenderItemInfo, PermissionsAndroid, ToastAndroid, View } from "react-native";
 import { Appbar, Button, Dialog, Divider, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomModal from "../Components/CustomModal";
@@ -11,17 +11,23 @@ import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { Assist } from "../Scripts/ApiTecnica";
 import { AssistUserData, DataList } from "../Scripts/ApiTecnica/types";
+import CreatePDFTeachers from "../Scripts/CreatePDFTeachers";
 import { waitTo } from "../Scripts/Utils";
+import FileViewer from "react-native-file-viewer";
+import RNFS from "react-native-fs";
 
 type IProps = {
     showLoading: (v: boolean, t?: string)=>any;
     showSnackbar: (v: boolean, t: string)=>any;
     openImage: (source: string, text: string)=>any;
-    openAddAnnotation: ()=>any;
 };
 type IState = {
     visible: boolean;
     select: string;
+    otherData: {
+        turn: string;
+        date: string;
+    };
     setData: AssistUserData[];
 
     isMenuOpen: boolean;
@@ -38,6 +44,10 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         this.state = {
             visible: false,
             select: '',
+            otherData: {
+                turn: '',
+                date: ''
+            },
             setData: [],
             isMenuOpen: false,
             isLoading: false,
@@ -51,6 +61,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         this._openDelete = this._openDelete.bind(this);
         this._deleteRowNow = this._deleteRowNow.bind(this);
         this.delete = this.delete.bind(this);
+        this.createPDF = this.createPDF.bind(this);
     }
     static contextType = ThemeContext;
     private idDeleteRow: string = '-1';
@@ -120,11 +131,15 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
     }
 
     // Controller
-    open(id: string, setData: AssistUserData[]) {
+    open(id: string, date: string, turn: string, setData: AssistUserData[]) {
         this.setState({
             visible: true,
             select: id,
-            setData
+            setData,
+            otherData: {
+                date,
+                turn
+            }
         });
     }
     close() {
@@ -156,6 +171,37 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
         if (!visible) return this.refCustomNoInvasiveLoading.current?.close();
         if (this.refCustomNoInvasiveLoading.current?.isOpen()) return this.refCustomNoInvasiveLoading.current.update(message!);
         this.refCustomNoInvasiveLoading.current?.open(message!);
+    }
+    async createPDF() {
+        try {
+            this.props.showLoading(true, 'Creando PDF...');
+            const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+                title: "Atención",
+                message: "Para guardar la imagen se necesita acceder al almacenamiento de su dispositivo, por favor acepte los permisos que se requieren.",
+                buttonNegative: "Cancelar",
+                buttonPositive: "Aceptar"
+            });
+            if (permission == PermissionsAndroid.RESULTS.DENIED) {
+                this.props.showLoading(false);
+                return this.refCustomSnackbar.current?.open('Se denegó el acceso al almacenamiento.');
+            }
+            const useTeachers = this.state.data.filter((v)=>v.existRow);            
+            const path = await CreatePDFTeachers.generatePdf({
+                id: this.state.select,
+                date: decode(this.state.otherData.date),
+                turn: this.state.otherData.turn,
+                teachers: useTeachers
+            });
+            RNFS.copyFile(path, `${RNFS.DownloadDirectoryPath}/horario-docente-${this.state.select}.pdf`)
+                .then(()=>ToastAndroid.show('El archivo se copio correctamente en la carpeta de descargas', ToastAndroid.SHORT))
+                .catch(()=>ToastAndroid.show('Ocurrió un error al copiar el archivo a la carpeta de descargas', ToastAndroid.SHORT));
+            FileViewer.open(path, { showOpenWithDialog: true, showAppsSuggestions: true })
+                .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'))
+            this.props.showLoading(false);
+        } catch {
+            this.props.showLoading(false);
+            this.refCustomSnackbar.current?.open('Ocurrió un error inesperado durante el proceso.');
+        }
     }
 
     // Row's Functions
@@ -260,7 +306,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                         <MenuComponent
                             disable={this.state.isLoading}
                             onDelete={this._openDelete}
-                            onAddNote={this.props.openAddAnnotation}
+                            onAddNote={this.createPDF}
                         />
                     </Appbar.Header>
                     <View style={{ flex: 2, backgroundColor: theme.colors.background }}>

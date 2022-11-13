@@ -9,7 +9,7 @@ import { ActivityIndicator, Appbar, Dialog, Portal, TextInput, Button, Provider 
 import CustomModal from "../Components/CustomModal";
 import { CustomPicker2 } from "../Components/Elements/CustomInput";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
-import { Directive, Student } from "../Scripts/ApiTecnica";
+import { Directive, Student, urlBase } from "../Scripts/ApiTecnica";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { ThemeDark } from "../Themes";
 // Images
@@ -256,6 +256,26 @@ export default class AddNewStudent extends Component<IProps, IState> {
         this.setState({ disableCursePicker: true, formCourse: 'Docente' });
     }
 
+    removePicture() {
+        const showError = ()=>this.refCustomSnackbar.current?.open('Ya imagen ya ha sido removida.');
+        var isOnlyImage = false;
+        if ((this.state.imageShow as any).uri) if ((this.state.imageShow as any).uri !== `${urlBase}/image/default.png`) isOnlyImage = true;
+        if (this.state.formImage.uri == undefined && !isOnlyImage) return showError();
+        if (this.state.formImage.uri!.length == 0 && !isOnlyImage) return showError();
+        this.setState({
+            imageShow: ImageProfile,
+            formImage: { uri: '', type: '', name: '' }
+        });
+        this.refCustomSnackbar.current?.open('Image del perfil removida.');
+    }
+    isRemovePicture() {
+        var isOnlyImage = false;
+        if ((this.state.imageShow as any).uri) if ((this.state.imageShow as any).uri !== `${urlBase}/image/default.png`) isOnlyImage = true;
+        if (this.state.formImage.uri == undefined && !isOnlyImage) return true;
+        if (this.state.formImage.uri!.length == 0 && !isOnlyImage) return true;
+        return false;
+    }
+
     // Controller
     open() {
         this.setState({ visible: true });
@@ -267,6 +287,7 @@ export default class AddNewStudent extends Component<IProps, IState> {
         const { isDark } = this.context;
         if (index == 0) ImageCropPicker.openCamera((isDark)? this.defaultOptionsDark: this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
         if (index == 1) ImageCropPicker.openPicker((isDark)? this.defaultOptionsDark: this.defaultOptions).then(this.changeImage2).catch(this.errorImagePicker);
+        if (index == 2) this.removePicture();
     }
 
     render(): React.ReactNode {

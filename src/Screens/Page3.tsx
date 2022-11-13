@@ -19,9 +19,9 @@ import ImageViewer from "../Pages/ImageViewer";
 import FABPage3 from "../Components/FAB_Page3";
 import LoadingComponent from "../Components/LoadingComponent";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
-import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import moment from "moment";
 import { ThemeContext } from "../Components/ThemeProvider";
+import SelectOriginImage from "../Components/SelectOriginImage";
 
 type IProps = {
     navigation: any;
@@ -91,8 +91,8 @@ export default class Page3 extends PureComponent<IProps, IState> {
     private refViewDetailsAssist = createRef<ViewDetailsAssist>();
     private refLoadingComponent = createRef<LoadingComponent>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
-    private refActionSheet1 = createRef<ActionSheet>();
-    private refActionSheet2 = createRef<ActionSheet>();
+    private refSelectOriginImage = createRef<SelectOriginImage>();
+    private refSelectOriginImage2 = createRef<SelectOriginImage>();
 
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('reloadPage3', (isRefresh?: boolean | undefined)=>this.setState({ isRefresh: !!isRefresh }, this.loadData));
@@ -250,14 +250,15 @@ export default class Page3 extends PureComponent<IProps, IState> {
     }
     // AddNewStudent ActionSheet
     _openActionSheet1() {
-        this.refActionSheet1.current?.show();
+        this.refSelectOriginImage2.current?.open();
     }
     _setIndexActionSheet1(index: number) {
         this.refAddNewStudent.current?.actionAddPicture(index);
     }
     // EditStudent ActionSheet
     _openActionSheet2() {
-        this.refActionSheet2.current?.show();
+        //this.refActionSheet2.current?.show();
+        this.refSelectOriginImage.current?.open();
     }
     _setIndexActionSheet2(index: number) {
         this.refEditStudent.current?.actionSetPicture(index);
@@ -351,24 +352,6 @@ export default class Page3 extends PureComponent<IProps, IState> {
                 </Portal>
 
                 {/*##### Modal's #####*/}
-                <ActionSheet
-                    ref={this.refActionSheet1}
-                    title={'Elije una opción'}
-                    options={['Cámara', 'Galería', 'Cancelar']}
-                    cancelButtonIndex={2}
-                    destructiveButtonIndex={2}
-                    userInterfaceStyle={(isDark)? 'dark': 'light'}
-                    onPress={this._setIndexActionSheet1}
-                />
-                <ActionSheet
-                    ref={this.refActionSheet2}
-                    title={'Elije una opción'}
-                    options={['Cámara', 'Galería', 'Quitar', 'Cancelar']}
-                    cancelButtonIndex={3}
-                    destructiveButtonIndex={3}
-                    userInterfaceStyle={(isDark)? 'dark': 'light'}
-                    onPress={this._setIndexActionSheet2}
-                />
                 <SearchStudents
                     ref={this.refSearchStudents}
                     openDetails={this._openViewDetails}
@@ -399,6 +382,14 @@ export default class Page3 extends PureComponent<IProps, IState> {
                     changeDesign={this._openChangeCardDesign}
                     goLoading={this._goLoading}
                     editNow={this._openEditStudent}
+                />
+                <SelectOriginImage
+                    ref={this.refSelectOriginImage}
+                    onAction={this._setIndexActionSheet2}
+                />
+                <SelectOriginImage
+                    ref={this.refSelectOriginImage2}
+                    onAction={this._setIndexActionSheet1}
                 />
                 <ChangeCardDesign ref={this.refChangeCardDesign} onChange={this._onChangeCardDesign} />                
                 <ImageViewer ref={this.refImageViewer} />

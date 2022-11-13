@@ -105,7 +105,7 @@ export default new class GeneratePDFTeachers {
                 <table>
                     <tr class="bold">
                         <td class="center"><p>N°</p></td>
-                        <td><p>ALUMNO/A</p></td>
+                        <td><p>DOCENTE</p></td>
                         <td class="center"><p>ESTADO</p></td>
                     </tr>
                     ${tr}

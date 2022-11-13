@@ -89,7 +89,7 @@ export default class Page7 extends PureComponent<IProps, IState> {
             .then((data)=>{
                 const datas = this.state.datas.find((v)=>v.id == idGroup);
                 if (!datas) return;
-                const turn = (datas.hour == '7:15')? 'Turno mañana': 'Turno tarde';
+                const turn = (datas.hour == '7:15')? 'MAÑANA': 'TARDE';
                 this.refLoadingComponent.current?.close();
                 this.refConfirmAssistTeacher.current?.open(idGroup, datas.date, turn, data);
             })

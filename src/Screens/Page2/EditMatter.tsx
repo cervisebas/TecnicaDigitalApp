@@ -155,7 +155,7 @@ export default class EditMatter extends PureComponent<IProps, IState> {
                     </Appbar.Header>
                     <ProgressBar indeterminate color={theme.colors.accent} style={{ opacity: (this.state.isLoadingTeachers)? 1: 0, backgroundColor: (isDark)? overlay(1, theme.colors.surface): theme.colors.background }} />
                     <View>
-                        <TextInput
+                        {/*<TextInput
                             label={'Nombre de la materia'}
                             mode={'outlined'}
                             autoCapitalize={'words'}
@@ -169,8 +169,24 @@ export default class EditMatter extends PureComponent<IProps, IState> {
                                 disabled={this.state.isLoading || this.state.isLoadingTeachers}
                                 onPress={this.props.openMatterSelector}
                             />}
-                        />
-                        <Pressable onPress={this._openTeacherSelector}>
+                        />*/}
+                        <Pressable disabled={this.state.isLoading || this.state.isLoadingTeachers} onPress={this.props.openMatterSelector}>
+                            <TextInput
+                                label={'Nombre de la materia'}
+                                mode={'outlined'}
+                                style={styles.textInput}
+                                value={this.state.formName}
+                                editable={false}
+                                disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                error={this.state.errorFormName}
+                                right={<TextInput.Icon
+                                    icon={'gesture-tap'}
+                                    disabled={this.state.isLoading || this.state.isLoadingTeachers}
+                                    onPress={this.props.openMatterSelector}
+                                />}
+                            />
+                        </Pressable>
+                        <Pressable disabled={this.state.isLoading || this.state.isLoadingTeachers} onPress={this._openTeacherSelector}>
                             <TextInput
                                 label={'Profesor'}
                                 mode={'outlined'}

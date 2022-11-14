@@ -2,7 +2,9 @@ import React, { Component, PureComponent } from "react";
 import { FlatList, ImageSourcePropType, LayoutChangeEvent, ListRenderItemInfo, NativeScrollEvent, NativeSyntheticEvent, StyleProp, StyleSheet, TouchableHighlight, View, ViewStyle } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FastImage from "react-native-fast-image";
-import { Appbar, Banner, overlay, Provider as PaperProvider } from "react-native-paper";
+import { Appbar, Banner, overlay } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ThemeContext } from "../Components/ThemeProvider";
 import CustomModal from "../Components/CustomModal";
 import Theme from "../Themes";
 // Images
@@ -30,8 +32,11 @@ import Design21 from "../Assets/Examples/design21.webp";
 import Design22 from "../Assets/Examples/design22.webp";
 import Design23 from "../Assets/Examples/design23.webp";
 import Design24 from "../Assets/Examples/design24.webp";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ThemeContext } from "../Components/ThemeProvider";
+import Design25 from "../Assets/Examples/design25.webp";
+import Design26 from "../Assets/Examples/design26.webp";
+import Design27 from "../Assets/Examples/design27.webp";
+import Design28 from "../Assets/Examples/design28.webp";
+import Design29 from "../Assets/Examples/design29.webp";
 
 type IProps = {
     onChange: (option: number | undefined)=>any;
@@ -88,7 +93,12 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
         { id: 21, source: Design21, option: 20 },
         { id: 22, source: Design22, option: 21 },
         { id: 23, source: Design23, option: 22 },
-        { id: 24, source: Design24, option: 23 }
+        { id: 24, source: Design24, option: 23 },
+        { id: 25, source: Design25, option: 24 },
+        { id: 26, source: Design26, option: 25 },
+        { id: 27, source: Design27, option: 26 },
+        { id: 28, source: Design28, option: 27 },
+        { id: 29, source: Design29, option: 28 }
     ];
     private backupList = this.list;
     private bannerCloseOnEvent: boolean = false;

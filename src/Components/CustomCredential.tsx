@@ -28,6 +28,11 @@ import Card9 from "./Cards/Card9";
 import DesingDefault from "./Cards/Default";
 import CardVip from "./Cards/Vip";
 import Teacher from "./Cards/Teacher";
+import Card23 from "./Cards/Card23";
+import Card24 from "./Cards/Card24";
+import Card25 from "./Cards/Card25";
+import Card26 from "./Cards/Card26";
+import Card27 from "./Cards/Card27";
 
 type IProps = {
     scale: number;
@@ -54,13 +59,18 @@ export default class CustomCredential extends PureComponent<IProps, IState> {
         return ((this.props.scale * t) / 1);
     }
     getSize() {
+        const useLarge =
+            this.props.type == 5 ||
+            this.props.type == 25 ||
+            this.props.type == 26 ||
+            this.props.type == 27;
         return {
             width: this.getScale(1200),
             minwidth: this.getScale(1200),
             maxwidth: this.getScale(1200),
-            height: (this.props.type == 5)? this.getScale(1558): this.getScale(779),
-            maxheight: (this.props.type == 5)? this.getScale(1558): this.getScale(779),
-            minheight: (this.props.type == 5)? this.getScale(1558): this.getScale(779)
+            height: (useLarge)? this.getScale(1558): this.getScale(779),
+            maxheight: (useLarge)? this.getScale(1558): this.getScale(779),
+            minheight: (useLarge)? this.getScale(1558): this.getScale(779)
         };
     }
     _ref(ref: ViewShot | null) {
@@ -99,6 +109,11 @@ export default class CustomCredential extends PureComponent<IProps, IState> {
                         (this.props.type == 21)? <Card20 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
                         (this.props.type == 22)? <Card21 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
                         (this.props.type == 23)? <Card22 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
+                        (this.props.type == 24)? <Card23 scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />:
+                        (this.props.type == 25)? <Card24 scale={this.props.scale} name={this.props.name} dni={this.props.dni} />:
+                        (this.props.type == 26)? <Card25 scale={this.props.scale} name={this.props.name} dni={this.props.dni} />:
+                        (this.props.type == 27)? <Card26 scale={this.props.scale} name={this.props.name} dni={this.props.dni} />:
+                        (this.props.type == 28)? <Card27 scale={this.props.scale} name={this.props.name} dni={this.props.dni} />:
                         <></>
                     : <DesingDefault scale={this.props.scale} image={this.props.image} name={this.props.name} dni={this.props.dni} />}
                 </ViewShot>

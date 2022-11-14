@@ -124,7 +124,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
             <Animated.View style={[styles.content2, content2Style]}>
                 <View style={styles.contentShow}>
                     <ImageLazyLoad style={styles.contentImage} size={200} circle={true} source={{ uri: image }} />
-                    <Text style={styles.text}>{name}</Text>
+                    <Text style={[styles.text, { color: (numAnim == 1)? '#FFFFFF': '#000000' }]}>{name}</Text>
                 </View>
                 <Animated.View style={styles.contentLoading}>
                     <ProgressBar
@@ -133,7 +133,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
                         theme={{ animation: { scale: 0 } }}
                     />
                     <Animated.View style={[styles.contentMessage, content3Style]}>
-                        <Text style={styles.message}>{props.message}</Text>
+                        <Text style={[styles.message, { color: (numAnim == 1)? '#FFFFFF': '#000000' }]}>{props.message}</Text>
                     </Animated.View>
                 </Animated.View>
             </Animated.View>
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto-Medium',
         fontSize: 28,
         marginTop: 24,
-        color: '#FFFFFF'
+        //color: '#FFFFFF'
     },
     contentLoading: {
         position: 'absolute',

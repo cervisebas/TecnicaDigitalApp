@@ -3,7 +3,6 @@ import FastImage from "react-native-fast-image";
 import { Text } from "react-native-paper";
 import Background from "../../Assets/Desings/card29.webp";
 import { StyleSheet, View } from "react-native";
-import { clearString } from "../../Scripts/Utils";
 import QRCode from "react-native-qrcode-svg";
 
 type IPropsCard = {

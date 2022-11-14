@@ -52,7 +52,10 @@ export default class Card24 extends PureComponent<IPropsCard, IStateCard> {
                 top: this.getScale(998),
                 left: this.getScale(430),
                 width: this.getScale(340),
-                height: this.getScale(340)
+                height: this.getScale(340),
+                transform: [{
+                    rotate: '180deg'
+                }]
             }}>
                 <QRCode
                     value={`eest${this.props.dni}`}

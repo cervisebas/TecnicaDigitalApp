@@ -54,7 +54,6 @@ export default class Page7 extends PureComponent<IProps, IState> {
 
     componentDidMount(): void {
         this.loadData();
-        //console.log(DeviceInfo.getVersion().replace(/\./gi, ''));
         this.event = DeviceEventEmitter.addListener('p7-reload', (isReload?: boolean)=>(isReload)? this.setState({ isRefresh: true }, this.loadData): this.loadData);
     }
     componentWillUnmount(): void {

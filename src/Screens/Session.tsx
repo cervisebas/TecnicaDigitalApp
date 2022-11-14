@@ -88,7 +88,7 @@ export default class Session extends Component<IProps, IState> {
                     isLoading: false,
                     snackbarShow: true,
                     snackbarText: value.cause
-                }, ()=>console.log(value)))
+                }))
         );
     }
     componentDidUpdate() {

@@ -21,8 +21,10 @@ export default class FamilySystem {
                         var res: TypicalRes = result.data;
                         if (res.ok) {
                             await AsyncStorage.setItem('FamilySession', encode(JSON.stringify({
-                                id: res.datas,
-                                dni: encode(dni)
+                                id: res.datas.id,
+                                dni: encode(dni),
+                                name: res.datas.name,
+                                picture: res.datas.picture
                             })));
                             return resolve(true);
                         }
@@ -33,7 +35,7 @@ export default class FamilySystem {
                 }).catch(()=>reject({ ok: false, cause: 'Error de conexión.' }));
         });
     }
-    getDataLocal(): Promise<{ id: string; dni: string; }> {
+    getDataLocal(): Promise<{ id: string; dni: string; name?: string; picture?: string; }> {
         return new Promise((resolve, reject)=>{
             AsyncStorage.getItem('FamilySession').then((value)=>{
                 try {

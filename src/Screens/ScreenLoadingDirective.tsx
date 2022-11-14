@@ -4,14 +4,14 @@ import { Text } from "react-native-paper";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { ThemeContext } from "../Components/ThemeProvider";
-import { waitTo } from "../Scripts/Utils";
+import { getRandomIntInclusive, waitTo } from "../Scripts/Utils";
 import { ThemeLight } from "../Themes";
 import LinearGradient from "react-native-linear-gradient";
 import ProgressBar from "../Components/CustomProgressBar";
-import { Directive, urlBase } from "../Scripts/ApiTecnica";
+import { Actions, Directive, Family, urlBase } from "../Scripts/ApiTecnica";
 import { decode } from "base-64";
 import CogsAanimations from "../Components/Animations/CogsAanimations";
-//import HackerAnimation from "../Components/Animations/HackerAnimation";
+import HackerAnimation from "../Components/Animations/HackerAnimation";
 
 type IProps = {
     message: string;
@@ -20,6 +20,7 @@ type IRef = {
     start: ()=>void;
     hide: ()=>void;
     setSize: (w: number, h: number)=>void;
+    updateAnimation: ()=>void;
 };
 
 export type { IRef as ScreenLoadingDirectiveRef };
@@ -28,6 +29,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
     const duration: number = 500;
     const [size, setSize] = useState({ width: 0, height: 0 });
     const [name, setName] = useState('Nombre del Directivo');
+    const [numAnim, setNumAnim] = useState(0);
     const [image, setImage] = useState('https://tecnicadigital.com.ar/image/default.png');
 
     // Content 1
@@ -73,10 +75,14 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
         contentBorder.value = 1024;
         contentOpacity.value = 0;
         content2Opacity.value = 0;
-        content2MarginTop.value = 20;    
+        content2MarginTop.value = 20;
+        setNumAnim(-1);
+    }
+    function updateAnimation() {
+        setNumAnim(getRandomIntInclusive(0, 1));
     }
 
-    useImperativeHandle(ref, ()=>({ start: startNow, hide, setSize: setSizeLayout }));
+    useImperativeHandle(ref, ()=>({ start: startNow, hide, setSize: setSizeLayout, updateAnimation }));
 
     
     useEffect(()=>{
@@ -89,19 +95,31 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
         }
     }, [props.message]);
     useEffect(()=>{
-        Directive.getDataLocal().then((values)=>{
-            setName(decode(values.username));
-            setImage(`${urlBase}/image/${decode(values.picture)}`);
-        }).catch(()=>{
-            setName('Nombre del Directivo');
-            setImage('https://tecnicadigital.com.ar/image/default.png');
+        Actions.verifySession().then(async(opt: number)=>{
+            if (opt == 0) {
+                Directive.getDataLocal().then((values)=>{
+                    setName(decode(values.username));
+                    setImage(`${urlBase}/image/${decode(values.picture)}`);
+                }).catch(()=>{
+                    setName('Nombre del Directivo');
+                    setImage('https://tecnicadigital.com.ar/image/default.png');
+                });
+            } else if (opt == 1) {
+                Family.getDataLocal().then((values)=>{
+                    setName((values.name)? decode(values.name): 'Nombre del Estudiante');
+                    setImage((values.picture)? `${urlBase}/image/${decode(values.picture)}`: 'https://tecnicadigital.com.ar/image/default.png');
+                }).catch(()=>{
+                    setName('Nombre del Directivo');
+                    setImage('https://tecnicadigital.com.ar/image/default.png');
+                });
+            }
         });
     }, []);
 
     return(<Animated.View style={[styles.content, contentStyle, { backgroundColor: context.theme.colors.background }]}>
         <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={[{ position: 'absolute', bottom: 0 }, size]}>
-            <CogsAanimations />
-            {/*<HackerAnimation />*/}
+            {(numAnim == 0)&&<CogsAanimations />}
+            {(numAnim == 1)&&<HackerAnimation />}
             {/*<FastImage source={(context.isDark)? logoDark: logo} style={styles.logo} />*/}
             <Animated.View style={[styles.content2, content2Style]}>
                 <View style={styles.contentShow}>

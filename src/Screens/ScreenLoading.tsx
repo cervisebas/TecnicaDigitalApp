@@ -8,6 +8,7 @@ import { ThemeContext } from '../Components/ThemeProvider';
 import ScreenLoadingDirective, { ScreenLoadingDirectiveRef } from './ScreenLoadingDirective';
 // Images
 import logo from '../Assets/logo.webp';
+import { waitTo } from '../Scripts/Utils';
 
 type IProps = {
     setTimeout?: (time: number)=>any;
@@ -26,6 +27,7 @@ type IRef = {
     updateMessage: (message: string, hideLoadinginMessage?: boolean)=>void;
     hideMessage: ()=>void;
     openAnimation: ()=>void;
+    updateAnimation: ()=>void;
 };
 
 export type { IRef as ScreenLoadingRef };
@@ -109,22 +111,27 @@ export default memo(React.forwardRef(function ScreenLoading(props: IProps, ref: 
         setHideLoadinginMessage(true);
         setShowMessage(false);
         setMessage('');
+        refScreenLoadingDirective.current?.hide();
         setTimeout(()=>{
             scaleImage.value = 1;
             setPositionImage();
         }, 300);
     }
-    function openAnimation(): void {
+    async function openAnimation(): Promise<void> {
         topImage.value = withTiming(-61, { duration: 512 });
         leftImage.value = withTiming(-61, { duration: 512 });
         scaleImage.value = 0.21;
-        setTimeout(()=>refScreenLoadingDirective.current?.start(), 300);
+        waitTo(300);
+        refScreenLoadingDirective.current?.start();
     }
-    useImperativeHandle(ref, ()=>({ open, updateMessage, hideMessage, close, openAnimation }));
+    function updateAnimation() {
+        refScreenLoadingDirective.current?.updateAnimation();
+    }
+    useImperativeHandle(ref, ()=>({ open, updateMessage, hideMessage, close, openAnimation, updateAnimation }));
 
     useEffect(()=>{
         setPositionImage();
-        //setTimeout(openAnimation, 3000);
+        //setTimeout(openAnimation, 6000);
     }, []);
 
     return(<CustomModal visible={visible} animationIn={'fadeIn'} animationOutTiming={600} animationOut={'fadeOut'}>

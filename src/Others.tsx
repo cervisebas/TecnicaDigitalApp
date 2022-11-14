@@ -79,7 +79,8 @@ export default class Others extends Component<IProps, IState> {
         Actions.verifySession().then(async(opt: number)=>{
             if (opt == 0) {
                 this.refScreenLoading.current?.updateMessage('Iniciando sesión...', false)
-                await waitTo(500);
+                this.refScreenLoading.current?.updateAnimation();
+                await waitTo(1500);
                 //this.refScreenLoading.current?.refScreenLoadingDirective.current?.start();
                 this.refScreenLoading.current?.openAnimation();
                 await waitTo(1000);
@@ -95,6 +96,14 @@ export default class Others extends Component<IProps, IState> {
                     })
                     .catch(this._catchVerify);
             } else if (opt == 1) {
+                const isNewData = await Family.getDataLocal();
+                if (isNewData.name) {
+                    this.refScreenLoading.current?.updateMessage('Iniciando sesión...', false);
+                    this.refScreenLoading.current?.updateAnimation();
+                    await waitTo(1500);
+                    this.refScreenLoading.current?.openAnimation();
+                    await waitTo(1000);
+                }
                 this.props.changeScreen('Family');
                 Family.verify()
                     .then(async()=>{

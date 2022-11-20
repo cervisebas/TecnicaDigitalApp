@@ -7,12 +7,15 @@ type IProps = { children: React.ReactNode; };
 const ThemeContext = createContext({
     isDark: false,
     theme: ThemeLight,
-    setTheme: ()=>{}
+    desing: 'SAO',
+    setTheme: ()=>{},
+    setDesing: ()=>{}
 });
 
 function ThemeProvider(props: IProps) {
     const [isDark, setIsDark] = useState(false);
     const [theme, setDefaultTheme] = useState(ThemeLight);
+    const [desing, setDefaultDesing] = useState('Default');
 
     const setTheme = ()=>{
         if (isDark) {
@@ -27,6 +30,10 @@ function ThemeProvider(props: IProps) {
         AppThemeMode.set('dark');
         AppThemeMode.update();
     };
+    const setDesing = ()=>{
+        if (desing == 'SAO') return setDefaultDesing('Default');
+        setDefaultDesing('SAO');
+    };
 
     useEffect(()=>{
         (async()=>{
@@ -38,7 +45,7 @@ function ThemeProvider(props: IProps) {
         })();
     }, []);
 
-    return(<ThemeContext.Provider value={{ isDark, theme, setTheme }}>
+    return(<ThemeContext.Provider value={{ isDark, theme, desing, setTheme, setDesing }}>
         {props.children}
     </ThemeContext.Provider>);
 }

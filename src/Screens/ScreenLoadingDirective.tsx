@@ -98,7 +98,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
         Actions.verifySession().then(async(opt: number)=>{
             if (opt == 0) {
                 Directive.getDataLocal().then((values)=>{
-                    setName(decode(values.username));
+                    setName((values.name)? decode(values.name): decode(values.username));
                     setImage(`${urlBase}/image/${decode(values.picture)}`);
                 }).catch(()=>{
                     setName('Nombre del Directivo');
@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto-Medium',
         fontSize: 28,
         marginTop: 24,
+        textAlign: 'center'
         //color: '#FFFFFF'
     },
     contentLoading: {

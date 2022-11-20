@@ -14,6 +14,7 @@ import HatImage from "../../Assets/hat_student.webp";
 import BlackBoard from "../../Assets/blackboard.webp";
 import IndicatorTeacher from "../../Assets/indicator-teacher.webp";
 import { ThemeContext } from "../../Components/ThemeProvider";
+import FamilyOptionsOpt1 from "../DesignsUI/FamilyOptionsOpt1";
 
 type IProps = {
     data: StudentsData | undefined;
@@ -93,9 +94,9 @@ export default class FamilyOptions extends Component<IProps, IState> {
     }
 
     render(): React.ReactNode {
-        const { isDark, theme, setTheme } = this.context;
-        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close}>
-            {(this.props.data)? <View style={[styles.content, { backgroundColor: overlay(4, theme.colors.surface), height: (decode(this.props.data.curse) !== 'Docente')? 490: 365 }]}>
+        const { isDark, theme, desing, setTheme } = this.context;
+        return(<CustomModal visible={this.state.visible} onShow={this.loadData} onRequestClose={this.close} animationIn={(desing == 'SAO')? 'fadeInUp': undefined} animationOut={(desing == 'SAO')? 'fadeOut': undefined}>
+            {(this.props.data && desing !== 'SAO')? <View style={[styles.content, { backgroundColor: overlay(4, theme.colors.surface), height: (decode(this.props.data.curse) !== 'Docente')? 490: 365 }]}>
                 <View style={styles.contentImage}>
                     {(!this.state.isStudent)&&<>
                         <FastImage source={BlackBoard} style={styles.blackboardImage} />
@@ -151,6 +152,11 @@ export default class FamilyOptions extends Component<IProps, IState> {
                     </ScrollView>
                 </View>
             </View>: <></>}
+            {(desing == 'SAO')&&<FamilyOptionsOpt1
+                {...this.props}
+                {...this.state}
+                _openImage={this._openImage}
+            />}
         </CustomModal>);
     }
 }

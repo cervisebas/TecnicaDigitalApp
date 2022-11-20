@@ -9,6 +9,7 @@ type DirectiveData = {
     id: string;
     picture: string;
     username: string;
+    name?: string;
     password: string;
     date: string;
 };

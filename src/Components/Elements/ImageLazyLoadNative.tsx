@@ -1,11 +1,10 @@
 import React, { PureComponent } from "react";
-import { ImageSourcePropType, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Image, ImageProps, ImageSourcePropType, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
-import FastImage, { FastImageProps, ResizeMode } from "react-native-fast-image";
 import RNFS from "react-native-fs";
+import { ThemeContext } from "../ThemeProvider";
 // Images
 import ProfilePicture from "../../Assets/profile.webp";
-import { ThemeContext } from "../ThemeProvider";
 
 type IProps = {
     source: {
@@ -14,16 +13,15 @@ type IProps = {
     style?: StyleProp<ViewStyle>;
     circle?: boolean;
     size?: number;
-    resizeMode?: ResizeMode | undefined; 
     onLoad?: ()=>any;
-    nativeImageProps?: FastImageProps;
+    nativeImageProps?: ImageProps;
 };
 type IState = {
     isLoading: boolean;
     source: ImageSourcePropType | undefined;
 };
 
-export default class ImageLazyLoad extends PureComponent<IProps, IState> {
+export default class ImageLazyLoadNative extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -65,10 +63,9 @@ export default class ImageLazyLoad extends PureComponent<IProps, IState> {
             {(this.state.isLoading)?<SkeletonPlaceholder>
                 <SkeletonPlaceholder.Item width={'100%'} height={'100%'} />
             </SkeletonPlaceholder>:
-            <FastImage
+            <Image
                 source={this.state.source! as any}
                 style={{ width: '100%', height: '100%' }}
-                resizeMode={this.props.resizeMode}
                 onLoad={this.props.onLoad}
                 onError={this.props.onLoad}
                 {...this.props.nativeImageProps}

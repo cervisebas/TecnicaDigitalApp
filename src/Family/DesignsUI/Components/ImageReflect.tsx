@@ -1,29 +1,26 @@
 import React, { PureComponent } from "react";
-import { ImageSourcePropType, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
-import SkeletonPlaceholder from "react-native-skeleton-placeholder";
-import FastImage, { FastImageProps, ResizeMode } from "react-native-fast-image";
+import { Image, ImageProps, ImageSourcePropType, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import LinearGradient from "react-native-linear-gradient";
+import { ThemeContext } from "../../../Components/ThemeProvider";
 import RNFS from "react-native-fs";
 // Images
-import ProfilePicture from "../../Assets/profile.webp";
-import { ThemeContext } from "../ThemeProvider";
+import ProfilePicture from "../../../Assets/profile.webp";
 
 type IProps = {
     source: {
         uri: string;
     };
     style?: StyleProp<ViewStyle>;
-    circle?: boolean;
     size?: number;
-    resizeMode?: ResizeMode | undefined; 
     onLoad?: ()=>any;
-    nativeImageProps?: FastImageProps;
+    nativeImageProps?: ImageProps;
 };
 type IState = {
     isLoading: boolean;
     source: ImageSourcePropType | undefined;
 };
 
-export default class ImageLazyLoad extends PureComponent<IProps, IState> {
+export default class ImageReflect extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -60,38 +57,40 @@ export default class ImageLazyLoad extends PureComponent<IProps, IState> {
         }).catch(()=>(this._isMount)&&this.setState({ source: ProfilePicture, isLoading: false }));
     }
     render(): React.ReactNode {
-        const { isDark } = this.context;
-        return(<View style={[styles.view, { width: this.props.size, height: this.props.size }, this.props.style, (this.props.circle)? styles.circle: undefined, (this.props.circle)? { shadowColor: (isDark)? '#FFFFFF': '#000000' }: undefined]}>
-            {(this.state.isLoading)?<SkeletonPlaceholder>
-                <SkeletonPlaceholder.Item width={'100%'} height={'100%'} />
-            </SkeletonPlaceholder>:
-            <FastImage
-                source={this.state.source! as any}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode={this.props.resizeMode}
+        return(<View style={[styles.content, (this.props.size)? { width: this.props.size, height: this.props.size }: undefined, this.props.style]}>
+            <Image
+                source={this.state.source}
+                style={styles.image}
                 onLoad={this.props.onLoad}
                 onError={this.props.onLoad}
                 {...this.props.nativeImageProps}
-            />}
+            />
+            <LinearGradient
+                colors={['rgba(255, 255, 255, 1)', 'rgba(0, 0, 0, 0)']}
+                style={styles.gradient}
+                locations={[0.8, 1]}
+            />
         </View>);
     }
 }
 
 const styles = StyleSheet.create({
-    view: {
+    content: {
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'visible'
     },
-    circle: {
-        //shadowColor: "#000000",
-        shadowOffset:{
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.20,
-        shadowRadius: 1.41,
-        elevation: 2,
-        borderRadius: 1024,
-        overflow: 'hidden'
+    gradient: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        borderRadius: 0,
+        elevation: 0
+    },
+    image: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%'   
     }
 });

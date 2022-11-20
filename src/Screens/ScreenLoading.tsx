@@ -121,7 +121,7 @@ export default memo(React.forwardRef(function ScreenLoading(props: IProps, ref: 
         topImage.value = withTiming(-61, { duration: 512 });
         leftImage.value = withTiming(-61, { duration: 512 });
         scaleImage.value = 0.21;
-        waitTo(300);
+        await waitTo(400);
         refScreenLoadingDirective.current?.start();
     }
     function updateAnimation() {

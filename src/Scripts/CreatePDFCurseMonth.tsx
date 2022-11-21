@@ -2,7 +2,8 @@ import { Image } from "react-native";
 import { decode } from "base-64";
 import RNHTMLtoPDF from "react-native-html-to-pdf";
 import { AssistForMonth } from "./ApiTecnica/types";
-import { daysInMonth } from "./Utils";
+import { daysInMonth, getBusinessDatesCount } from "./Utils";
+import { months } from "moment";
 
 const listMonths = [
     { index: 1, name: 'Enero'},
@@ -32,7 +33,7 @@ function getHTML(curse: string, age: string, month: string, realMonth: number, d
             * {
                 font-family: Arial, Helvetica, sans-serif;
             }
-            table {
+            table:not(.ignore) {
                 width: 100%;
                 page-break-inside: auto;
             }
@@ -109,8 +110,19 @@ function getHTML(curse: string, age: string, month: string, realMonth: number, d
             table tr.bold p {
                 font-weight: 500;
             }
+            table td.padding {
+                padding-left: 4px;
+                padding-right: 12px;
+            }
+            table.ignore {
+                margin-top: 16px;
+            }
+            table td.padding2 {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
         </style>
-        <title>Registro</title>
+        <title>Registro ${curse}</title>
     </head>
     <body>
         <div class="header">
@@ -133,6 +145,7 @@ function getHTML(curse: string, age: string, month: string, realMonth: number, d
             </tr>
             ${getRows(realMonth, ageNumber, data)}
         </table>
+        ${getStadistics(realMonth, ageNumber, data)}
     </body>
     </html>`;
 }
@@ -218,11 +231,48 @@ function getRows(month: number, age: number, data: AssistForMonth['result']) {
     return resultHTML;
 }
 
+function getStadistics(month: number, year: number, data: AssistForMonth['result']) {
+    // Orden de datos
+    var assist = 0;
+    var notAssist = 0;
+    var total = 0;
+    data.forEach((day)=>{
+        day.data.forEach((value)=>{
+            if (value.status) assist += 1; else notAssist += 1;
+            total += 1;
+        });
+    });
+
+    // Calculos de la asistencia
+    const percent = ((assist * 100)/total).toFixed(2);
+    const media = (total / getBusinessDatesCount(month, year)).toFixed(2);
+
+    //   Porcentaje Media
+    return `<table class="ignore">
+        <tr class="bold">
+            <td class="padding"><p>Asistencia:</p></td>
+            <td class="center padding2"><p>${assist}</p></td>
+        </tr>
+        <tr class="bold">
+            <td class="padding"><p>Inasistencia:</p></td>
+            <td class="center padding2"><p>${notAssist}</p></td>
+        </tr>
+        <tr class="bold">
+            <td class="padding"><p>Porcentaje:</p></td>
+            <td class="center padding2"><p>${percent}%</p></td>
+        </tr>
+        <tr class="bold">
+            <td class="padding"><p>Media:</p></td>
+            <td class="center padding2"><p>${media}</p></td>
+        </tr>
+    </table>`;
+}
+
 export default function generatePDFCurseMonth(data: AssistForMonth): Promise<string> {
     return new Promise((resolve, reject)=>{
         try {
             const nameMonth = listMonths.find((v)=>v.index == parseInt(data.month))?.name;
-            const nameFile = `registros-${data.curse.replace('°', '-')}-${nameMonth?.toLowerCase()}`;
+            const nameFile = `registros-${decode(data.curse).replace('°', '-')}-${nameMonth?.toLowerCase()}`;
             var htmlFinal = getHTML(decode(data.curse), data.age, nameMonth as string, parseInt(data.month), data.result).replace(/\n/gi, '');
             var options: RNHTMLtoPDF.Options = {
                 html: htmlFinal,

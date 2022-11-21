@@ -25,6 +25,7 @@ import moment from "moment";
 import { ThemeContext } from "../Components/ThemeProvider";
 import { ScheduleCard } from "./Components/ScheduleCard";
 import ViewSchedule from "../Pages/ViewSchedule";
+import DialogOpt1, { DialogOpt1Ref } from "./DesignsUI/DialogOpt1";
 
 type IProps = {};
 type IState = {
@@ -89,6 +90,7 @@ export default class AppFamily extends Component<IProps, IState> {
         this._openLoading = this._openLoading.bind(this);
         this.checkWelcomeAndData = this.checkWelcomeAndData.bind(this);
         this._openSchedule = this._openSchedule.bind(this);
+        this._changeDesign = this._changeDesign.bind(this);
     }
     private event: EmitterSubscription | null = null;
     static contextType = ThemeContext;
@@ -103,6 +105,7 @@ export default class AppFamily extends Component<IProps, IState> {
     private refCardCredential = createRef<CardCredential>();
     private refTutorial = createRef<ScreenTutorial>();
     private refViewSchedule = createRef<ViewSchedule>();
+    private refDialogOpt1 = createRef<DialogOpt1Ref>();
 
     componentDidMount() {
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
@@ -214,6 +217,14 @@ export default class AppFamily extends Component<IProps, IState> {
         this.refQueryCall.current?.open();
     }
 
+    // Change Design
+    async _changeDesign() {
+        this.refDialogOpt1.current?.open('EasterEgg Descubierto: ¿Desea cambiar el diseño de la aplicación por él tema “Sword Art Online”?',  (()=>{
+            const { setDesing } = this.context;
+            setDesing();
+        }).bind(this));
+    }
+
     render(): React.ReactNode {
         const { theme } = this.context;
         return(<View style={{ flex: 1 }}>
@@ -297,10 +308,12 @@ export default class AppFamily extends Component<IProps, IState> {
                 data={this.state.studentData}
                 closeSession={()=>this.setState({ viewLogOut: true })}
                 openImage={this._openImageViewer}
+                changeDesign={this._changeDesign}
                 openDialog={(title, text)=>this.setState({ dialogVisible: true, dialogTitle: title, dialogText: text })}
             />
             <ViewSchedule ref={this.refViewSchedule} goLoading={this._openLoading} />
             <LoadingComponent ref={this.refLoadingComponent} />
+            <DialogOpt1 ref={this.refDialogOpt1} />
         </View>);
     }
 }

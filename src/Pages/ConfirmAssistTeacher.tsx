@@ -196,7 +196,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
                 .then(()=>ToastAndroid.show('El archivo se copio correctamente en la carpeta de descargas', ToastAndroid.SHORT))
                 .catch(()=>ToastAndroid.show('Ocurrió un error al copiar el archivo a la carpeta de descargas', ToastAndroid.SHORT));
             FileViewer.open(path, { showOpenWithDialog: true, showAppsSuggestions: true })
-                .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'))
+                .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'));
             this.props.showLoading(false);
         } catch {
             this.props.showLoading(false);

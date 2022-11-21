@@ -3,7 +3,7 @@ import { encode } from "base-64";
 import moment from "moment";
 import qs from "qs";
 import DirectiveSystem from "./directives";
-import { ApiHeader, AssistIndividualData, AssistUserData, DataGroup, DataList, ResponseGetAllDataGroups, ResponseGetAssistList, TypicalRes } from "./types";
+import { ApiHeader, AssistForMonth, AssistIndividualData, AssistUserData, DataGroup, DataList, ResponseGetAllDataGroups, ResponseGetAssistList, TypicalRes } from "./types";
 
 type TimesAccept = {
     hour: number;
@@ -127,6 +127,22 @@ export default class AssistSystem {
                     var dataPost = { getIndividualAssist: true, username: session.username, password: session.password, idStudent };
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
                         var res: TypicalRes = result.data;
+                        if (res.ok) resolve(res.datas); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+                }).catch((error)=>reject({ ok: true, cause: error.cause }));
+            } catch (error) {
+                reject({ ok: false, cause: 'Ocurrio un error inesperado.', error });
+            }
+        });
+    }
+    getAssistForMonth(curse: string, month: number, age: number): Promise<AssistForMonth> {
+        return new Promise((resolve, reject)=>{
+            try {
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
+                Directives.getDataLocal().then((session)=>{
+                    var dataPost = { getAssistForMonth: true, username: session.username, password: session.password, curse, month, age };
+                    axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
+                        const res: TypicalRes = result.data;
                         if (res.ok) resolve(res.datas); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
                     }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
                 }).catch((error)=>reject({ ok: true, cause: error.cause }));

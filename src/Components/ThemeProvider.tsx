@@ -15,7 +15,7 @@ const ThemeContext = createContext({
 function ThemeProvider(props: IProps) {
     const [isDark, setIsDark] = useState(false);
     const [theme, setDefaultTheme] = useState(ThemeLight);
-    const [desing, setDefaultDesing] = useState('Default');
+    const [desing, setDefaultDesing] = useState<'Default' | 'SAO'>('Default');
 
     const setTheme = ()=>{
         if (isDark) {

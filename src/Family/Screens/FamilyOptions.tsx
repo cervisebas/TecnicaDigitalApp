@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decode } from "base-64";
 import React, { Component, PureComponent } from "react";
-import { Dimensions, ScrollView, StyleSheet, TouchableHighlight, View } from "react-native";
+import { Dimensions, Pressable, ScrollView, StyleSheet, TouchableHighlight, View } from "react-native";
 import { Button, IconButton, List, overlay, Switch, Text } from "react-native-paper";
 import CustomModal from "../../Components/CustomModal";
 import { Family, urlBase } from "../../Scripts/ApiTecnica";
@@ -21,6 +21,7 @@ type IProps = {
     openImage: (src: string)=>any;
     closeSession: ()=>any;
     openDialog: (title: string, text: string)=>any;
+    changeDesign: ()=>void;
 };
 type IState = {
     visible: boolean;
@@ -116,7 +117,12 @@ export default class FamilyOptions extends Component<IProps, IState> {
                     onPress={this.close}
                     style={styles.backButton}
                 />
-                <Text style={styles.textBrand}>SCAPPS</Text>
+                <Pressable
+                    style={styles.pressableBrand}
+                    //onLongPress={this.props.changeDesign}
+                >
+                    <Text style={styles.textBrand}>SCAPPS</Text>
+                </Pressable>
                 <View style={{ width: '100%', height: '100%', alignItems: 'center' }}>
                     <Text style={{ marginTop: 8, fontSize: 24, width: '75%', textAlign: 'center' }}>{decode(this.props.data.name)}</Text>
                     <ScrollView style={{ width: '100%' }} contentContainerStyle={{ paddingBottom: 14 }} persistentScrollbar={true}>
@@ -156,6 +162,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                 {...this.props}
                 {...this.state}
                 _openImage={this._openImage}
+                close={this.close}
             />}
         </CustomModal>);
     }
@@ -244,14 +251,16 @@ const styles = StyleSheet.create({
         left: 128,
         transform: [{ rotate: "20deg" }]
     },
-    textBrand: {
-        color: '#FF2E2E',
-        fontSize: 18,
-        fontFamily: 'Organetto-Bold',
+    pressableBrand: {
         position: 'absolute',
         right: 0,
         top: 0,
         margin: 18
+    },
+    textBrand: {
+        color: '#FF2E2E',
+        fontSize: 18,
+        fontFamily: 'Organetto-Bold'
     },
     backButton: {
         position: 'absolute',

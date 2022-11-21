@@ -2,9 +2,8 @@ import { decode } from "base-64";
 import React, { PureComponent } from "react";
 import { Dimensions, Pressable, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
-import { Text } from "react-native-paper";
+import { IconButton, Text } from "react-native-paper";
 import ImageLazyLoadNative from "../../Components/Elements/ImageLazyLoadNative";
-import { ThemeContext } from "../../Components/ThemeProvider";
 import { urlBase } from "../../Scripts/ApiTecnica";
 import { StudentsData } from "../../Scripts/ApiTecnica/types";
 import ImageReflect from "./Components/ImageReflect";
@@ -20,6 +19,7 @@ type IProps = {
 
     // FUnction
     _openImage: ()=>void;
+    close: ()=>void;
 
     // States
     visible: boolean;
@@ -33,9 +33,7 @@ export default class FamilyOptionsOpt1 extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
     }
-    static contextType = ThemeContext;
     render(): React.ReactNode {
-        const { theme } = this.context;
         const { width, height } = Dimensions.get('window');
         const sizeImage = width - 220;
         return(<View style={[styles.content, { height: height - 200 }]}>
@@ -44,6 +42,12 @@ export default class FamilyOptionsOpt1 extends PureComponent<IProps, IState> {
                 <View style={styles.divider} />
             </View>
             <View style={styles.imageContent}>
+                <IconButton
+                    icon={'arrow-left'}
+                    onPress={this.props.close}
+                    style={styles.backButton}
+                    color={'#5f5f5f'}
+                />
                 <Pressable onPress={this.props._openImage} style={styles.imageTouchable}>
                     <ImageLazyLoadNative
                         source={{ uri: `${urlBase}/image/${decode(this.props.data!.picture)}` }}
@@ -222,12 +226,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     textBrand: {
-        color: '#FF2E2E',
+        color: '#5f5f5f',
         fontSize: 18,
-        fontFamily: 'Organetto-Bold',
+        fontFamily: 'SAOUI-Bold',
         position: 'absolute',
         right: 0,
         bottom: 0,
         margin: 18
+    },
+    backButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        marginTop: 10,
+        marginLeft: 14
     }
 });

@@ -1,6 +1,6 @@
 import { decode, encode } from "base-64";
 import React, { Component, createRef, PureComponent } from "react";
-import { DefaultSectionT, DeviceEventEmitter, EmitterSubscription, RefreshControl, SectionList, SectionListData, SectionListRenderItemInfo, StyleSheet, ToastAndroid, View } from "react-native";
+import { DefaultSectionT, DeviceEventEmitter, EmitterSubscription, PermissionsAndroid, RefreshControl, SectionList, SectionListData, SectionListRenderItemInfo, StyleSheet, ToastAndroid, View } from "react-native";
 import { ActivityIndicator, Appbar, Button, Dialog, Divider, IconButton, Menu, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import messaging from '@react-native-firebase/messaging';
@@ -24,6 +24,10 @@ import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../Components/ThemeProvider";
 import color from "color";
 import { isTempSession } from "../Scripts/ApiTecnica/tempsession";
+import GetExtendedRegist from "../Pages/GetExtendedRegist";
+import generatePDFCurseMonth from "../Scripts/CreatePDFCurseMonth";
+import FileViewer from "react-native-file-viewer";
+import RNFS from "react-native-fs";
 
 type IProps = {
     navigation: any;
@@ -76,6 +80,8 @@ export default class Page1 extends Component<IProps, IState> {
         this._setFilterConfirm = this._setFilterConfirm.bind(this);
         this._renderItem3 = this._renderItem3.bind(this);
         this._renderSectionHeader = this._renderSectionHeader.bind(this);
+        this._openGenerateExtendedRegist = this._openGenerateExtendedRegist.bind(this);
+        this._generateNowExtendedRegist = this._generateNowExtendedRegist.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -94,7 +100,7 @@ export default class Page1 extends Component<IProps, IState> {
     private refLoadingComponent= createRef<LoadingComponent>();
     private refSetGroup= createRef<SetGroup>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
-
+    private refGetExtendedRegist = createRef<GetExtendedRegist>();
 
     componentDidMount() {
         this._isMount = true;
@@ -129,6 +135,7 @@ export default class Page1 extends Component<IProps, IState> {
                     .catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
             ).catch((err)=>(this._isMount)&&this.setState({ isLoading: false, isError: true, isRefresh: false, messageError: err.cause }))
         );
+        //Assist.getAssistForMonth(encode('7°3'), 9, 2022).then((d)=>console.log(d)).catch((r)=>console.log(r));
     }
     filterListForDate(actual: DataGroup[]) {
         const newList: DataGroupForDate[] = [];
@@ -303,6 +310,51 @@ export default class Page1 extends Component<IProps, IState> {
     _setFilterConfirm(filter: string[]) {
         this.refConfirmAssist.current?.setFilter(filter);
     }
+    _openGenerateExtendedRegist() {
+        this.refGetExtendedRegist.current?.open();
+    }
+    async _generateNowExtendedRegist(curse: string, month: number, age: number) {
+        this.refLoadingComponent.current?.open('Obteniendo información...');
+
+        const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+            title: "Atención",
+            message: "Para guardar la imagen se necesita acceder al almacenamiento de su dispositivo, por favor acepte los permisos que se requieren.",
+            buttonNegative: "Cancelar",
+            buttonPositive: "Aceptar"
+        });
+        if (permission == PermissionsAndroid.RESULTS.DENIED) {
+            this.refLoadingComponent.current?.close();
+            this.refGetExtendedRegist.current?.restaure(curse, month, age);
+            return ToastAndroid.show('Se denegó el acceso al almacenamiento.', ToastAndroid.LONG);
+        }
+
+        Assist.getAssistForMonth(encode(curse), month, age)
+            .then((data)=>{
+                this.refLoadingComponent.current?.update('Generando archivo PDF...');
+                generatePDFCurseMonth(data)
+                    .then((uri)=>{
+                        const listMonths = [{ index: 1, name: 'Enero'}, { index: 2, name: 'Febrero'}, { index: 3, name: 'Marzo'}, { index: 4, name: 'Abril'}, { index: 5, name: 'Mayo'}, { index: 6, name: 'Junio'}, { index: 7, name: 'Julio'}, { index: 8, name: 'Agosto'}, { index: 9, name: 'Septiembre'}, { index: 10, name: 'Octubre'}, { index: 11, name: 'Noviembre'}, { index: 12, name: 'Diciembre'}];
+                        const nameMonth = listMonths.find((v)=>v.index == parseInt(data.month))?.name;
+                        const nameFile = `registros-${data.curse.replace('°', '-')}-${nameMonth?.toLowerCase()}`;
+                        RNFS.copyFile(uri, `${RNFS.DownloadDirectoryPath}/${nameFile}.pdf`)
+                            .then(()=>ToastAndroid.show('El archivo se copio correctamente en la carpeta de descargas', ToastAndroid.SHORT))
+                            .catch(()=>ToastAndroid.show('Ocurrió un error al copiar el archivo a la carpeta de descargas', ToastAndroid.SHORT));
+                        FileViewer.open(uri, { showOpenWithDialog: true, showAppsSuggestions: true })
+                            .catch(()=>this.refCustomSnackbar.current?.open('Ocurrió un problema al abrir el archivo generado.'));
+                        this.refLoadingComponent.current?.close();
+                    })
+                    .catch(({ cause })=>{
+                        this.refLoadingComponent.current?.close();
+                        this.refGetExtendedRegist.current?.restaure(curse, month, age);
+                        ToastAndroid.show(cause, ToastAndroid.LONG);
+                    });
+            })
+            .catch(({ cause })=>{
+                this.refLoadingComponent.current?.close();
+                this.refGetExtendedRegist.current?.restaure(curse, month, age);
+                ToastAndroid.show(cause, ToastAndroid.LONG);
+            });
+    }
 
     render(): React.ReactNode {
         const { theme } = this.context;
@@ -320,6 +372,7 @@ export default class Page1 extends Component<IProps, IState> {
                         disable={this.state.isLoading || this.state.isError}
                         openPreferences={this._openConfigurePreferences}
                         openSearch={this._openSearch}
+                        openMultipleRegists={this._openGenerateExtendedRegist}
                     />
                 </Appbar.Header>
                 <View style={{ flex: 1, overflow: 'hidden' }}>
@@ -396,6 +449,7 @@ export default class Page1 extends Component<IProps, IState> {
                 />
                 <ConfigurePreferences ref={this.refConfigurePreferences} />
                 <SetGroup ref={this.refSetGroup} setFilter={this._setFilterConfirm} />
+                <GetExtendedRegist ref={this.refGetExtendedRegist} generateNow={this._generateNowExtendedRegist} />
                 <LoadingComponent ref={this.refLoadingComponent} />
             </PaperProvider>
         </View>);
@@ -406,6 +460,7 @@ type IProps2 = {
     disable: boolean;
     openPreferences: ()=>any;
     openSearch: ()=>any;
+    openMultipleRegists?: ()=>any;
 };
 type IState2 = {
     isMenuOpen: boolean;
@@ -420,6 +475,7 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
         this._open = this._open.bind(this);
         this._openPreferences = this._openPreferences.bind(this);
         this._openSearch = this._openSearch.bind(this);
+        this._openMultipleRegists = this._openMultipleRegists.bind(this);
     }
     _close() {
         this.setState({ isMenuOpen: false });
@@ -435,6 +491,10 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
         this._close();
         this.props.openSearch();
     }
+    _openMultipleRegists() {
+        this._close();
+        (this.props.openMultipleRegists)&&this.props.openMultipleRegists();
+    }
     render(): React.ReactNode {
         return(<Menu
             visible={this.state.isMenuOpen}
@@ -447,6 +507,7 @@ class MenuComponent extends PureComponent<IProps2, IState2> {
             />}>
             <Menu.Item icon={'account-cog-outline'} title={"Preferencias"} onPress={this._openPreferences} />
             <Menu.Item icon={'archive-search-outline'} title={"Buscar registro"} onPress={this._openSearch} />
+            <Menu.Item icon={'file-document-multiple-outline'} title={"Obtener registro extendido"} onPress={this._openMultipleRegists} />
             <Divider />
             <Menu.Item icon={'close'} onPress={this._close} title={"Cerrar"} />
         </Menu>);

@@ -190,6 +190,21 @@ type ApiHeader = {
     };
 };
 
+// Regist Month
+type AssistForMonth = {
+    curse: string;
+    month: string;
+    age: string;
+    result: {
+        date: string;
+        hour: string;
+        data: {
+            name: string;
+            status: boolean;
+        }[];
+    }[];
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -212,5 +227,6 @@ export type {
     Matter,
     Schedule,
     DataSchedule,
-    ApiHeader
+    ApiHeader,
+    AssistForMonth
 };

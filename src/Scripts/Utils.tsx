@@ -141,3 +141,6 @@ export function getRandomIntInclusive(min: number, max: number) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+export function daysInMonth(month: number, year: number) {
+    return new Date(year, month, 0).getDate();
+}

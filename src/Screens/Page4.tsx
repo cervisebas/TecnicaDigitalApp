@@ -142,6 +142,7 @@ export default class Page4 extends Component<IProps, IState> {
             title={decode(item.name)}
             position={decode(item.position)}
             permission={parseInt(item.permission)}
+            disableDesign={item.permission == '0'}
             source={{ uri: `${urlBase}/image/${decode(item.picture)}` }}
             isCreator={!!this.creators.find((v)=>v.toString() == item.id)}
             onPress={()=>this.refViewDirective.current?.open(item)}

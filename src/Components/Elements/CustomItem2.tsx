@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 import { StyleProp, ViewStyle, View, Text, StyleSheet, Image } from "react-native";
-import { List, Menu, IconButton } from "react-native-paper";
+import { List, Menu, IconButton, overlay } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageLazyLoad from "./ImageLazyLoad";
 import pattern from "../../Assets/pattern3.webp";
@@ -13,12 +13,13 @@ type IProps2 = {
     position: string;
     permission: number;
     isCreator?: boolean;
-    onPress?: ()=>any;
     noLine?: boolean;
+    style?: StyleProp<ViewStyle>;
+    disableDesign: boolean;
+    onPress?: ()=>any;
     onEdit?: ()=>any;
     onDelete?: ()=>any;
     onNotDelete?: ()=>any;
-    style?: StyleProp<ViewStyle>;
 };
 type IState2 = {
     menuVisible: boolean;
@@ -53,6 +54,7 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         return(<View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {(this.props.permission >= 3)&&<Icon name={(this.props.isCreator)? 'crown': 'shield-crown-outline'} size={20} color={descolor} />}
             <Text style={[{ marginLeft: 4, color: descolor }, (this.props.isCreator)&&{ fontWeight: '700' }]}>{this.props.position}</Text>
+            {(this.props.disableDesign)? <Text> • <Text style={{ fontWeight: 'bold' }}>Inhabilitado</Text></Text>: undefined}
         </View>);
     }
     showMenu() {
@@ -79,6 +81,7 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         />);
     }
     render(): React.ReactNode {
+        const { isDark, theme } = this.context;
         return(<View style={styles.background}>
             {(this.props.isCreator)&&<Image
                 source={pattern}
@@ -90,7 +93,7 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
                 title={this.props.title}
                 titleStyle={(this.props.isCreator)&&{ fontWeight: '700' }}
                 description={this._description}
-                style={styles.items}
+                style={[styles.items, (this.props.disableDesign)? { backgroundColor: Color(theme.colors.background as string).negate().alpha((isDark)? 0.25: 0.1).rgb().string() }: undefined]}
                 onPress={(this.props.onPress)&&this.props.onPress}
                 onLongPress={this.showMenu}
                 left={this.leftImage}

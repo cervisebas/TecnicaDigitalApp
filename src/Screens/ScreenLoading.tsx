@@ -154,7 +154,7 @@ export default memo(React.forwardRef(function ScreenLoading(props: IProps, ref: 
                     </Text>}
                 </View>
             </LinearGradient>
-            <ScreenLoadingDirective ref={refScreenLoadingDirective} message={message} />
+            <ScreenLoadingDirective ref={refScreenLoadingDirective} visible={visible} message={message} />
         </View>
     </CustomModal>);
 }));

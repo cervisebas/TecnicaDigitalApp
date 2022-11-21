@@ -14,6 +14,7 @@ import CogsAanimations from "../Components/Animations/CogsAanimations";
 import HackerAnimation from "../Components/Animations/HackerAnimation";
 
 type IProps = {
+    visible: boolean;
     message: string;
 };
 type IRef = {
@@ -120,10 +121,13 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
         <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={[{ position: 'absolute', bottom: 0 }, size]}>
             {(numAnim == 0)&&<CogsAanimations />}
             {(numAnim == 1)&&<HackerAnimation />}
-            {/*<FastImage source={(context.isDark)? logoDark: logo} style={styles.logo} />*/}
             <Animated.View style={[styles.content2, content2Style]}>
                 <View style={styles.contentShow}>
-                    <ImageLazyLoad style={styles.contentImage} size={200} circle={true} source={{ uri: image }} />
+                    <ImageLazyLoad
+                        style={[styles.contentImage, (props.visible)? styles.shadowImage: undefined]}
+                        size={200}
+                        source={{ uri: image }}
+                    />
                     <Text style={[styles.text, { color: (numAnim == 1)? '#FFFFFF': (context.isDark)? '#FFFFFF': '#000000' }]}>{name}</Text>
                 </View>
                 <Animated.View style={styles.contentLoading}>
@@ -162,6 +166,15 @@ const styles = StyleSheet.create({
         borderWidth: 4,
         borderRadius: 200,
         overflow: 'hidden'
+    },
+    shadowImage: {
+        shadowOffset:{
+            width: 0,
+            height: 1
+        },
+        shadowOpacity: 0.20,
+        shadowRadius: 1.41,
+        elevation: 2
     },
     contentShow: {
         marginTop: -100,

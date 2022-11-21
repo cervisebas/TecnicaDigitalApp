@@ -8,9 +8,17 @@ import { getTempSession, isTempSession, setTempSession } from "./tempsession";
 export default class DirectiveSystem {
     private urlBase: string = '';
     private header_access: any;
+    private header_access2: any;
     constructor(setUrl: string, setHeaderAccess: ApiHeader) {
         this.urlBase = setUrl;
         this.header_access = setHeaderAccess;
+        this.header_access2 = {
+            ...setHeaderAccess,
+            headers: {
+                ...setHeaderAccess.headers,
+                'Content-Type': 'multipart/form-data'
+            }
+        };
     }
 
     public openSession: boolean = false;
@@ -148,6 +156,29 @@ export default class DirectiveSystem {
                     axios.post(`${this.urlBase}/index.php`, qs.stringify(dataPost), this.header_access).then((result)=>{
                         var res: TypicalRes = result.data;
                         if (res.ok) resolve(true); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
+                    }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
+                }).catch((error)=>reject({ ok: true, cause: error.cause }));
+            } catch (error) {
+                reject({ ok: false, cause: 'Ocurrio un error inesperado.', error });
+            }
+        });
+    }
+    editImage(idEdit: string, image?: { uri: string; type: string; name: string; }, remove?: boolean): Promise<void> {
+        return new Promise((resolve, reject)=>{
+            try {
+                var Directives = new DirectiveSystem(this.urlBase, this.header_access);
+                Directives.getDataLocal().then((session)=>{
+                    var form = new FormData();
+                    form.append('editImageDirective', '1');
+                    form.append('username', session.username);
+                    form.append('password', session.password);
+                    form.append('idEdit', idEdit);
+                    (image)&&form.append('image', image);
+                    (remove)&&form.append('removeImage', '1');
+                    axios.post(`${this.urlBase}/index.php`, form, this.header_access2).then((result)=>{
+                        const res: TypicalRes = result.data;
+                        console.log(result.data);
+                        if (res.ok) resolve(); else reject({ ok: false, cause: (res.cause)? res.cause: 'Ocurrio un error inesperado.' });
                     }).catch((error)=>reject({ ok: false, cause: 'Error de conexión.', error }));
                 }).catch((error)=>reject({ ok: true, cause: error.cause }));
             } catch (error) {

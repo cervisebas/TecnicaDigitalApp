@@ -51,6 +51,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
         this.changeBackgroundImage = this.changeBackgroundImage.bind(this);
     }
     private event: EmitterSubscription | null = null;
+    private event2: EmitterSubscription | null = null;
     private interval: NodeJS.Timer | null = null;
     private interval2: NodeJS.Timer | null = null;
     private _isMount: boolean = false;
@@ -61,6 +62,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     componentDidMount() {
         this._isMount = true;
         this.event = DeviceEventEmitter.addListener('loadNowAll', this.loadData);
+        this.event2 = DeviceEventEmitter.addListener('reloadDrawer', this.loadData);
         this.setState({
             nameUser: 'Usuario de pruebas',
             pictureUser: '',
@@ -72,6 +74,7 @@ export default class CustomDrawerNavegation extends PureComponent<DrawerContentC
     componentWillUnmount() {
         this._isMount = false;
         this.event?.remove();
+        this.event2?.remove();
         clearInterval(this.interval!);
         clearInterval(this.interval2!);
     }

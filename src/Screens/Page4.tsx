@@ -1,13 +1,13 @@
 import React, { Component, createRef, PureComponent } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
-import { Button, ActivityIndicator, Appbar, Dialog, Divider, IconButton, Paragraph, Portal, Provider as PaperProvider, Text } from "react-native-paper";
+import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
+import { Button, ActivityIndicator, Appbar, Dialog, Divider, IconButton, Paragraph, Portal, Provider as PaperProvider, Text, overlay } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
-import Theme from "../Themes";
+import Theme, { ThemeDark } from "../Themes";
 import { Directive, urlBase } from "../Scripts/ApiTecnica";
 import ItemDirective from "../Components/Elements/CustomItem2";
-import { decode } from "base-64";
+import { decode, encode } from "base-64";
 import ViewDirective from "../Pages/ViewDirective";
 import AddDirective from "../Pages/AddDirective";
 import EditDirective from "../Pages/EditDirective";
@@ -17,6 +17,8 @@ import ImageViewer from "../Pages/ImageViewer";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../Components/ThemeProvider";
 import LoadingComponent from "../Components/LoadingComponent";
+import SelectOriginImage from "../Components/SelectOriginImage";
+import ImageCropPicker, { Image as TypeImageCrop, Options } from "react-native-image-crop-picker";
 
 type IProps = {
     navigation: any;
@@ -48,6 +50,10 @@ export default class Page4 extends Component<IProps, IState> {
         this.openImageViewer = this.openImageViewer.bind(this);
         this.showSnackbar = this.showSnackbar.bind(this);
         this._openAddDirective = this._openAddDirective.bind(this);
+        this.actionSetPicture = this.actionSetPicture.bind(this);
+        this.changeImage2 = this.changeImage2.bind(this);
+        this.goSendImage = this.goSendImage.bind(this);
+        this.removePicture = this.removePicture.bind(this);
     }
     private event: EmitterSubscription | null = null;
     private event2: EmitterSubscription | null = null;
@@ -61,6 +67,28 @@ export default class Page4 extends Component<IProps, IState> {
     private idOptionSelect: string = '-1';
     private creators: number[] = [1, 5, 10, 14, 23];
     static contextType = ThemeContext;
+    private defaultOptions: Options = {
+        cropping: true,
+        compressImageQuality: 1,
+        multiple: false,
+        mediaType: 'photo',
+        cropperStatusBarColor: '#FF3232',
+        cropperActiveWidgetColor: '#FF3232',
+        cropperToolbarColor: '#FF3232',
+        cropperToolbarWidgetColor: '#FFFFFF',
+        cropperToolbarTitle: 'Editar imagen',
+        writeTempFile: true,
+        includeBase64: false,
+        includeExif: false,
+        compressImageMaxWidth: 512,
+        compressImageMaxHeight: 512
+    };
+    private defaultOptionsDark = {
+        ...this.defaultOptions,
+        cropperStatusBarColor: '#1D1D1D',
+        cropperToolbarColor: overlay(4, ThemeDark.colors.surface),
+    };
+    private imageSelected: { uri: string; type: string; name: string; } = { uri: '', type: '', name: '' };
     // Refs    
     private actionSheet = createRef<ActionSheet>();
     private refViewDirective = createRef<ViewDirective>();
@@ -72,6 +100,9 @@ export default class Page4 extends Component<IProps, IState> {
     private refCustomSnackbar = createRef<CustomSnackbar>();
     private refYouNotDidDelete = createRef<YouNotDidDelete>();
     private refLoadingComponent = createRef<LoadingComponent>();
+    private refSelectOriginImage = createRef<SelectOriginImage>();
+    private refVerifySendImage = createRef<VerifySendImage>();
+    private refVerifyRemoveImage = createRef<VerifyRemoveImage>();
 
 
     componentDidMount() {
@@ -157,6 +188,9 @@ export default class Page4 extends Component<IProps, IState> {
                 var data = this.state.datas.find((v)=>this.idOptionSelect == v.id);
                 this.refChangePermissionDirective.current?.open(data!);
                 break;
+            case 3:
+                this.refSelectOriginImage.current?.open();
+                break;
         }
     }
     openImageViewer(source: string) {
@@ -169,6 +203,76 @@ export default class Page4 extends Component<IProps, IState> {
     _openAddDirective() {
         this.refAddDirective.current?.open();
     }
+
+
+    // Change Image Directive
+    actionSetPicture(index: number) {
+        const { isDark } = this.context;
+        if (index == 0) ImageCropPicker.openCamera((isDark)? this.defaultOptionsDark: this.defaultOptions).then(this.changeImage2);
+        if (index == 1) ImageCropPicker.openPicker((isDark)? this.defaultOptionsDark: this.defaultOptions).then(this.changeImage2);
+        if (index == 2) {
+            if (this.verifyRemoveImageDirective()) return this.refCustomSnackbar.current?.open('El perfil del directivo ya no cuenta con una imagen.');
+            this.refVerifyRemoveImage.current?.open();
+        }
+    }
+    verifyRemoveImageDirective() {
+        const data = this.state.datas.find((v)=>v.id == this.idOptionSelect);
+        if (data?.picture == encode('default-admin.png')) return true;
+        return false;
+    }
+    changeImage2({ mime, path }: TypeImageCrop) {
+        const filename = path.replace(/^.*[\\\/]/, '');
+        var verify = (filename!.indexOf('.png') !== -1) || (filename!.indexOf('.jpg') !== -1) || (filename!.indexOf('.jpeg') !== -1) || (filename!.indexOf('.webp') !== -1);
+        if (!verify) return ToastAndroid.show('La extensión de la imagen no es válida.', ToastAndroid.SHORT);
+        this.imageSelected = {
+            uri: path,
+            type: mime,
+            name: filename
+        };
+        this.refVerifySendImage.current?.open();
+    }
+    goSendImage() {
+        this.refLoadingComponent.current?.open(`Aplicando imagen de perfil...`);
+        Directive.editImage(this.idOptionSelect, this.imageSelected)
+            .then(()=>{
+                this.setState({ isRefresh: true }, this.loadData);
+                this.refCustomSnackbar.current?.open('Se aplico la imagen correctamente.');
+                this.refLoadingComponent.current?.close();
+                this.verifyUpdateData();
+            })
+            .catch(({ cause })=>{
+                this.refCustomSnackbar.current?.open(cause);
+                this.refLoadingComponent.current?.close();
+            });
+    }
+    removePicture() {
+        this.refLoadingComponent.current?.open(`Quitando imagen de perfil...`);
+        Directive.editImage(this.idOptionSelect, undefined, true)
+            .then(()=>{
+                this.setState({ isRefresh: true }, this.loadData);
+                this.refCustomSnackbar.current?.open('Se quito la imagen correctamente.');
+                this.refLoadingComponent.current?.close();
+                this.verifyUpdateData();
+            })
+            .catch(({ cause })=>{
+                this.refCustomSnackbar.current?.open(cause);
+                this.refLoadingComponent.current?.close();
+            });
+    }
+    async verifyUpdateData() {
+        try {
+            const datauser = await Directive.getDataLocal();
+            if (this.idOptionSelect == datauser.id) {
+                await Directive.verify();
+                DeviceEventEmitter.emit('reloadDrawer');
+            }
+        } catch (error) {
+            var cause = 'Ocurrió un error al actualizar los datos.';
+            if ((error as any).cause) cause = (error as any).cause;
+            ToastAndroid.show(cause, ToastAndroid.LONG);
+        }
+    }
+
 
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
@@ -219,6 +323,8 @@ export default class Page4 extends Component<IProps, IState> {
                         </Dialog.Actions>
                     </Dialog>
                     <YouNotDidDelete ref={this.refYouNotDidDelete} />
+                    <VerifySendImage ref={this.refVerifySendImage} goSendImage={this.goSendImage} />
+                    <VerifyRemoveImage ref={this.refVerifyRemoveImage} goRemoveImage={this.removePicture} />
                 </Portal>
 
                 {/* Modals */}
@@ -237,6 +343,7 @@ export default class Page4 extends Component<IProps, IState> {
                 <EditDirective ref={this.refEditDirective} showSnackbar={this.showSnackbar} />
                 <ChangePasswordDirective ref={this.refChangePasswordDirective} showSnackbar={this.showSnackbar} />
                 <ChangePermissionDirective ref={this.refChangePermissionDirective} showSnackbar={this.showSnackbar} />
+                <SelectOriginImage ref={this.refSelectOriginImage} onAction={this.actionSetPicture} />
                 <LoadingComponent ref={this.refLoadingComponent} />
             </PaperProvider>
         </View>);
@@ -270,6 +377,76 @@ class YouNotDidDelete extends PureComponent<IProps2, IState2> {
             </Dialog.Content>
             <Dialog.Actions>
                 <Button onPress={this.close}>Cerrar</Button>
+            </Dialog.Actions>
+        </Dialog>);
+    }
+}
+
+type IProps3 = { goSendImage: ()=>void; };
+class VerifySendImage extends PureComponent<IProps3, IState2> {
+    constructor(props: IProps3) {
+        super(props);
+        this.state = {
+            visible: false
+        };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+        this.goAction = this.goAction.bind(this);
+    }
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+    goAction() {
+        this.close();
+        this.props.goSendImage();
+    }
+    render(): React.ReactNode {
+        return(<Dialog visible={this.state.visible} onDismiss={this.close}>
+            <Dialog.Title>¡¡¡Atención!!!</Dialog.Title>
+            <Dialog.Content>
+                <Paragraph>{"¿Estás seguro que quieres cambiar la imagen del perfil del directivo seleccionado?\n\nEsta acción no se podrá deshacer, en caso que quieras retornar la imagen a una anterior tendrás que remplazar la imagen futura utilizando el archivo correspondiente."}</Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+                <Button onPress={this.close}>Cancelar</Button>
+                <Button onPress={this.goAction}>Aceptar</Button>
+            </Dialog.Actions>
+        </Dialog>);
+    }
+}
+
+type IProps4 = { goRemoveImage: ()=>void; };
+class VerifyRemoveImage extends PureComponent<IProps4, IState2> {
+    constructor(props: IProps4) {
+        super(props);
+        this.state = {
+            visible: false
+        };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+        this.goAction = this.goAction.bind(this);
+    }
+    open() {
+        this.setState({ visible: true });
+    }
+    close() {
+        this.setState({ visible: false });
+    }
+    goAction() {
+        this.close();
+        this.props.goRemoveImage();
+    }
+    render(): React.ReactNode {
+        return(<Dialog visible={this.state.visible} onDismiss={this.close}>
+            <Dialog.Title>¡¡¡Atención!!!</Dialog.Title>
+            <Dialog.Content>
+                <Paragraph>{"¿Estás seguro que quieres remover la imagen del perfil del directivo seleccionado?\n\nEsta acción no se podrá deshacer, en caso que quieras retornar la imagen a una anterior tendrás que remplazar la imagen futura utilizando el archivo correspondiente."}</Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+                <Button onPress={this.close}>Cancelar</Button>
+                <Button onPress={this.goAction}>Aceptar</Button>
             </Dialog.Actions>
         </Dialog>);
     }

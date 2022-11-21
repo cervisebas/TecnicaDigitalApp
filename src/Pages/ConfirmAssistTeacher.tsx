@@ -94,7 +94,7 @@ export default class ConfirmAssistTeacher extends Component<IProps, IState> {
             .then(()=>{
                 this.props.showLoading(false);
                 DeviceEventEmitter.emit('p7-reload', true);
-                this.props.showSnackbar(true, `Se elimino el registro #"${this.state.select}".`);
+                this.props.showSnackbar(true, `Se elimino el registro #${this.state.select}.`);
                 this.closeAndClean();
             })
             .catch((error)=>{

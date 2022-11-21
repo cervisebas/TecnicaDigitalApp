@@ -75,9 +75,10 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
         if (!this.verifyInputs()) return;
         this.setState({ isLoading: true }, ()=>
             Directive.edit(this.state.data.id, undefined, undefined, undefined, undefined, this.state.formPassword)
-                .then(()=>{
+                .then(async()=>{
                     this.props.showSnackbar(true, 'La contraseña se editó correctamente.');
                     DeviceEventEmitter.emit('reload-page4', true);
+                    await this.verifyChangePassword();
                     this.close();
                 })
                 .catch((error)=>ToastAndroid.show(error.cause, ToastAndroid.SHORT))
@@ -101,6 +102,16 @@ export default class ChangePasswordDirective extends Component<IProps, IState> {
     goClose() {
         if (this.state.isLoading) return ToastAndroid.show('Todavia no se puede cerrar.', ToastAndroid.SHORT);
         this.close();
+    }
+    async verifyChangePassword() {
+        try {
+            const datauser = await Directive.getDataLocal();
+            if (this.state.data.id == datauser.id) DeviceEventEmitter.emit('reVerifySession');
+        } catch (error) {
+            var cause = 'Ocurrió un error al actualizar los datos.';
+            if ((error as any).cause) cause = (error as any).cause;
+            ToastAndroid.show(cause, ToastAndroid.LONG);
+        }
     }
 
     // Controller

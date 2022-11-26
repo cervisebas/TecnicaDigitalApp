@@ -1,11 +1,11 @@
 import React, { PureComponent } from "react";
-import { StyleProp, ViewStyle, View, Text, StyleSheet, Image } from "react-native";
-import { List, Menu, IconButton, overlay } from "react-native-paper";
+import { StyleProp, ViewStyle, View, Text, StyleSheet } from "react-native";
+import { List, Menu, IconButton } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ImageLazyLoad from "./ImageLazyLoad";
-import pattern from "../../Assets/pattern3.webp";
 import { ThemeContext } from "../ThemeProvider";
 import Color from "color";
+import LinearGradient from "react-native-linear-gradient";
 
 type IProps2 = {
     source: { uri: string; },
@@ -54,7 +54,7 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
         return(<View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {(this.props.permission >= 3)&&<Icon name={(this.props.isCreator)? 'crown': 'shield-crown-outline'} size={20} color={descolor} />}
             <Text style={[{ marginLeft: 4, color: descolor }, (this.props.isCreator)&&{ fontWeight: '700' }]}>{this.props.position}</Text>
-            {(this.props.disableDesign)? <Text> • <Text style={{ fontWeight: 'bold' }}>Inhabilitado</Text></Text>: undefined}
+            {(this.props.disableDesign)? <Text style={{ color: descolor }}> • <Text style={{ fontWeight: 'bold' }}>Inhabilitado</Text></Text>: undefined}
         </View>);
     }
     showMenu() {
@@ -83,12 +83,13 @@ export default class ItemDirective extends PureComponent<IProps2, IState2> {
     render(): React.ReactNode {
         const { isDark, theme } = this.context;
         return(<View style={styles.background}>
-            {(this.props.isCreator)&&<Image
+            {/*(this.props.isCreator)&&<Image
                 source={pattern}
                 style={styles.image}
                 resizeMode={'repeat'}
                 resizeMethod={'resize'}
-            />}
+            />*/}
+            {(this.props.isCreator)&&<LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(255, 204, 0, 0)', 'rgba(255, 204, 0, 0.6)']} style={styles.image} />}
             <List.Item
                 title={this.props.title}
                 titleStyle={(this.props.isCreator)&&{ fontWeight: '700' }}
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         left: 0,
+        right: 0,
         width: '100%',
         height: '100%'
     },

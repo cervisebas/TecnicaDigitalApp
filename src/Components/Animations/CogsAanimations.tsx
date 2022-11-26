@@ -1,13 +1,9 @@
-import React, { memo, useEffect, useState } from "react";
-import { Dimensions, Image, StatusBar, StyleSheet, View } from "react-native";
+import React, { memo } from "react";
+import { StyleSheet, View } from "react-native";
 import CogImage from "../../Assets/Cog.webp";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 
-const { height } = Dimensions.get('window');
-
 export default memo(function CogsAnimation() {
-    const [cont, setCont] = useState(false);
-
     const rotate = useSharedValue('0deg');
     const rotateStyle = useAnimatedStyle(()=>({
         transform: [{

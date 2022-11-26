@@ -13,14 +13,6 @@ import { waitTo } from '../Scripts/Utils';
 type IProps = {
     setTimeout?: (time: number)=>any;
 };
-type IState = {
-    visible: boolean;
-    showMessage: boolean;
-    hideLoadinginMessage: boolean;
-    message: string;
-    
-    logo: ImageSourcePropType | undefined;
-};
 type IRef = {
     open: (message?: string, hideLoadinginMessage?: boolean)=>void;
     close: ()=>void;

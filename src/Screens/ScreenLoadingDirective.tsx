@@ -12,6 +12,7 @@ import { Actions, Directive, Family, urlBase } from "../Scripts/ApiTecnica";
 import { decode } from "base-64";
 import CogsAanimations from "../Components/Animations/CogsAanimations";
 import HackerAnimation from "../Components/Animations/HackerAnimation";
+import BallsAnimation from "../Components/Animations/BallsAnimation";
 
 type IProps = {
     visible: boolean;
@@ -80,7 +81,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
         setNumAnim(-1);
     }
     function updateAnimation() {
-        setNumAnim(getRandomIntInclusive(0, 1));
+        setNumAnim(getRandomIntInclusive(0, 2));
     }
 
     useImperativeHandle(ref, ()=>({ start: startNow, hide, setSize: setSizeLayout, updateAnimation }));
@@ -121,6 +122,7 @@ export default memo(forwardRef(function ScreenLoadingDirective(props: IProps, re
         <LinearGradient colors={['rgba(0, 0, 0, 0)', 'rgba(0, 163, 255, 1)']} style={[{ position: 'absolute', bottom: 0 }, size]}>
             {(numAnim == 0)&&<CogsAanimations />}
             {(numAnim == 1)&&<HackerAnimation />}
+            {(numAnim == 2)&&<BallsAnimation />}
             <Animated.View style={[styles.content2, content2Style]}>
                 <View style={styles.contentShow}>
                     <ImageLazyLoad

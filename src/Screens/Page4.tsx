@@ -288,7 +288,7 @@ export default class Page4 extends Component<IProps, IState> {
                     {(!this.state.isLoading && !this.state.isError)? <FlatList
                         data={this.state.datas}
                         extraData={this.state}
-                        contentContainerStyle={{ paddingTop: 8 }}
+                        contentContainerStyle={{ paddingTop: 8, paddingBottom: 64 }}
                         refreshControl={<RefreshControl
                             refreshing={this.state.isRefresh}
                             colors={[Theme.colors.primary]}

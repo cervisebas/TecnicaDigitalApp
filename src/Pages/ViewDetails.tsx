@@ -10,6 +10,7 @@ import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import CardCredential from "../Components/Elements/CardCredential";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import { ThemeContext } from "../Components/ThemeProvider";
+import RNFS from "react-native-fs";
 import Color from "color";
 
 type IProps = {
@@ -55,6 +56,7 @@ export default class ViewDetails extends Component<IProps, IState> {
         this.editNow = this.editNow.bind(this);
         this.openChangeDesign = this.openChangeDesign.bind(this);
         this._showSnackbar = this._showSnackbar.bind(this);
+        this._openImage = this._openImage.bind(this);
     }
     private defaultData: StudentsData = {
         id: '-1',
@@ -128,6 +130,15 @@ export default class ViewDetails extends Component<IProps, IState> {
     _showSnackbar(text: string) {
         this.refCustomSnackbar.current?.open(text);
     }
+    _openImage() {
+        if (this.state.data) {
+            const fileName = decode(this.state.data.picture).split('/').pop();
+            RNFS.exists(`${RNFS.CachesDirectoryPath}/${fileName}`).then((val)=>{
+                if (val) return this.props.openImage({ uri: `file://${RNFS.CachesDirectoryPath}/${fileName}` });
+                this.props.openImage({ uri: `${urlBase}/image/${decode(this.state.data.picture)}` });
+            }).catch(()=>this.props.openImage({ uri: `${urlBase}/image/${decode(this.state.data.picture)}` }));
+        }
+    }
 
     // Controller
     open(data: StudentsData, designCard: number | undefined) {
@@ -161,7 +172,7 @@ export default class ViewDetails extends Component<IProps, IState> {
                     </Appbar.Header>
                     <ScrollView style={{ flex: 2 }}>
                         <View style={{ margin: 20, height: 100, width: (width - 40), flexDirection: 'row' }}>
-                            <TouchableHighlight style={[styles.imageProfile, { shadowColor: theme.colors.text }]} onPress={()=>this.props.openImage({ uri: `${urlBase}/image/${(this.state.data)? decode(this.state.data.picture): ''}` })}>
+                            <TouchableHighlight style={[styles.imageProfile, { shadowColor: theme.colors.text }]} onPress={this._openImage}>
                                 <ImageLazyLoad style={{ width: '100%', height: '100%' }} source={{ uri: `${urlBase}/image/${decode(this.state.data.picture)}` }} circle={true} />
                             </TouchableHighlight>
                             <View style={styles.textProfile}>

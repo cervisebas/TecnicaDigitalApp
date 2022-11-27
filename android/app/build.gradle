@@ -287,6 +287,7 @@ dependencies {
 
     // Images
     implementation 'com.facebook.fresco:webpsupport:2.5.0'
+    implementation 'com.facebook.fresco:animated-webp:2.5.0'
     implementation "com.github.zjupure:webpdecoder:2.1.4.13.2"
 
     //noinspection GradleDynamicVersion

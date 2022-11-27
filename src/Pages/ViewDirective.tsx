@@ -7,6 +7,7 @@ import CustomModal from "../Components/CustomModal";
 import ImageLazyLoad from "../Components/Elements/ImageLazyLoad";
 import { urlBase } from "../Scripts/ApiTecnica";
 import { DirectivesList } from "../Scripts/ApiTecnica/types";
+import RNFS from "react-native-fs";
 // Images
 import CoronaPicture from "../Assets/Corona.webp";
 import { ThemeContext } from "../Components/ThemeProvider";
@@ -81,7 +82,11 @@ export default class ViewDirective extends Component<IProps, IState> {
         this.setState({ visible: false });
     }
     openImage() {
-        this.props.openImage(`${urlBase}/image/${decode(this.state.data.picture)}`);
+        const fileName = decode(this.state.data.picture).split('/').pop();
+        RNFS.exists(`${RNFS.CachesDirectoryPath}/${fileName}`).then((val)=>{
+            if (val) return this.props.openImage(`file://${RNFS.CachesDirectoryPath}/${fileName}`);
+            this.props.openImage(`${urlBase}/image/${decode(this.state.data.picture)}`);
+        }).catch(()=>this.props.openImage(`${urlBase}/image/${decode(this.state.data.picture)}`));
     }
     render(): React.ReactNode {
         const { isDark, theme } = this.context;

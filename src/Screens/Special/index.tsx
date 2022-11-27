@@ -57,7 +57,7 @@ export default memo(function Special(_props: IProps) {
     }
     async function processNow() {
         try {
-            if (!isDateBetweenExtended('05/11/2022', '01/01/3000', moment().format('DD/MM/YYYY'))) return;
+            if (!isDateBetweenExtended('05/12/2022', '01/01/3000', moment().format('DD/MM/YYYY'))) return;
             const userData = await Directive.getDataLocal();
             if (!!creators.find((v)=>v.toString()==userData.id)) showNow();
         } catch {

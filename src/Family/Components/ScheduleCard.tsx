@@ -49,7 +49,7 @@ export class ScheduleCard extends PureComponent<IProps, IState> {
         if (!this.state.data) return undefined;
         moment.locale('en');
         const dayNow = moment().format('dddd').toLowerCase();
-        const turnNow = (isHourBetween('00:00', '12:30', moment().format('HH:mm')))? 'morning': 'afternoon';
+        //const turnNow = (isHourBetween('00:00', '12:30', moment().format('HH:mm')))? 'morning': 'afternoon';
         moment.locale('es');
         if (dayNow == 'saturday' || dayNow == 'sunday') return undefined;
         var listMatters: {
@@ -61,8 +61,8 @@ export class ScheduleCard extends PureComponent<IProps, IState> {
         this.state.data.data.forEach((schedule, index)=>{
             if (schedule.matter == 'none') return;
             if (schedule.day !== dayNow) return;
-            const turnDay = (isHourBetween('07:00', '12:00', schedule.hour))? 'morning': 'afternoon';
-            if (turnNow != turnDay) return;
+            //const turnDay = (isHourBetween('07:00', '12:00', schedule.hour))? 'morning': 'afternoon';
+            //if (turnNow != turnDay) return;
             const findIndex = listMatters.findIndex((v)=>v.id == (schedule.matter as Matter).id);
             if (findIndex == -1) {
                 const listHour = schedule.hour.split(':');
@@ -78,7 +78,7 @@ export class ScheduleCard extends PureComponent<IProps, IState> {
             const hourEnd = `${parseInt(listHour[0]) + 1}:${listHour[1]}`;
             listMatters[findIndex].hourEnd = hourEnd;
         });
-        return listMatters;
+        return (listMatters.length == 0)? undefined: listMatters;
     }
     render(): React.ReactNode {
         const listMatters = this.getNext();

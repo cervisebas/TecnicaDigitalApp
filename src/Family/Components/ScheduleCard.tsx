@@ -5,7 +5,6 @@ import { StyleSheet, View } from "react-native";
 import { Button, Card, Text, Title } from "react-native-paper";
 import { Family } from "../../Scripts/ApiTecnica";
 import { DataSchedule, Matter } from "../../Scripts/ApiTecnica/types";
-import { isHourBetween } from "../../Scripts/Utils";
 
 type IProps = {
     curse: string;
@@ -48,6 +47,7 @@ export class ScheduleCard extends PureComponent<IProps, IState> {
     getNext() {
         if (!this.state.data) return undefined;
         moment.locale('en');
+        //const dayNow = moment('25/11/2022', 'DD/MM/YYYY').format('dddd').toLowerCase();
         const dayNow = moment().format('dddd').toLowerCase();
         //const turnNow = (isHourBetween('00:00', '12:30', moment().format('HH:mm')))? 'morning': 'afternoon';
         moment.locale('es');
@@ -86,8 +86,9 @@ export class ScheduleCard extends PureComponent<IProps, IState> {
             <Card.Title title={'Mi horario:'} />
             <Card.Content style={{ flexDirection: 'column' }}>
                 {listMatters.map((v)=><PointItemList
+                    key={`schedule-card-${v.id}-${v.hourStart.replace(':', '_')}-${v.hourEnd.replace(':', '_')}`}
                     title={v.matter}
-                    text={`${v.hourStart} ~ ${v.hourEnd}`}
+                    text={`${v.hourStart}hs ~ ${v.hourEnd}hs`}
                 />)}
             </Card.Content>
             <Card.Actions style={{ justifyContent: 'flex-end' }}>

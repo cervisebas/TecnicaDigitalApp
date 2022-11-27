@@ -1,3 +1,4 @@
+import { decode } from "base-64";
 import React, { createRef, PureComponent } from "react";
 import { StyleSheet, View } from "react-native";
 import Swiper from "react-native-swiper";
@@ -12,6 +13,7 @@ import View6 from "./Tutorial/View6";
 
 type IProps = {
     onClose?: ()=>any;
+    curse?: string;
 };
 type IState = {
     visible: boolean;
@@ -21,7 +23,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            visible: false
+            visible: true
         };
         this._nextPage = this._nextPage.bind(this);
         this.open = this.open.bind(this);
@@ -47,6 +49,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
 
     render(): React.ReactNode {
         const { theme } = this.context;
+        const isTeacher = (this.props.curse)? decode(this.props.curse).toLowerCase().indexOf('docente') != -1 || decode(this.props.curse).toLowerCase().indexOf('profesor') != -1: false;
         return(<CustomModal visible={this.state.visible} onClose={this.props.onClose} animationIn={'fadeIn'} animationOut={'fadeOut'}>
             <View style={[styles.contain, { backgroundColor: theme.colors.background }]}>
                 <Swiper
@@ -58,9 +61,9 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
                     activeDotStyle={styles.hideDots}>
                     <View1 nextButton={this._nextPage} />
                     <View2 nextButton={this._nextPage} />
-                    <View3 nextButton={this._nextPage} />
+                    {(!isTeacher)&&<View3 nextButton={this._nextPage} />}
                     <View4 nextButton={this._nextPage} />
-                    <View6 nextButton={this._nextPage} />
+                    {(!isTeacher)&&<View6 nextButton={this._nextPage} />}
                     <View5 nextButton={this.close} restart={this._restart} />
                 </Swiper>
             </View>

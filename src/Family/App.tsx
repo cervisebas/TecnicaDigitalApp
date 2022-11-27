@@ -234,7 +234,10 @@ export default class AppFamily extends Component<IProps, IState> {
             </Appbar.Header>
             {(!this.state.isLoading)? (this.state.studentData)&&<View style={{ flex: 2, overflow: 'hidden' }}>
                 <ScrollView style={{ flex: 3 }} contentContainerStyle={{ paddingBottom: 8 }} refreshControl={<RefreshControl refreshing={this.state.isRefresh} onRefresh={this.loadData} colors={[Theme.colors.primary]} progressBackgroundColor={theme.colors.surface} />}>
-                    <WelcomeCard namestudent={this.state.studentData.name} />
+                    <WelcomeCard
+                        namestudent={this.state.studentData.name}
+                        curse={this.state.studentData.curse}
+                    />
                     <AssistCard
                         isLoading={this.state.isLoadingAssist}
                         isError={this.state.isErrorAssist}
@@ -295,7 +298,7 @@ export default class AppFamily extends Component<IProps, IState> {
             </Portal>
 
             {/* Modal's */}
-            <ScreenTutorial ref={this.refTutorial} onClose={this.checkWelcomeAndData} />
+            <ScreenTutorial ref={this.refTutorial} curse={this.state.studentData?.curse} onClose={this.checkWelcomeAndData} />
             <ChangeCardDesign
                 ref={this.refChangeCardDesign}
                 onChange={this._onChangeCardDesign}

@@ -9,6 +9,7 @@ import messaging from '@react-native-firebase/messaging';
 import { StudentsData } from "../../Scripts/ApiTecnica/types";
 import FastImage from "react-native-fast-image";
 import ImageLazyLoad from "../../Components/Elements/ImageLazyLoad";
+import RNFS from "react-native-fs";
 // Images
 import HatImage from "../../Assets/hat_student.webp";
 import BlackBoard from "../../Assets/blackboard.webp";
@@ -73,7 +74,13 @@ export default class FamilyOptions extends Component<IProps, IState> {
         this.setState({ switchNotifications: opt });
     }
     _openImage() {
-        this.props.openImage(`${urlBase}/image/${decode(this.props.data!.picture)}`);
+        if (this.props.data) {
+            const fileName = decode(this.props.data.picture).split('/').pop();
+            RNFS.exists(`${RNFS.CachesDirectoryPath}/${fileName}`).then((val)=>{
+                if (val) return this.props.openImage(`file://${RNFS.CachesDirectoryPath}/${fileName}`);
+                this.props.openImage(`${urlBase}/image/${decode(this.props.data!.picture)}`);
+            }).catch(()=>this.props.openImage(`${urlBase}/image/${decode(this.props.data!.picture)}`));
+        }
     }
     
     // Controller

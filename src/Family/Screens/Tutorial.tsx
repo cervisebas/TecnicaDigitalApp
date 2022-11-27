@@ -23,7 +23,7 @@ export default class ScreenTutorial extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
-            visible: true
+            visible: false
         };
         this._nextPage = this._nextPage.bind(this);
         this.open = this.open.bind(this);

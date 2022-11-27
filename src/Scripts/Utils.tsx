@@ -128,6 +128,12 @@ export function isDateBetween(dateFrom: string, dateTo: string, dateCheck: strin
     const check = moment(dateCheck, 'DD/MM').valueOf();
     return check >= from && check <= to;
 }
+export function isHourBetween(hourFrom: string, hourTo: string, hourCheck: string) {
+    const from = moment(hourFrom, 'HH:mm').valueOf();
+    const to = moment(hourTo, 'HH:mm').valueOf();
+    const check = moment(hourCheck, 'HH:mm').valueOf();
+    return check >= from && check <= to;
+}
 export function waitTo(time: number): Promise<void> {
     return new Promise((resolve)=>setTimeout(resolve, time));
 }

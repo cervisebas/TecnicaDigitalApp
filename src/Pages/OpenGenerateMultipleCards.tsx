@@ -16,6 +16,7 @@ type IState = {
     visible: boolean;
     selectCurse: string;
     errorSelectCurse: boolean;
+    disableCustomize: boolean;
 };
 
 export default class OpenGenerateMultipleCards extends Component<IProps, IState> {
@@ -24,13 +25,15 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
         this.state = {
             visible: false,
             selectCurse: '- Seleccionar -',
-            errorSelectCurse: false
+            errorSelectCurse: false,
+            disableCustomize: false
         };
         this.closeClear = this.closeClear.bind(this);
         this.send = this.send.bind(this);
         this.verifyInput = this.verifyInput.bind(this);
         this.openChangeDesign = this.openChangeDesign.bind(this);
         this.close = this.close.bind(this);
+        this._onChangeCurse = this._onChangeCurse.bind(this);
     }
     private listCourses: string[] = ['- Seleccionar -', 'Docentes', '1°1', '1°2', '1°3', '2°1', '2°2', '2°3', '3°1', '3°2', '3°3', '4°1', '4°2', '4°3', '5°1', '5°2', '5°3', '6°1', '6°2', '6°3', '7°1', '7°2', '7°3'];
     static contextType = ThemeContext;
@@ -67,6 +70,11 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
         const isVip = (this.state.selectCurse.indexOf('7°') !== -1) && (moment().format("YYYY") == "2022");
         this.props.openChangeDesing(isVip);
     }
+    _onChangeCurse(selectCurse: string) {
+        let state: any = { selectCurse, errorSelectCurse: false };
+        if (selectCurse == 'Docentes') state['disableCustomize'] = true; else if (this.state.disableCustomize) state['disableCustomize'] = false;
+        this.setState(state);
+    }
 
     // Controller
     open() {
@@ -83,11 +91,11 @@ export default class OpenGenerateMultipleCards extends Component<IProps, IState>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={this.close} />
                     <Appbar.Content title={`Generar credenciales`} />
-                    <Appbar.Action icon={'pencil-ruler'} onPress={this.openChangeDesign} />
+                    <Appbar.Action icon={'pencil-ruler'} disabled={this.state.disableCustomize} onPress={this.openChangeDesign} />
                     <Appbar.Action icon={'send-outline'} onPress={this.send} />
                 </Appbar.Header>
                 <View style={{ marginTop: 4, marginBottom: 8 }}>
-                    <CustomPicker2 title={"Curso:"} value={this.state.selectCurse} error={this.state.errorSelectCurse} onChange={(v)=>this.setState({ selectCurse: v, errorSelectCurse: false })} style={styles.textInput}>
+                    <CustomPicker2 title={"Curso:"} value={this.state.selectCurse} error={this.state.errorSelectCurse} onChange={this._onChangeCurse} style={styles.textInput}>
                         {this.listCourses.map((value, index)=><Picker.Item
                             key={index.toString()}
                             label={value}

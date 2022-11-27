@@ -265,6 +265,7 @@ export default class Page3 extends PureComponent<IProps, IState> {
     }
     // Others
     _onChangeCurseInGenerateMultipleCredentials(curse: string) {
+        if (curse == 'Docentes') return this.designCardElection2 = 0;
         const isVip = (curse.indexOf('7°') !== -1) && (moment().format("YYYY") == "2022");
         const designIsVip = !!this.delimitesVip.find((v)=>v == this.designCardElection2);
         const setDesign = (designIsVip)? (isVip)? this.designCardElection: undefined: this.designCardElection;

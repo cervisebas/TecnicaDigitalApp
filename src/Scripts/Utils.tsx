@@ -128,6 +128,12 @@ export function isDateBetween(dateFrom: string, dateTo: string, dateCheck: strin
     const check = moment(dateCheck, 'DD/MM').valueOf();
     return check >= from && check <= to;
 }
+export function isDateBetweenExtended(dateFrom: string, dateTo: string, dateCheck: string) {
+    const from = moment(dateFrom, 'DD/MM/YYYY').valueOf();
+    const to = moment(dateTo, 'DD/MM/YYYY').valueOf();
+    const check = moment(dateCheck, 'DD/MM/YYYY').valueOf();
+    return check >= from && check <= to;
+}
 export function isHourBetween(hourFrom: string, hourTo: string, hourCheck: string) {
     const from = moment(hourFrom, 'HH:mm').valueOf();
     const to = moment(hourTo, 'HH:mm').valueOf();

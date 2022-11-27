@@ -19,6 +19,7 @@ import { ThemeContext } from "./Components/ThemeProvider";
 import LoadingComponent from "./Components/LoadingComponent";
 import Page7 from "./Screens/Page7";
 import { isTempSession } from "./Scripts/ApiTecnica/tempsession";
+import Special from "./Screens/Special";
 
 type IProps = {};
 type IState = {
@@ -169,6 +170,7 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
                 </Dialog>
             </Portal>
             <LoadingComponent ref={this.refLoadingComponent} />
+            <Special />
         </Provider>);
     }
 }

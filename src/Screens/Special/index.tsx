@@ -1,11 +1,11 @@
 import Color from "color";
-import React, { createRef, memo, PureComponent, useContext, useEffect } from "react";
-import { Pressable, StyleSheet, ToastAndroid, View } from "react-native";
+import React, { createRef, memo, useContext, useEffect } from "react";
+import { Pressable, StyleSheet, ToastAndroid } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { ThemeContext } from "../../Components/ThemeProvider";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Directive } from "../../Scripts/ApiTecnica";
-import { isDateBetween, isDateBetweenExtended } from "../../Scripts/Utils";
+import { isDateBetweenExtended } from "../../Scripts/Utils";
 import moment from "moment";
 import SpecialPresentation from "./Presentation";
 

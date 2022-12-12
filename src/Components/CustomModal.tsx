@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import { Dimensions, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import Modal from "react-native-modal";
 import ExtraDimensions from "react-native-extra-dimensions-android";
-import { ThemeContext } from "./ThemeProvider";
-import Color from "color";
 
 type ExtractProps<TComponentOrTProps> = TComponentOrTProps extends React.Component<infer TProps, any> ? TProps : TComponentOrTProps;
 type IProps = {
@@ -12,6 +10,8 @@ type IProps = {
     onClose?: ()=>any;
     animationIn?: ExtractProps<Modal>['animationIn'];
     animationOut?: ExtractProps<Modal>['animationOut'];
+    removeAnimationIn?: boolean;
+    removeAnimationOut?: boolean;
     onRequestClose?: ()=>any;
     animationInTiming?: number;
     animationOutTiming?: number;
@@ -33,7 +33,6 @@ export default class CustomModal extends Component<IProps, IState> {
         this.onClose = this.onClose.bind(this);
     }
     private _isMount: boolean = false;
-    static contextType = ThemeContext;
     componentDidMount(): void {
         this._isMount = true;
     }
@@ -50,13 +49,15 @@ export default class CustomModal extends Component<IProps, IState> {
         if (this.props.onClose && this._isMount) this.props.onClose();
     }
     render(): React.ReactNode {
-        const { isDark } = this.context;
         return(<Modal
             isVisible={this.props.visible}
-            animationIn={(this.props.animationIn)? this.props.animationIn: 'fadeInUp'}
-            animationInTiming={(!this.props.animationInTiming)? 250: this.props.animationInTiming}
-            animationOut={(this.props.animationOut)? this.props.animationOut: 'fadeOutDown'}
-            animationOutTiming={(!this.props.animationOutTiming)? 250: this.props.animationOutTiming}
+            // Animation In
+            animationIn={(this.props.removeAnimationIn)? { from: { opacity: 1 }, to: { opacity: 1 } }: (this.props.animationIn)? this.props.animationIn: 'fadeInUp'}
+            animationInTiming={(this.props.removeAnimationIn)? 0: (!this.props.animationInTiming)? 250: this.props.animationInTiming}
+            // Animation Out
+            animationOut={(this.props.removeAnimationOut)? { from: { opacity: 0 }, to: { opacity: 0 } }: (this.props.animationOut)? this.props.animationOut: 'fadeOutDown'}
+            animationOutTiming={(this.props.removeAnimationOut)? 0: (!this.props.animationOutTiming)? 250: this.props.animationOutTiming}
+            // Others parameters
             backdropOpacity={(this.props.transparent)? 0: undefined}
             onBackButtonPress={this.onRequestClose}
             onBackdropPress={this.onRequestClose}

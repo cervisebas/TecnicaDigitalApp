@@ -56,7 +56,7 @@ function SplashScreenAnimation(props: IProps, ref: React.Ref<{ open: ()=>any; cl
     };
     const context = useContext(ThemeContext);
     const styleContent: StyleProp<ViewStyle> = { backgroundColor: (context.isDark)? "#000000": "#FFFFFF" };
-    return(<CustomModal visible={visible} animationIn={'fadeIn'} animationOut={'fadeOut'} animationInTiming={0} animationOutTiming={750}>
+    return(<CustomModal visible={visible} removeAnimationIn={true} animationOut={'fadeOut'} animationOutTiming={750}>
         <View style={[styles.content, styleContent]}>
             <Animated.View style={[styles.secondBackground, { backgroundColor: (context.isDark)? '#c41c00': '#ff5722' }, animatedSecondBackground]} />
             <Animated.Text style={[styles.textBrand, animatedTextStyles]}>SCAPPS</Animated.Text>

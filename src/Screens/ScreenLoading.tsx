@@ -1,5 +1,5 @@
 import React, { createRef, memo, useEffect, useImperativeHandle, useState } from 'react';
-import { View, ImageSourcePropType, StyleSheet, LayoutChangeEvent, Dimensions } from 'react-native';
+import { View, StyleSheet, LayoutChangeEvent, Dimensions } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import CustomModal from '../Components/CustomModal';
@@ -23,7 +23,7 @@ type IRef = {
 };
 
 export type { IRef as ScreenLoadingRef };
-export default memo(React.forwardRef(function ScreenLoading(props: IProps, ref: React.Ref<IRef>) {
+export default memo(React.forwardRef(function ScreenLoading(_props: IProps, ref: React.Ref<IRef>) {
     // State's
     const [visible, setVisible] = useState(true);
     const [showMessage, setShowMessage] = useState(false);

@@ -194,7 +194,9 @@ export default class Page3 extends PureComponent<IProps, IState> {
                 item.label:
                 (item.label.indexOf('Docente') !== -1 || item.label.indexOf('Profesor') !== -1)?
                     'Docentes':
-                    `Curso ${item.label}`
+                    (item.label.toLowerCase().indexOf('egresados') !== -1)?
+                        item.label:
+                        `Curso ${item.label}`
             }
             leght={item.students.length}>
             <FlatList

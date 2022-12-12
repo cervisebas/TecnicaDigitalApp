@@ -14,8 +14,8 @@ export class RecordSystem {
         return new Promise((resolve, reject)=>{
             var Directives = new DirectiveSystem(this.urlBase, this.header_access);
             Directives.getDataLocal().then((value)=>{
-                var postData = { getRecords: true, username: value.username, password: value.password };
-                axios.post(this.urlBase, qs.stringify(postData), this.header_access).then((html)=>{
+                const postData = { getRecords: true, username: value.username, password: value.password };
+                axios.post(`${this.urlBase}/index.php`, qs.stringify(postData), this.header_access).then((html)=>{
                     try {
                         var result: TypicalRes = html.data;
                         if (result.ok) return resolve(result.datas);

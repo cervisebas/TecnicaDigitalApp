@@ -205,6 +205,22 @@ type AssistForMonth = {
     }[];
 };
 
+// Old Data
+type OldDataFile = {
+    age: string;
+    data: string;
+    month: string;
+    pdf: string;
+    process_data: string;
+};
+type OldData = {
+    age: string;
+    data: {
+        curse: string;
+        files: OldDataFile[];
+    }[];
+};
+
 export type {
     TypicalRes,
     DirectiveData,
@@ -228,5 +244,7 @@ export type {
     Schedule,
     DataSchedule,
     ApiHeader,
-    AssistForMonth
+    AssistForMonth,
+    OldDataFile,
+    OldData
 };

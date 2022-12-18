@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { List } from "react-native-paper";
 import Theme from "../../Themes";
+import { StyleSheet } from "react-native";
 
 type IProps = {
     title: string;
@@ -15,6 +16,13 @@ export default memo(function CustomItemOldRegist(prop: IProps) {
         left={IconLeft}
         right={IconRight}
         title={prop.title}
+        style={styles.item}
         onPress={prop.onPress}
     />);
+});
+
+const styles = StyleSheet.create({
+    item: {
+        height: 72
+    }
 });

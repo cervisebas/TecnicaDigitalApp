@@ -20,6 +20,7 @@ import LoadingComponent from "./Components/LoadingComponent";
 import Page7 from "./Screens/Page7";
 import { isTempSession } from "./Scripts/ApiTecnica/tempsession";
 import Special from "./Screens/Special";
+import Page8 from "./Screens/Page8";
 
 type IProps = {};
 type IState = {
@@ -106,6 +107,11 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
                     name={"Registros"}
                     component={Page1 as any}
                     options={{ drawerLabel: 'Registros', drawerIcon: 'account-box-multiple' as any }}
+                />
+                <Drawer.Screen
+                    name={"Registros antiguos"}
+                    component={Page8 as any}
+                    options={{ drawerLabel: 'Registros antiguos', drawerIcon: 'folder-account-outline' as any }}
                 />
                 <Drawer.Screen
                     name={"Registros docentes"}

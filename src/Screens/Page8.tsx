@@ -1,6 +1,6 @@
 import React, { createRef, PureComponent } from "react";
 import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Appbar, IconButton, List, Provider as PaperProvider, Text } from "react-native-paper";
+import { ActivityIndicator, Appbar, Divider, IconButton, List, Provider as PaperProvider, Text } from "react-native-paper";
 import { ThemeContext } from "../Components/ThemeProvider";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CustomCard5 from "../Components/Elements/CustomCard5";
@@ -23,7 +23,7 @@ type IState = {
     datas: OldDataType[];
 };
 
-export default class Page7 extends PureComponent<IProps, IState> {
+export default class Page8 extends PureComponent<IProps, IState> {
     constructor(props: IProps) {
         super(props);
         this.state = {
@@ -63,18 +63,23 @@ export default class Page7 extends PureComponent<IProps, IState> {
     // Flatlist
     _renderItem({ item }: ListRenderItemInfo<OldDataType>) {
         return(<CustomItemOldRegist
+            key={`item-oldregist-${item.age}`}
             title={`Año ${item.age}`}
+            onPress={()=>console.log(item.age)}
         />);
     }
     _getItemLayout(_data: OldDataType[] | null | undefined, index: number) {
         return {
-            length: 125,
-            offset: 125 * index,
+            length: 72,
+            offset: 72 * index,
             index
         };
     }
     _keyExtractor(item: OldDataType, _index: number) {
         return `item-oldregist-${item.age}`;
+    }
+    _ItemSeparatorComponent() {
+        return(<Divider />);
     }
 
     // Functions
@@ -102,12 +107,10 @@ export default class Page7 extends PureComponent<IProps, IState> {
                         data={this.state.datas}
                         keyExtractor={this._keyExtractor}
                         refreshControl={<RefreshControl colors={[theme.colors.primary]} progressBackgroundColor={theme.colors.surface} refreshing={this.state.isRefresh} onRefresh={()=>this.setState({ isRefresh: true }, this.loadData)} />}
-                        contentContainerStyle={{
-                            paddingTop: 12,
-                            flex: (this.state.datas.length == 0)? 2: undefined
-                        }}
+                        contentContainerStyle={{ flex: (this.state.datas.length == 0)? 2: undefined }}
                         ListEmptyComponent={<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}><Icon name={'playlist-remove'} color={theme.colors.text} size={80} /><Text style={{ marginTop: 8 }}>No se encontró ningún registro</Text></View>}
                         getItemLayout={this._getItemLayout}
+                        ItemSeparatorComponent={this._ItemSeparatorComponent}
                         renderItem={this._renderItem}
                     />:
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>

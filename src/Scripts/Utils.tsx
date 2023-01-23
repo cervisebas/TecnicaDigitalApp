@@ -1,6 +1,8 @@
+import { MaterialTopTabNavigationOptions } from "@react-navigation/material-top-tabs";
 import { decode } from "base-64";
 import moment from "moment";
 import stringSimilarity from "string-similarity";
+import Theme from "../Themes";
 
 export function orderArray<T>(array: T[], value: string, text: string): T[] {
     type prediction = { index: number; value: number; };
@@ -168,4 +170,20 @@ export function getBusinessDatesCount(month: number, year: number) {
         curDate.setDate(curDate.getDate() + 1);
     }
     return count;
+}
+
+export const tabOptions: MaterialTopTabNavigationOptions = {
+    lazy: true,
+    lazyPreloadDistance: 2,
+    tabBarScrollEnabled: true,
+    tabBarLabelStyle: { color: '#FFFFFF' },
+    tabBarIndicatorStyle: { backgroundColor: Theme.colors.accent, height: 4 }
+};
+
+export function safeDecode(str: string) {
+    try {
+        return decode(str);
+    } catch {
+        return str;
+    }
 }

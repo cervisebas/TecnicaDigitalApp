@@ -1,15 +1,14 @@
 import React, { createRef, PureComponent } from "react";
-import { DeviceEventEmitter, EmitterSubscription, FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Appbar, Divider, IconButton, List, Provider as PaperProvider, Text } from "react-native-paper";
+import { FlatList, ListRenderItemInfo, RefreshControl, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Appbar, Divider, IconButton, Provider as PaperProvider, Text } from "react-native-paper";
 import { ThemeContext } from "../Components/ThemeProvider";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import CustomCard5 from "../Components/Elements/CustomCard5";
-import { DataGroup, OldData as OldDataType } from "../Scripts/ApiTecnica/types";
+import { OldData as OldDataType } from "../Scripts/ApiTecnica/types";
 import { OldData } from "../Scripts/ApiTecnica";
-import { decode } from "base-64";
 import LoadingComponent from "../Components/LoadingComponent";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import CustomItemOldRegist from "../Components/Elements/CustomItemOldRegist";
+import ViewActualData from "./Page8/ViewActualData";
 
 type IProps = {
     navigation: any;
@@ -39,17 +38,13 @@ export default class Page8 extends PureComponent<IProps, IState> {
         this._showSnackbar = this._showSnackbar.bind(this);
     }
     static contextType = ThemeContext;
-    private event: EmitterSubscription | null = null;
     // Ref's
     private refLoadingComponent = createRef<LoadingComponent>();
     private refCustomSnackbar = createRef<CustomSnackbar>();
+    private refViewActualData = createRef<ViewActualData>();
 
     componentDidMount(): void {
         this.loadData();
-        this.event = DeviceEventEmitter.addListener('p8-reload', (isReload?: boolean)=>(isReload)? this.setState({ isRefresh: true }, this.loadData): this.loadData);
-    }
-    componentWillUnmount(): void {
-        this.event?.remove();
     }
     loadData() {
         if (!this.state.isRefresh) this.setState({ isLoading: true, datas: [] });
@@ -60,12 +55,15 @@ export default class Page8 extends PureComponent<IProps, IState> {
         );
     }
 
+    _openViewer(data: OldDataType) {
+        return this.refViewActualData.current?.open(data);
+    }
     // Flatlist
     _renderItem({ item }: ListRenderItemInfo<OldDataType>) {
         return(<CustomItemOldRegist
             key={`item-oldregist-${item.age}`}
             title={`Año ${item.age}`}
-            onPress={()=>console.log(item.age)}
+            onPress={()=>this._openViewer(item)}
         />);
     }
     _getItemLayout(_data: OldDataType[] | null | undefined, index: number) {
@@ -123,8 +121,8 @@ export default class Page8 extends PureComponent<IProps, IState> {
                     :<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator size={'large'} animating /></View>}
                 </View>
                 <CustomSnackbar ref={this.refCustomSnackbar} />
-
                 <LoadingComponent ref={this.refLoadingComponent} />
+                <ViewActualData ref={this.refViewActualData} />
             </PaperProvider>
         </View>);
     }

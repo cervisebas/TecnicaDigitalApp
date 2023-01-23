@@ -9,6 +9,7 @@ import { ThemeContext } from "../Components/ThemeProvider";
 import { AssistIndividualData } from "../Scripts/ApiTecnica/types";
 import overlay from "react-native-paper/src/styles/overlay";
 import Theme from "../Themes";
+import { tabOptions } from "../Scripts/Utils";
 
 type DataAssist = {
     label: string;
@@ -63,14 +64,6 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
             this.setState({ datas: newData, isLoading: false });
         });
     }
-    private tabOptions: MaterialTopTabNavigationOptions = {
-        lazy: true,
-        lazyPreloadDistance: 2,
-        tabBarScrollEnabled: true,
-        tabBarLabelStyle: { color: '#FFFFFF' },
-        //tabBarStyle: { backgroundColor: Theme.colors.primary },
-        tabBarIndicatorStyle: { backgroundColor: Theme.colors.accent, height: 4 }
-    };
 
     // Controller
     open(initDatas: AssistIndividualData[]) {
@@ -95,7 +88,7 @@ export default class ViewDetailsAssist extends Component<IProps, IState> {
                     <Appbar.Content title={'Ver más detalles'}  />
                 </Appbar.Header>
                 <View style={{ flex: 2 }}>
-                    {(!this.state.isLoading)? <Tab.Navigator screenOptions={{ ...this.tabOptions, tabBarStyle: { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary } }}>
+                    {(!this.state.isLoading)? <Tab.Navigator screenOptions={{ ...tabOptions, tabBarStyle: { backgroundColor: (isDark)? overlay(4, theme.colors.surface): theme.colors.primary } }}>
                         {this.state.datas.map((value)=><Tab.Screen
                             key={value.key}
                             name={value.label}

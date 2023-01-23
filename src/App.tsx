@@ -109,14 +109,14 @@ export default class AppAdmin extends PureComponent<IProps, IState> {
                     options={{ drawerLabel: 'Registros', drawerIcon: 'account-box-multiple' as any }}
                 />
                 <Drawer.Screen
-                    name={"Registros antiguos"}
-                    component={Page8 as any}
-                    options={{ drawerLabel: 'Registros antiguos', drawerIcon: 'folder-account-outline' as any }}
-                />
-                <Drawer.Screen
                     name={"Registros docentes"}
                     component={Page7 as any}
                     options={{ drawerLabel: 'Registros docentes', drawerIcon: 'account-box-multiple-outline' as any }}
+                />
+                <Drawer.Screen
+                    name={"Registros antiguos"}
+                    component={Page8 as any}
+                    options={{ drawerLabel: 'Registros antiguos', drawerIcon: 'folder-account-outline' as any }}
                 />
                 <Drawer.Screen
                     name={"Grupos"}

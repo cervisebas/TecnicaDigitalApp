@@ -122,7 +122,7 @@ export default class Page8 extends PureComponent<IProps, IState> {
                 </View>
                 <CustomSnackbar ref={this.refCustomSnackbar} />
                 <LoadingComponent ref={this.refLoadingComponent} />
-                <ViewActualData ref={this.refViewActualData} />
+                <ViewActualData ref={this.refViewActualData} controllerLoading={this._goLoading} />
             </PaperProvider>
         </View>);
     }

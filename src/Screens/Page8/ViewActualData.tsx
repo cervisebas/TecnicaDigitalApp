@@ -5,10 +5,12 @@ import { View } from "react-native";
 import { Appbar, overlay } from "react-native-paper";
 import { OldDataFile, OldData as OldDataType } from "../../Scripts/ApiTecnica/types";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { safeDecode, tabOptions } from "../../Scripts/Utils";
+import { tabOptions } from "../../Scripts/Utils";
 import ListActualData from "./ListActualData";
 
-type IProps = {};
+type IProps = {
+    controllerLoading: (visible: boolean, message?: string)=>void;
+};
 type IState = {
     visible: boolean;
     data: OldDataType | undefined;
@@ -38,7 +40,7 @@ export default class ViewActualData extends PureComponent<IProps, IState> {
         return(<Tab.Screen
             key={`list-actual-${value.curse}`}
             name={value.curse}
-            children={()=><ListActualData {...value} />}
+            children={()=><ListActualData {...value} controllerLoading={this.props.controllerLoading} />}
         />);
     }
 

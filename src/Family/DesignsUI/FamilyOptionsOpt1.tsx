@@ -20,6 +20,7 @@ type IProps = {
     // FUnction
     _openImage: ()=>void;
     close: ()=>void;
+    disableDesing: ()=>void;
 
     // States
     visible: boolean;
@@ -80,7 +81,9 @@ export default class FamilyOptionsOpt1 extends PureComponent<IProps, IState> {
                     size={20}
                     style={styles.triangle}
                 />
-                <Text style={styles.textBrand}>SCAPPS</Text>
+                <Pressable style={styles.pressableBrand} onLongPress={this.props.disableDesing}>
+                    <Text style={styles.textBrand}>SCAPPS</Text>
+                </Pressable>
             </View>
         </View>);
     }
@@ -225,14 +228,16 @@ const styles = StyleSheet.create({
         paddingLeft: 104,
         justifyContent: 'center'
     },
-    textBrand: {
-        color: '#5f5f5f',
-        fontSize: 18,
-        fontFamily: 'SAOUI-Bold',
+    pressableBrand: {
         position: 'absolute',
         right: 0,
         bottom: 0,
         margin: 18
+    },
+    textBrand: {
+        color: '#5f5f5f',
+        fontSize: 18,
+        fontFamily: 'SAOUI-Bold'
     },
     backButton: {
         position: 'absolute',

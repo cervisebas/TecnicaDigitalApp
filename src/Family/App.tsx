@@ -15,7 +15,7 @@ import ImageViewer from "../Pages/ImageViewer";
 import LoadingComponent from "../Components/LoadingComponent";
 import QueryCall from "./Components/QueryCall";
 import WelcomeCard from "./Components/WelcomeCard";
-import SupportCard from "./Components/SupportCard";
+//import SupportCard from "./Components/SupportCard";
 import AssistCard from "./Components/AssistCard";
 import CustomSnackbar from "../Components/Elements/CustomSnackbar";
 import CardCredential from "./Components/CardCredential";
@@ -219,7 +219,15 @@ export default class AppFamily extends Component<IProps, IState> {
 
     // Change Design
     async _changeDesign() {
+        const { desing } = this.context;
+        if (desing == 'SAO') return this._disableDesign();
         this.refDialogOpt1.current?.open('EasterEgg Descubierto: ¿Desea cambiar el diseño de la aplicación por él tema “Sword Art Online”?',  (()=>{
+            const { setDesing } = this.context;
+            setDesing();
+        }).bind(this));
+    }
+    async _disableDesign() {
+        this.refDialogOpt1.current?.open('¿Desea desactivar él tema “Sword Art Online”?',  (()=>{
             const { setDesing } = this.context;
             setDesing();
         }).bind(this));

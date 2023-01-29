@@ -126,7 +126,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                 />
                 <Pressable
                     style={styles.pressableBrand}
-                    //onLongPress={this.props.changeDesign}
+                    onLongPress={this.props.changeDesign}
                 >
                     <Text style={styles.textBrand}>SCAPPS</Text>
                 </Pressable>
@@ -170,6 +170,7 @@ export default class FamilyOptions extends Component<IProps, IState> {
                 {...this.state}
                 _openImage={this._openImage}
                 close={this.close}
+                disableDesing={this.props.changeDesign}
             />}
         </CustomModal>);
     }

@@ -26,6 +26,7 @@ export default class ViewActualData extends PureComponent<IProps, IState> {
             data: undefined
         };
         this.close = this.close.bind(this);
+        this._renderTab = this._renderTab.bind(this);
     }
     static contextType = ThemeContext;
 

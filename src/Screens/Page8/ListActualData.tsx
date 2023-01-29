@@ -5,6 +5,8 @@ import { Divider, List } from "react-native-paper";
 import { ThemeContext } from "../../Components/ThemeProvider";
 import FileViewer from "react-native-file-viewer";
 import RNFS from "react-native-fs";
+import { waitTo } from "../../Scripts/Utils";
+import { urlBase } from "../../Scripts/ApiTecnica";
 
 type IProps = {
     curse: string;
@@ -30,13 +32,32 @@ export default React.memo(function ListActualData(props: IProps) {
     }
 
     async function downloadFile(url: string) {
+        props.controllerLoading(true, `Descargando archivo...`);
         const fileName = url.split('/').pop();
         const check = await checkExist(fileName!);
         if (check) {
             ToastAndroid.show('Se encontró el archivo ya descargado.', ToastAndroid.SHORT);
+            props.controllerLoading(false);
             return FileViewer.open(check, { showOpenWithDialog: true, showAppsSuggestions: true }).catch(()=>ToastAndroid.show('Ocurrió un problema al abrir el archivo.', ToastAndroid.SHORT));
         }
-
+        try {
+            function showProgress(res: RNFS.DownloadProgressCallbackResult) {
+                const per = (res.bytesWritten*100)/res.contentLength;
+                props.controllerLoading(true, `(${per.toFixed(2)}%) Descargando archivo...`);
+            }
+            const toFile = `${RNFS.CachesDirectoryPath}/${fileName}`;
+            await RNFS.downloadFile({ fromUrl: url, toFile, progress: showProgress }).promise;
+            props.controllerLoading(true, `Descargando archivo...`);
+            RNFS.copyFile(toFile, `${RNFS.DownloadDirectoryPath}/${fileName}`)
+                .catch(()=>ToastAndroid.show('Ocurrió un error al copiar el archivo.', ToastAndroid.SHORT));
+            await waitTo(1000);
+            props.controllerLoading(false);
+            ToastAndroid.show('Descarga completa!!!', ToastAndroid.SHORT);
+            FileViewer.open(toFile, { showOpenWithDialog: true, showAppsSuggestions: true }).catch(()=>ToastAndroid.show('Ocurrió un problema al abrir el archivo.', ToastAndroid.SHORT));
+        } catch {
+            props.controllerLoading(false);
+            ToastAndroid.show('Ocurrió un error durante la descarga del archivo.', ToastAndroid.SHORT);
+        }
     }
 
 
@@ -47,12 +68,13 @@ export default React.memo(function ListActualData(props: IProps) {
         return(<List.Icon {...rProps} color={theme.colors.primary} icon={'download-outline'} />);
     }
     function _renderItem({ item }: ListRenderItemInfo<OldDataFile>) {
+        const urlFile = `${urlBase}/olds/${item.age}/pdf/${item.pdf}`;
         return(<List.Item
             title={item.month}
             left={_leftItem}
             right={_rightItem}
             style={styles.item}
-            onPress={()=>undefined}
+            onPress={()=>downloadFile(urlFile)}
         />);
     }
     function _ItemSeparatorComponent() { return(<Divider />); }

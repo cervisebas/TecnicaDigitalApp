@@ -13,8 +13,8 @@ import ScheduleSystem from "./ApiTecnica/schedule";
 import StudentSystem from "./ApiTecnica/student";
 import { SecurityHeaderAdmin, SecurityHeaderFamily } from "./SecurityKeyCodes";
 
-//const urlBase: string = 'https://tecnicadigital.com.ar';
-const urlBase: string = 'http://192.168.1.38/TecnicaDigitalApi';
+const urlBase: string = 'https://tecnicadigital.com.ar';
+//const urlBase: string = 'http://192.168.1.38/TecnicaDigitalApi';
 
 const Student = new StudentSystem(urlBase, SecurityHeaderAdmin);
 const Directive = new DirectiveSystem(urlBase, SecurityHeaderAdmin);

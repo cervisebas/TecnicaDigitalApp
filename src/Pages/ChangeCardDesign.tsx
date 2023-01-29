@@ -183,7 +183,7 @@ export default class ChangeCardDesign extends Component<IProps, IState> {
                     visible={this.state.bannerVisible}
                     actions={[{ label: 'ENTENDIDO', onPress: this._hideBanner }]}
                     icon={({ size })=><Icon name={"information-outline"} size={size} color={theme.colors.text} />}
-                    children={'El diseño que elijas se mantendrá colocado, aunque reinicies o cierres la aplicación.'}
+                    children={'El diseño que elijas se mantendrá colocado, aunque reinicies o cierres la aplicación.\n\nDiseños creados por Hromek Evelyn y Cerviño Sebástian en el año 2022.'}
                 />
                 <View style={{ flex: 2 }}>
                     {(this.state.width !== 0)&&<FlatList

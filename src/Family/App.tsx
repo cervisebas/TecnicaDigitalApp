@@ -250,7 +250,7 @@ export default class AppFamily extends Component<IProps, IState> {
                         openDetailsAssit={this._openDetailsAssit}
                     />
                     {(decode(this.state.studentData.curse) !== 'Docente')&&<ScheduleCard curse={this.state.studentData.curse} openSchedule={this._openSchedule} />}
-                    <SupportCard openDialogPhone={this._support_open_phone} />
+                    {/*<SupportCard openDialogPhone={this._support_open_phone} />*/}
                     <CardCredential
                         ref={this.refCardCredential}
                         studentData={this.state.studentData}

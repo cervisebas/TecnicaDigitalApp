@@ -1,8 +1,8 @@
 import React, { PureComponent } from "react";
 import { Dimensions, Image, StyleSheet, View } from "react-native";
 import FastImage from "react-native-fast-image";
-import { Title, Paragraph, Button, Text } from "react-native-paper";
-import Support from "../../../Assets/Tutorial/Project2022.webp";
+import { Title, Paragraph, Button } from "react-native-paper";
+import Support from "../../../Assets/Tutorial/Support.webp";
 
 type IProps = {
     nextButton?: ()=>any;
@@ -39,9 +39,9 @@ export default class View4 extends PureComponent<IProps, IState> {
     }
     render(): React.ReactNode {
         return(<View style={styles.contain}>
-            <Title style={styles.title}>Gracias por participar</Title>
+            <Title style={styles.title}>Háblanos cuando lo necesites</Title>
             <FastImage source={Support} style={[styles.image, this.state.imageSize]} />
-            <Paragraph style={styles.paragraph}>Este es un proyecto creado por alumnos de 7º3 y 7º1 en el año 2022, desarrollado por <Text style={styles.focus}>SCDev</Text> y los integrantes <Text style={styles.focus}>Falabella Tomas</Text>, <Text style={styles.focus}>Saffer Ignacio</Text>, <Text style={styles.focus}>Stefano Zapata</Text> y <Text style={styles.focus}>Zuchelli Raúl Andrés</Text>.</Paragraph>
+            <Paragraph style={styles.paragraph}>Comunícate con el soporte por cualquier duda o inconveniente que tengas. Nosotros trataremos de responderte lo más rápidos que podamos cuando estemos disponibles.</Paragraph>
             <Button
                 children={'Finalizar'}
                 mode={'text'}
@@ -97,8 +97,5 @@ const styles = StyleSheet.create({
     image: {
         width: width - 64,
         minHeight: 60
-    },
-    focus: {
-        fontWeight: 'bold'
     }
 });
